@@ -1,0 +1,10 @@
+package kr.or.tco.cust.service;
+
+import kr.or.tco.cust.vo.CustVO;
+
+public interface CustService {
+
+	// 고객 등록
+	int custInsert(CustVO custVO);
+
+}

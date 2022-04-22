@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.sls.mapper.SlsMapper">
+
+<!-- 매출 재구성 -->
+<!-- <resultMap type="slsVO" id="slsMap"> -->
+<!-- 	<id property=""></id> -->
+<!-- 	<result property=""></result> -->
+<!-- 	<result property=""></result> -->
+<!-- 	<result property=""></result> -->
+<!-- 	<collection property="brncofcVO" resultMap="brncofcMap"/> -->
+<!-- </resultMap> -->
+
+<!-- 지점값 받아오기 -->
+<!-- <resultMap type="brncofcVO" id="brncofcMap"> -->
+<!-- 	<id property="brncofcId" column="BRNCOFC_ID"></id> -->
+<!-- 	<result property="brncofcNm" column="BRNCOFC_NM"></result> -->
+<!-- </resultMap> -->
+
+
+<!-- 매출현황 -->
+<select id="list" resultType="slsVO" parameterType="hashMap">
+	SELECT B.SLS_ID,
+		   B.BRNCOFC_ID,
+		   B.SLS_DT,
+		   B.SLS_AMT,
+		   A.BRNCOFC_NM
+	  FROM SLS B
+INNER JOIN BRNCOFC A
+        ON A.BRNCOFC_ID = B.BRNCOFC_ID
+	 WHERE 1 = 1
+	 <if test="startDay!=null and startDay!='' and endDay!=null and endDay!=''">
+	   AND (
+	  	B.SLS_DT BETWEEN TO_DATE(#{startDay},'YYYY-MM-DD')
+	   			 	 AND TO_DATE(#{endDay},'YYYY-MM-DD')
+	   		)
+	 </if>
+  ORDER BY B.SLS_ID DESC
+</select>	
+
+
+
+<!-- 매출상세보기 -->
+<select id="slsdetail" resultType="slsVO" parameterType="slsVO">
+	SELECT B.SLS_ID,
+           B.BRNCOFC_ID,
+           B.SLS_DT,
+           B.SLS_AMT,
+           B.PRC_AMT,
+           A.BRNCOFC_NM,
+           B.NETINCOME,
+           C.STRE_STCK_QTY,
+           C.STRE_STCK_SFTY_QTY
+      FROM SLS B
+INNER JOIN BRNCOFC A
+        ON A.BRNCOFC_ID = B.BRNCOFC_ID
+INNER JOIN STRE_STCK C
+        ON A.BRNCOFC_ID = C.BRNCOFC_ID   
+     WHERE B.SLS_ID = #{slsId}   
+</select>
+
+</mapper>

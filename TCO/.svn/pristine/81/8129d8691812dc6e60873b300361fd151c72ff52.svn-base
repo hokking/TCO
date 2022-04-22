@@ -1,0 +1,8 @@
+package kr.or.tco.cust.mapper;
+
+import kr.or.tco.cust.vo.CustVO;
+
+public interface CustMapper {
+	// 고객 등록
+	public int custInsert(CustVO custVO);
+}

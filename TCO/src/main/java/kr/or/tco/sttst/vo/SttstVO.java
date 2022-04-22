@@ -1,0 +1,366 @@
+package kr.or.tco.sttst.vo;
+
+import java.util.Date;
+
+public class SttstVO {
+	//cust 테이블
+	private String custId                    ;
+	private String custNm                    ;
+	private String custTel                   ;
+	private String custMail                  ;
+	private int custZip                   ;
+	private String custAddr                  ;
+	private String custDaddr                 ;
+	private Date custBrdt                  ;
+	private String custMrgYn                ;
+	private String custStts                  ;
+	private String custCrcdNo               ;
+	private String custGndr                  ;
+	private String custMktRcptnAgreYn     ;
+	
+	//cust_ntsl 테이블         
+	private int custNtslId               ;
+	private String brncofcId                 ;
+	private Date custNtslDt               ;
+	private int custNtslAmt              ;
+	private int custNtslQty               ;
+	
+	//prod_info 테이블      
+	private String prodInfoId               ;
+	private String prodInfoNm               ;
+	private int prodInfoPrchsAmt        ;
+	private int prodInfoNtslAmt         ;
+	private String prodInfoLdt              ;
+	private String prodinfoPlor             ;
+	private String prodInfoYn               ;
+	private String cnptId                     ;
+	
+	// cmncd 테이블
+	private String cmncdCd                   ;
+	private String cmncdGuCd                ;
+	private String cmncdGuNm                ;
+	private String cmncdNm1                  ;
+	private String cmncdNm2                  ;
+	private String cmncdOpt1                 ;
+	private String cmncdYn                    ;
+	
+	//테이블 alias            
+	private String ageGroup                   ;//연령대
+	private String sttticgroup                 ;//통계그룹
+	private int totalSoldQty              ;//총 판매수량
+	private int totalSlsAmt               ;// 총 판매금액
+	private int slscount                    ; //방문횟수
+	private int avgPrsAmt                 ; // 평균 구매 금액
+	
+	
+	//조직도테이블
+	private String childId;
+	private String groupNm;
+	private String parentId;
+	private String personNm;
+	private String rank;
+	private String deptNm;
+	private String personTel;	
+	
+	
+	public String getCustId() {
+		return custId;
+	}
+	public void setCustId(String custId) {
+		this.custId = custId;
+	}
+	public String getCustNm() {
+		return custNm;
+	}
+	public void setCustNm(String custNm) {
+		this.custNm = custNm;
+	}
+	public String getCustTel() {
+		return custTel;
+	}
+	public void setCustTel(String custTel) {
+		this.custTel = custTel;
+	}
+	public String getCustMail() {
+		return custMail;
+	}
+	public void setCustMail(String custMail) {
+		this.custMail = custMail;
+	}
+	public int getCustZip() {
+		return custZip;
+	}
+	public void setCustZip(int custZip) {
+		this.custZip = custZip;
+	}
+	public String getCustAddr() {
+		return custAddr;
+	}
+	public void setCustAddr(String custAddr) {
+		this.custAddr = custAddr;
+	}
+	public String getCustDaddr() {
+		return custDaddr;
+	}
+	public void setCustDaddr(String custDaddr) {
+		this.custDaddr = custDaddr;
+	}
+	public Date getCustBrdt() {
+		return custBrdt;
+	}
+	public void setCustBrdt(Date custBrdt) {
+		this.custBrdt = custBrdt;
+	}
+	public String getCustMrgYn() {
+		return custMrgYn;
+	}
+	public void setCustMrgYn(String custMrgYn) {
+		this.custMrgYn = custMrgYn;
+	}
+	public String getCustStts() {
+		return custStts;
+	}
+	public void setCustStts(String custStts) {
+		this.custStts = custStts;
+	}
+	public String getCustCrcdNo() {
+		return custCrcdNo;
+	}
+	public void setCustCrcdNo(String custCrcdNo) {
+		this.custCrcdNo = custCrcdNo;
+	}
+	public String getCustGndr() {
+		return custGndr;
+	}
+	public void setCustGndr(String custGndr) {
+		this.custGndr = custGndr;
+	}
+	public String getCustMktRcptnAgreYn() {
+		return custMktRcptnAgreYn;
+	}
+	public void setCustMktRcptnAgreYn(String custMktRcptnAgreYn) {
+		this.custMktRcptnAgreYn = custMktRcptnAgreYn;
+	}
+	public int getCustNtslId() {
+		return custNtslId;
+	}
+	public void setCustNtslId(int custNtslId) {
+		this.custNtslId = custNtslId;
+	}
+	public String getBrncofcId() {
+		return brncofcId;
+	}
+	public void setBrncofcId(String brncofcId) {
+		this.brncofcId = brncofcId;
+	}
+	public Date getCustNtslDt() {
+		return custNtslDt;
+	}
+	public void setCustNtslDt(Date custNtslDt) {
+		this.custNtslDt = custNtslDt;
+	}
+	public int getCustNtslAmt() {
+		return custNtslAmt;
+	}
+	public void setCustNtslAmt(int custNtslAmt) {
+		this.custNtslAmt = custNtslAmt;
+	}
+	public int getCustNtslQty() {
+		return custNtslQty;
+	}
+	public void setCustNtslQty(int custNtslQty) {
+		this.custNtslQty = custNtslQty;
+	}
+	public String getProdInfoId() {
+		return prodInfoId;
+	}
+	public void setProdInfoId(String prodInfoId) {
+		this.prodInfoId = prodInfoId;
+	}
+	public String getProdInfoNm() {
+		return prodInfoNm;
+	}
+	public void setProdInfoNm(String prodInfoNm) {
+		this.prodInfoNm = prodInfoNm;
+	}
+	public int getProdInfoPrchsAmt() {
+		return prodInfoPrchsAmt;
+	}
+	public void setProdInfoPrchsAmt(int prodInfoPrchsAmt) {
+		this.prodInfoPrchsAmt = prodInfoPrchsAmt;
+	}
+	public int getProdInfoNtslAmt() {
+		return prodInfoNtslAmt;
+	}
+	public void setProdInfoNtslAmt(int prodInfoNtslAmt) {
+		this.prodInfoNtslAmt = prodInfoNtslAmt;
+	}
+	public String getProdInfoLdt() {
+		return prodInfoLdt;
+	}
+	public void setProdInfoLdt(String prodInfoLdt) {
+		this.prodInfoLdt = prodInfoLdt;
+	}
+	public String getProdinfoPlor() {
+		return prodinfoPlor;
+	}
+	public void setProdinfoPlor(String prodinfoPlor) {
+		this.prodinfoPlor = prodinfoPlor;
+	}
+	public String getProdInfoYn() {
+		return prodInfoYn;
+	}
+	public void setProdInfoYn(String prodInfoYn) {
+		this.prodInfoYn = prodInfoYn;
+	}
+	public String getCnptId() {
+		return cnptId;
+	}
+	public void setCnptId(String cnptId) {
+		this.cnptId = cnptId;
+	}
+	public String getCmncdCd() {
+		return cmncdCd;
+	}
+	public void setCmncdCd(String cmncdCd) {
+		this.cmncdCd = cmncdCd;
+	}
+	public String getCmncdGuCd() {
+		return cmncdGuCd;
+	}
+	public void setCmncdGuCd(String cmncdGuCd) {
+		this.cmncdGuCd = cmncdGuCd;
+	}
+	public String getCmncdGuNm() {
+		return cmncdGuNm;
+	}
+	public void setCmncdGuNm(String cmncdGuNm) {
+		this.cmncdGuNm = cmncdGuNm;
+	}
+	public String getCmncdNm1() {
+		return cmncdNm1;
+	}
+	public void setCmncdNm1(String cmncdNm1) {
+		this.cmncdNm1 = cmncdNm1;
+	}
+	public String getCmncdNm2() {
+		return cmncdNm2;
+	}
+	public void setCmncdNm2(String cmncdNm2) {
+		this.cmncdNm2 = cmncdNm2;
+	}
+	public String getCmncdOpt1() {
+		return cmncdOpt1;
+	}
+	public void setCmncdOpt1(String cmncdOpt1) {
+		this.cmncdOpt1 = cmncdOpt1;
+	}
+	public String getCmncdYn() {
+		return cmncdYn;
+	}
+	public void setCmncdYn(String cmncdYn) {
+		this.cmncdYn = cmncdYn;
+	}
+	public String getAgeGroup() {
+		return ageGroup;
+	}
+	public void setAgeGroup(String ageGroup) {
+		this.ageGroup = ageGroup;
+	}
+	public String getSttticgroup() {
+		return sttticgroup;
+	}
+	public void setSttticgroup(String sttticgroup) {
+		this.sttticgroup = sttticgroup;
+	}
+	public int getTotalSoldQty() {
+		return totalSoldQty;
+	}
+	public void setTotalSoldQty(int totalSoldQty) {
+		this.totalSoldQty = totalSoldQty;
+	}
+	public int getTotalSlsAmt() {
+		return totalSlsAmt;
+	}
+	public void setTotalSlsAmt(int totalSlsAmt) {
+		this.totalSlsAmt = totalSlsAmt;
+	}
+	public int getSlscount() {
+		return slscount;
+	}
+	public void setSlscount(int slscount) {
+		this.slscount = slscount;
+	}
+	public int getAvgPrsAmt() {
+		return avgPrsAmt;
+	}
+	public void setAvgPrsAmt(int avgPrsAmt) {
+		this.avgPrsAmt = avgPrsAmt;
+	}
+	
+	
+	
+	
+	public String getChildId() {
+		return childId;
+	}
+	public void setChildId(String childId) {
+		this.childId = childId;
+	}
+	public String getGroupNm() {
+		return groupNm;
+	}
+	public void setGroupNm(String groupNm) {
+		this.groupNm = groupNm;
+	}
+	public String getParentId() {
+		return parentId;
+	}
+	public void setParentId(String parentId) {
+		this.parentId = parentId;
+	}
+	public String getPersonNm() {
+		return personNm;
+	}
+	public void setPersonNm(String personNm) {
+		this.personNm = personNm;
+	}
+	public String getRank() {
+		return rank;
+	}
+	public void setRank(String rank) {
+		this.rank = rank;
+	}
+	public String getDeptNm() {
+		return deptNm;
+	}
+	public void setDeptNm(String deptNm) {
+		this.deptNm = deptNm;
+	}
+	public String getPersonTel() {
+		return personTel;
+	}
+	public void setPersonTel(String personTel) {
+		this.personTel = personTel;
+	}
+	@Override
+	public String toString() {
+		return "SttstVO [custId=" + custId + ", custNm=" + custNm + ", custTel=" + custTel + ", custMail=" + custMail
+				+ ", custZip=" + custZip + ", custAddr=" + custAddr + ", custDaddr=" + custDaddr + ", custBrdt="
+				+ custBrdt + ", custMrgYn=" + custMrgYn + ", custStts=" + custStts + ", custCrcdNo=" + custCrcdNo
+				+ ", custGndr=" + custGndr + ", custMktRcptnAgreYn=" + custMktRcptnAgreYn + ", custNtslId=" + custNtslId
+				+ ", brncofcId=" + brncofcId + ", custNtslDt=" + custNtslDt + ", custNtslAmt=" + custNtslAmt
+				+ ", custNtslQty=" + custNtslQty + ", prodInfoId=" + prodInfoId + ", prodInfoNm=" + prodInfoNm
+				+ ", prodInfoPrchsAmt=" + prodInfoPrchsAmt + ", prodInfoNtslAmt=" + prodInfoNtslAmt + ", prodInfoLdt="
+				+ prodInfoLdt + ", prodinfoPlor=" + prodinfoPlor + ", prodInfoYn=" + prodInfoYn + ", cnptId=" + cnptId
+				+ ", cmncdCd=" + cmncdCd + ", cmncdGuCd=" + cmncdGuCd + ", cmncdGuNm=" + cmncdGuNm + ", cmncdNm1="
+				+ cmncdNm1 + ", cmncdNm2=" + cmncdNm2 + ", cmncdOpt1=" + cmncdOpt1 + ", cmncdYn=" + cmncdYn
+				+ ", ageGroup=" + ageGroup + ", sttticgroup=" + sttticgroup + ", totalSoldQty=" + totalSoldQty
+				+ ", totalSlsAmt=" + totalSlsAmt + ", slscount=" + slscount + ", avgPrsAmt=" + avgPrsAmt + ", childId="
+				+ childId + ", groupNm=" + groupNm + ", parentId=" + parentId + ", personNm=" + personNm + ", rank="
+				+ rank + ", deptNm=" + deptNm + ", personTel=" + personTel + "]";
+	}
+	
+	
+	
+}

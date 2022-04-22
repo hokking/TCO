@@ -1,0 +1,10 @@
+package kr.or.tco.calculate.mapper;
+
+import java.util.List;
+
+import kr.or.tco.calculate.vo.CalVO;
+
+public interface CalMapper {
+
+	public List<CalVO>list();
+}

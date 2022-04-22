@@ -1,0 +1,287 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<script>
+	$(function(){
+		//------------- 이미지 미리보기 시작 ------------------
+		$("#input_img").on("change", handleImgFileSelect);
+		
+		function handleImgFileSelect(e) {
+			
+			//e.target : 파일객체
+			//e.target.files : 파일객체 안의 파일들
+			var files = e.target.files;
+			var filesArr = Array.prototype.slice.call(files);
+			
+			//f : 파일 객체
+			filesArr.forEach(function(f){
+				//미리보기는 이미지만 가능함
+				if(!f.type.match("image.*")){
+					alert("이미지만 가능합니다");
+					return;
+				}
+				//파일객체 복사
+					// sel_file.push(f);
+				//파일을 읽어주는 객체 생성
+				var reader = new FileReader();
+				reader.onload = function(e){
+					//forEach 반복 하면서 img 객체 생성
+// 					var img_html = "<img src=\"" + e.target.result + "\" />";
+					$("#fileImg").attr('src', e.target.result);
+				}
+				reader.readAsDataURL(f);
+			});
+		}
+		//------------- 이미지 미리보기 끝 ------------------
+		
+		
+		$(".detail").attr("readonly", true);
+		$(".rdb").attr("readonly", true);
+		$("#input_img").prop("hidden", true);
+		$("#editfrm").prop("hidden", true);
+		$("#edit").on("click", function() {
+			$(".detail").attr("readonly", false);
+			$("#input_img").prop("hidden", false);
+			$("#editfrm").prop("hidden", false);
+			$("#edit").prop("hidden", true);
+			/* $("#cncl").on("click", function() {
+				location.reload();
+			} */
+		});
+		
+		
+		//기본정보 수정버튼 클릭시 전송
+		$("#editbtn").on("click", function(){
+			//$("#updateFrm").submit();
+			//수정 전송
+			$.ajax({
+			    type: "POST",
+			    url : "/emp/infoupdate",
+			    data : $("#empFrm").serialize(),
+			    contentType : "application/x-www-form-urlencoded; charset=utf-8",
+			    dataType : "json",
+			    success : function(data){
+			    	console.log("data뭐노?" + data);
+			    	var res = parseInt(data);
+			    	
+			        if(res > 0){
+			        // Sweet Alert
+			          Swal.fire({
+				          icon:'success',
+				          title:'수정이 완료되었습니다',
+			       		}).then(function(){
+			       			window.location.reload();
+			       		})
+			        }else{
+			        	console.log("업뎃안됨 와이라노");
+			        }
+					
+			        
+			    },
+			    error : function(){
+			        //Ajax 실패시
+			    	Swal.fire({
+			          icon:'error',
+			          title:'수정에 실패하였습니다',
+		       		}, function(){
+		       			//새로고침
+		       			window.location.reload();
+		       		});
+			    }
+			});
+		});
+		
+		$("#chk").on("click", function() {
+			var newpswd = $("#np").val();
+			var chkpswd = $("#newpswd").val();
+			var a = {"empId" : "${empVO.empId}", "empPswd" : newpswd};
+			if(${empVO.empPswd} == newpswd) {
+				alert("현재 비밀번호와 일치합니다.");
+			} else {
+				if(newpswd == chkpswd) {
+					$("#ft").css("color", "blue");
+					$("#ft").html("비밀번호가 일치합니다.");
+					
+					$("#updateBtn").on("click", function() {
+						$.ajax({
+						    type: "POST",
+						    url : "/emp/empPswdupdate",
+						    data : a,
+						    contentType : "application/x-www-form-urlencoded; charset=utf-8",
+						    dataType : "json",
+						    success : function(data){
+						    	console.log("data뭐노?" + data);
+						    	var res = parseInt(data);
+						    	
+						        if(res > 0){
+						        // Sweet Alert
+						          Swal.fire({
+							          icon:'success',
+							          title:'비밀번호 변경 완료',
+						       		}).then(function(){
+						       			window.location.reload();
+						       		})
+						        }else{
+						        	console.log("업뎃안됨 와이라노");
+						        }
+								
+						        
+						    },
+						    error : function(){
+						        //Ajax 실패시
+						    	Swal.fire({
+						          icon:'error',
+						          title:'비밀번호 변경 실패',
+					       		}, function(){
+					       			//새로고침
+					       			window.location.reload();
+					       		});
+						    }
+						});
+					});
+					
+				} else if(newpswd != chkpswd) {
+					$("#ft").css("color", "red");
+					$("#ft").html("비밀번호가 일치하지 않습니다.");
+				}
+			}
+		});
+		
+	}); 
+</script>
+<div class="row">
+	<div class="col-12">
+    	<div class="page-title-box d-sm-flex align-items-center justify-content-between">
+        	<h1 class="mb-sm-0 font-size-20"><i class="bx bx-buildings"></i>마이페이지</h1>
+
+            <div class="page-title-right">
+            	<ol class="breadcrumb m-0">
+                	<li class="breadcrumb-item"><a href="javascript: void(0);">내정보</a></li>
+                    <li class="breadcrumb-item active">마이페이지</li>
+                </ol>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <form method="post" id="empFrm" action="/emp/infoupdate">
+            <div class="card-body">
+            	<div class="d-flex gap-3">
+	                <h4 class="card-title mb-4 mt-1">내 정보</h4>
+	                <div class="d-flex gap-3">
+	                 	<a href="javascript:void(0);" class="text-success" id="edit" ><i class="mdi mdi-pencil font-size-18" id="edit"></i></a>
+					</div>
+				</div>
+                <div class="col-md-6" style="float: left;">
+                    <div data-repeater-list="outer-group" class="outer">
+                        <div data-repeater-item="" class="outer">
+                            <div class="mb-3">
+                                <label for="empId">아이디 :</label>
+                                <input type="text" class="form-control rdb" value="${empVO.empId}" id="empId" name="empId" >
+                            </div>
+                            <div class="mb-3">
+                                <label for="empNm">이름 :</label>
+                                <input type="text" class="form-control rdb" value="${empVO.empNm}" id="empNm" name="empNm">
+                            </div>
+                            <div class="mb-3">
+                                <label for="empIp">아이피 :</label>
+                                <input type="text" class="form-control rdb" value="${empVO.empIp}" id="empIp" name="empIp">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="empMail">이메일 :</label>
+                                <input type="email" class="form-control detail" value="${empVO.empMail}" id="empMail" name="empMail">
+                            </div>
+                            <div class="mb-3">
+                                <label for="empTel">전화번호 :</label>
+                                <input type="text" class="form-control detail" value="${empVO.empTel}" id="empTel" name="empTel">
+                            </div>
+                            <div class="mb-3">
+                                <label for="empActno">계좌번호 :</label>
+                                <input type="text" class="form-control detail" value="${empVO.empActno}" id="empActno" name="empActno">
+                            </div>
+
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5" style="float: right;">
+                    <div data-repeater-list="outer-group" class="outer">
+                        <div data-repeater-item="" class="outer">
+                            <div>
+	                            <label for="formFile" class="form-label">프로필 사진 :</label>
+                            </div>
+                            <div class="mt-2">
+	                            <img alt="" id="fileImg" src="${empVO.empImg}" style="width: 330px; height: 330px;">
+                            </div>
+                            <!-- <div class="mt-4">
+	                            <input class="form-control" type="file" id="input_img" name="uploadFile">
+                            </div> -->
+                            <div class="mt-4" id="editfrm">
+	                            <div class="col-md-6" style="float: left;">
+                            	<div class="d-flex gap-3">
+                            	<label for="empPswd">비밀번호:
+	                 				<a href="javascript:void(0);" class="text-success" data-bs-toggle="modal" data-bs-target="#modalBasic" id="editpswd" ><i class="mdi mdi-pencil font-size-18" id="edit"></i></a>
+								</label>
+								</div>
+	                                <input type="password" class="form-control" id="empPswd" name="empPswd" placeholder="비밀번호 입력">
+	                            </div>
+	                            <div class="col-md-5 mt-1" style="float: right;">
+		                            <button class="btn btn-info waves-effect waves-light mt-4" type="button" id="editbtn">수정</button>
+		                            <button onclick="location.reload()" class="btn btn-secondary waves-effect waves-light mt-4" type="button" id="cncl">취소</button>
+	                            </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 비밀번호 수정 Modal 시작 -->
+<div>
+    <div class="modal fade" id="modalBasic" tabindex="-1" aria-labelledby="modalBasicLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalBasicLabel">기본정보 수정</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+               <form action="/emp/pswdupdate" method="post" id="pswdFrm">
+                <div class="modal-body">
+                        <div class="mb-2 row">
+                            <label for="pswd" class="col-form-label">현재비밀번호</label>
+                            <input type="password" class="form-control" id="pswd" />
+                            <input type="text" class="form-control" id="custId" name="custId" value="${custVO.custId}" hidden="true" />
+                        </div>
+                        <div class="mb-2 row">
+                            <label for="empPswd" class="col-form-label">새비밀번호</label>
+                            <input class="form-control" type="password" id="np" name="np" />
+                        </div>
+                        <div class="mb-2 row">
+                            <label for="newpswd" class="col-form-label">새비밀번호 확인</label>
+				    		<div class="col-md-10">
+		                    	<input class="form-control" type="password" id="newpswd" />
+				    		</div>
+				    		<div class="col-md-2">
+		                    	<button type="button" id="chk" class="btn btn-info waves-effect waves-light">확인</button>
+				    		</div>
+				    		<font id="ft" color="red"></font>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                    <button type="button" class="btn btn-primary" id="updateBtn">수정</button>
+                </div>
+              </form>
+            </div>
+        </div>
+    </div>
+</div> 
+<!-- 기본정보 수정 Modal 끝 -->

@@ -1,0 +1,207 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<script src="/resources/js/jquery-3.6.0.min.js"></script>
+<script>
+//로딩창 showPage: 로딩페이지분담 
+//loader.js는 resources/js에 있으므로 로딩페이지 수정은 그곳에서
+var myVar;
+	window.onload = function myFunction() {
+	  myVar = setTimeout(showPage, 0);
+	}
+
+function showPage() {
+  document.getElementById("loader").style.display = "none";
+  document.getElementById("myDiv").style.display = "block";
+}
+//로딩창끝
+
+//날짜검색폼
+function fn_submit(){
+	var frm = document.Frm;
+	frm.submit();
+}
+
+//dataTable 엑셀기능만 넣음 (추가가능함)
+$(document).ready( function() {
+    $('#example').DataTable( {
+        dom: 'Bfrtip',
+        buttons: [{
+        	text: '엑셀다운로드',
+            extend: 'excelHtml5',
+            customize: function( xlsx ) {
+                var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                $('row c[r^="C"]', sheet).attr( 's', '2' );
+	            },
+        	sheetName: '매출명세서'
+	        },{
+	        	text: 'PDF',
+	            extend: 'pdfHtml5',
+	            orientation: 'landscape',
+	            pageSize: 'LEGAL'
+		        }]
+    } );
+} );
+</script>
+
+
+<!-- 로딩창출력 -->
+<div id="loader"></div>
+
+<!-- myDiv안에는 로딩후 출력할 창을 넣는다 -->
+<div style="display:none;" id="myDiv">
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0 font-size-18" style="text-align: center;">매출 명세서(게시판 기본폼)</h4>
+
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Sale</a></li>
+                    <li class="breadcrumb-item active">SLSPage</li>
+                </ol>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="row">
+	<div class="col-12">
+	
+<div class="card">
+	<div class="card-body">
+	
+	<!-- 날짜 검색 버튼 -->
+<!-- 		<form action="/sls/list" method="get" name="Frm" id="Frm">	 -->
+		<div class="row">
+			<div class="col-sm-2">
+				<div class="mb-3">
+				<label>시작일</label>
+					<input type="date" name="startDay" 
+					id="startDay" autocomplete="off" class="form-control">
+				</div>
+			</div>
+			<div class="col-sm-2">
+				<div class="mb-3">
+				<label>종료일</label>
+					<input type="date" name="endDay" 
+					id="endDay" autocomplete="off" class="form-control">
+				</div>
+			</div>
+			<div class="col-sm-2">
+				<div class="mb-3">
+				<label>날짜검색</label>
+					<button type="button" class="btn btn-secondary btn-success" style="display: block;" 
+					onclick="fn_submit()"><i class="bx bx-search-alt">검색하기</i></button>
+				</div>
+			</div>
+		</div>
+<!-- 		</form> -->
+	<!--날짜검색버튼끝-->
+
+	<div class="card-body"> 
+			
+		<div class="table-wrapper">
+			<table class="table table-bordered" id="example" style="text-align: center;">
+		<thead>
+			<tr style="background:#F3F3F9; color: black;" >
+				<th>#</th>
+				<th>매출번호</th>
+				<th>지점명</th>
+				<th>지점코드</th>
+				<th>매출금액</th>
+				<th>매출일</th>
+				<th>상세보기</th>
+			</tr>
+		</thead>
+		<tbody>
+		<!--foreach문으로 출력-->
+<%-- 		<c:forEach var="slsVO" items="${data}"> --%>
+			<tr>
+				<td>
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+							id="customerlistcheck01"> <label class="form-check-label"
+							for="customerlistcheck01"></label>
+					</div>
+				</td>
+				<td>
+				매출번호
+				</td>
+				
+				<td>
+					지점명
+				</td>
+
+				<td>
+					지점코드
+				</td>
+				
+				<td>매출금액</td>
+				<td>
+<%-- 					<fmt:formatDate value="${slsVO.slsDt}" pattern="yyyy-MM-dd"/> --%>
+					매출일
+				</td>
+				<td>
+				<strong><a href="#" class="popup-form btn btn-sm btn-primary" 
+				data-bs-toggle="modal"data-bs-target="#detailModal">상세보기</a></strong> 
+				</td>
+			</tr>
+<%-- 		</c:forEach> --%>
+		<!-- foreach끝 -->
+		</tbody>
+	</table>
+	</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- 로딩후 출력화면 끝-->
+
+<!-- 상세정보 modal -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display: none;">
+     <div class="modal-dialog">
+         <div class="modal-content">
+             <div class="modal-header">
+                 <h5 class="modal-title" id="exampleModalLabel">상세정보</h5>
+                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+             </div>
+             <div class="modal-body">
+                 <form>
+                     <div class="mb-3">
+                         <label for="recipient-name" class="col-form-label">Recipient:</label>
+                         <input type="text" class="form-control" id="recipient-name">
+                     </div>
+                     <div class="mb-3">
+                         <label for="recipient-name" class="col-form-label">Recipient:</label>
+                         <input type="text" class="form-control" id="recipient-name">
+                     </div>
+                     <div class="mb-3">
+                         <label for="recipient-name" class="col-form-label">Recipient:</label>
+                         <input type="text" class="form-control" id="recipient-name">
+                     </div>
+                     <div class="mb-3">
+                         <label for="recipient-name" class="col-form-label">Recipient:</label>
+                         <input type="text" class="form-control" id="recipient-name">
+                     </div>
+                     <div class="mb-3">
+                         <label for="recipient-name" class="col-form-label">Recipient:</label>
+                         <input type="text" class="form-control" id="recipient-name">
+                     </div>
+                     <div class="mb-3">
+                         <label for="recipient-name" class="col-form-label">Recipient:</label>
+                         <input type="text" class="form-control" id="recipient-name">
+                     </div>
+                 </form>
+             </div>
+             <div class="modal-footer">
+                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+             </div>
+         </div>
+     </div>
+ </div>
+ <!-- 상세정보 modal -->

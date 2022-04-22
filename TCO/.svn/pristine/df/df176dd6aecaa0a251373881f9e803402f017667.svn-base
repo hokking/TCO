@@ -1,0 +1,79 @@
+package kr.or.tco.cal.controller;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import kr.or.tco.ArticlePage;
+import kr.or.tco.cal.service.CalService;
+import kr.or.tco.cal.vo.StrgWrhsVO;
+import kr.or.tco.cal.vo.CustNtsVO;
+
+//정산 컨트롤러
+@RequestMapping("/calculate")
+@Controller
+public class CalController {
+	private static final Logger logger = 
+			LoggerFactory.getLogger(CalController.class);
+	@Autowired CalService calService;
+	/**
+	 *  일일 매입 정산
+	 *  @return 일일 매입 vo 가 담긴 list 를 리턴.
+	 */
+	@RequestMapping(value = "/dailyPrc" ,method = RequestMethod.GET)
+	public String dailyPrc(Model model
+			, @RequestParam(defaultValue="1") int currentPage
+			, @RequestParam(defaultValue="7",required=false) int size
+			, @RequestParam(required=false) String keyWord) {	
+		
+		//<key,value>
+		Map<String,Object> map = new HashMap<String, Object>();
+		
+		map.put("keyWord", keyWord);
+		map.put("currentPage", currentPage);
+		map.put("size", size);
+		
+		//고객 전체 인원수
+//		int total = this.cusService.getTotal(map);
+		
+		List<StrgWrhsVO>dailyPrc = this.calService.dailyPrc(keyWord);
+		List<CustNtsVO>dailyCustNts = this.calService.dailyCustNts(keyWord);
+		
+		//창고 입고 총 횟수
+		int SGWTotal = this.calService.getSGWTotal(map);
+		
+		//상품 판매 총 횟수
+		int CNLTotal = this.calService.getCNLTotal(map);
+		
+		//창고입고 페이징처리 
+		model.addAttribute("dailyPrc", 
+				new ArticlePage(SGWTotal, currentPage, size, 5, dailyPrc));
+		model.addAttribute("SGWTotal", SGWTotal);
+		
+		//상품 판매 페이징 처리 
+		model.addAttribute("dailyCustNts", 
+				new ArticlePage(CNLTotal, currentPage, size, 5, dailyCustNts));
+		model.addAttribute("CNLTotal", CNLTotal);
+		
+		//
+		model.addAttribute("dailyPrc",dailyPrc);
+		model.addAttribute("dailyCustNts",dailyCustNts);
+		//forwarding
+		return "calculate/dailyPrc";
+	}
+	
+	
+	
+	
+	
+	
+}

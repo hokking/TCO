@@ -1,0 +1,196 @@
+package kr.or.tco.cal.vo;
+
+import java.util.Date;
+
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class StrgWrhsVO {
+
+	// 창고 입고
+	private int strgWrhsId; // 창고 입고 아이디
+	private int strgWrhsTotal;//창고입고 총액
+	private String brncofcId; // 지점아이디
+	private String prodInfoId; //상품아이디
+	private int strgWrhsQty; //창고 입고 수량
+	@DateTimeFormat(pattern="yyyy-MM-dd")
+	private Date strgWrhsDt;// 창고 입고일
+	// 지점
+//	private String brncofcId; 
+	private String brncofcNm; //지점 명
+	
+	// 소비자 판매 
+	private int custNtslId ; //판매아이디
+//	private String brncofcId;
+	private  String custId;  // 고객아이디
+//	private String prodInfoId;
+	@DateTimeFormat(pattern="yyyy-MM-dd")
+	private String custNtslDt; //소비자 판매일 
+	private int custNtslAmt;  //소비자 판매 누계총액 (custNtslQty(판매수량)* prodInfoNtslAmt(소비자 판매가격))
+	private int custNtslQty;  //소비자 판매 수량
+	
+	//상품정보
+	private String prodInfoNm       ;
+	private int prodInfoPrchsAmt ;
+	private int prodInfoNtslAmt  ;
+	private String prodInfoLdt      ;
+	private String prodInfoPlor     ;
+	private String cmncdCd          ;
+	private String cmncdNm1          ;
+	private String cmncdNm2          ;
+	
+	//창고 재고 table
+	private int streStckQty       ;
+	private int streStckSftyQty   ;
+	
+	
+	public int getStrgWrhsId() {
+		return strgWrhsId;
+	}
+	public void setStrgWrhsId(int strgWrhsId) {
+		this.strgWrhsId = strgWrhsId;
+	}
+	public int getStrgWrhsTotal() {
+		return strgWrhsTotal;
+	}
+	public void setStrgWrhsTotal(int strgWrhsTotal) {
+		this.strgWrhsTotal = strgWrhsTotal;
+	}
+	public String getBrncofcId() {
+		return brncofcId;
+	}
+	public void setBrncofcId(String brncofcId) {
+		this.brncofcId = brncofcId;
+	}
+	public String getProdInfoId() {
+		return prodInfoId;
+	}
+	public void setProdInfoId(String prodInfoId) {
+		this.prodInfoId = prodInfoId;
+	}
+	public int getStrgWrhsQty() {
+		return strgWrhsQty;
+	}
+	public void setStrgWrhsQty(int strgWrhsQty) {
+		this.strgWrhsQty = strgWrhsQty;
+	}
+	public Date getStrgWrhsDt() {
+		return strgWrhsDt;
+	}
+	public void setStrgWrhsDt(Date strgWrhsDt) {
+		this.strgWrhsDt = strgWrhsDt;
+	}
+	public String getBrncofcNm() {
+		return brncofcNm;
+	}
+	public void setBrncofcNm(String brncofcNm) {
+		this.brncofcNm = brncofcNm;
+	}
+	public int getCustNtslId() {
+		return custNtslId;
+	}
+	public void setCustNtslId(int custNtslId) {
+		this.custNtslId = custNtslId;
+	}
+	public String getCustId() {
+		return custId;
+	}
+	public void setCustId(String custId) {
+		this.custId = custId;
+	}
+	public String getCustNtslDt() {
+		return custNtslDt;
+	}
+	public void setCustNtslDt(String custNtslDt) {
+		this.custNtslDt = custNtslDt;
+	}
+	public int getCustNtslAmt() {
+		return custNtslAmt;
+	}
+	public void setCustNtslAmt(int custNtslAmt) {
+		this.custNtslAmt = custNtslAmt;
+	}
+	public int getCustNtslQty() {
+		return custNtslQty;
+	}
+	public void setCustNtslQty(int custNtslQty) {
+		this.custNtslQty = custNtslQty;
+	}
+	public String getProdInfoNm() {
+		return prodInfoNm;
+	}
+	public void setProdInfoNm(String prodInfoNm) {
+		this.prodInfoNm = prodInfoNm;
+	}
+	public int getProdInfoPrchsAmt() {
+		return prodInfoPrchsAmt;
+	}
+	public void setProdInfoPrchsAmt(int prodInfoPrchsAmt) {
+		this.prodInfoPrchsAmt = prodInfoPrchsAmt;
+	}
+	public int getProdInfoNtslAmt() {
+		return prodInfoNtslAmt;
+	}
+	public void setProdInfoNtslAmt(int prodInfoNtslAmt) {
+		this.prodInfoNtslAmt = prodInfoNtslAmt;
+	}
+	public String getProdInfoLdt() {
+		return prodInfoLdt;
+	}
+	public void setProdInfoLdt(String prodInfoLdt) {
+		this.prodInfoLdt = prodInfoLdt;
+	}
+	public String getProdInfoPlor() {
+		return prodInfoPlor;
+	}
+	public void setProdInfoPlor(String prodInfoPlor) {
+		this.prodInfoPlor = prodInfoPlor;
+	}
+	public String getCmncdCd() {
+		return cmncdCd;
+	}
+	public void setCmncdCd(String cmncdCd) {
+		this.cmncdCd = cmncdCd;
+	}
+	public String getCmncdNm1() {
+		return cmncdNm1;
+	}
+	public void setCmncdNm1(String cmncdNm1) {
+		this.cmncdNm1 = cmncdNm1;
+	}
+	public String getCmncdNm2() {
+		return cmncdNm2;
+	}
+	public void setCmncdNm2(String cmncdNm2) {
+		this.cmncdNm2 = cmncdNm2;
+	}
+	public int getStreStckQty() {
+		return streStckQty;
+	}
+	public void setStreStckQty(int streStckQty) {
+		this.streStckQty = streStckQty;
+	}
+	public int getStreStckSftyQty() {
+		return streStckSftyQty;
+	}
+	public void setStreStckSftyQty(int streStckSftyQty) {
+		this.streStckSftyQty = streStckSftyQty;
+	}
+	@Override
+	public String toString() {
+		return "StrgWrhsVO [strgWrhsId=" + strgWrhsId + ", strgWrhsTotal=" + strgWrhsTotal + ", brncofcId=" + brncofcId
+				+ ", prodInfoId=" + prodInfoId + ", strgWrhsQty=" + strgWrhsQty + ", strgWrhsDt=" + strgWrhsDt
+				+ ", brncofcNm=" + brncofcNm + ", custNtslId=" + custNtslId + ", custId=" + custId + ", custNtslDt="
+				+ custNtslDt + ", custNtslAmt=" + custNtslAmt + ", custNtslQty=" + custNtslQty + ", prodInfoNm="
+				+ prodInfoNm + ", prodInfoPrchsAmt=" + prodInfoPrchsAmt + ", prodInfoNtslAmt=" + prodInfoNtslAmt
+				+ ", prodInfoLdt=" + prodInfoLdt + ", prodInfoPlor=" + prodInfoPlor + ", cmncdCd=" + cmncdCd
+				+ ", cmncdNm1=" + cmncdNm1 + ", cmncdNm2=" + cmncdNm2 + ", streStckQty=" + streStckQty
+				+ ", streStckSftyQty=" + streStckSftyQty + "]";
+	}
+	
+	
+	
+	
+	
+}

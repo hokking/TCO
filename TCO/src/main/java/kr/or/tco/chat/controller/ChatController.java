@@ -1,0 +1,117 @@
+/*
+ * eGovFrame Web Messager
+ * Copyright The eGovFrame Open Community (http://open.egovframe.go.kr)).
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * @author 이영지(슈퍼개발자K3)
+ */
+package kr.or.tco.chat.controller;
+
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.lang3.RandomUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import kr.or.tco.emp.vo.EmpVO;
+
+
+@RequestMapping("/chat")
+@Controller
+public class ChatController {
+
+	/**
+	 * 웹소켓 메신저 접속화면으로 이동한다.
+	 * 
+	 * @param session 사용자세션
+	 * @param model   모델
+	 * @return view name
+	 */
+	@RequestMapping(value = "/websocketMessengerView")
+	public String websocketMessengerView(HttpSession session, ModelMap model) {
+		model.addAttribute("empVO", session.getAttribute("empVO"));
+		return "chat/Messenger";
+	}
+
+	/**
+	 * 웹 소켓 메신저 메인화면(대화상대 리스트화면)으로 이동한다.
+	 * 
+	 * @param session 사용자세션
+	 * @param model   모델
+	 * @return view name
+	 */
+	@RequestMapping(value = "/websocketMessengerMain")
+	public String websocketMessengerMain(HttpSession session, ModelMap model) {
+		model.addAttribute("empVO", session.getAttribute("empVO"));
+		return "chat/MessengerMain";
+	}
+
+	/**
+	 * 대화창을 새로 띄운다.
+	 * 
+	 * @param roomId   대화창 아이디
+	 * @param username 대화상대 이름
+	 * @param session  사용자세션
+	 * @param model    모델
+	 * @return view name
+	 */
+	@RequestMapping(value = "/websocketMessengePopup")
+	public String websocketMessengePopup(@RequestParam(value = "roomId") String roomId, @RequestParam(value = "username") String username, HttpSession session, ModelMap model) {
+		model.addAttribute("empVO", session.getAttribute("empVO"));
+		model.addAttribute("roomId", roomId);
+		model.addAttribute("username", username);
+		return "chat/popup/chatPopupBubble";
+	}
+
+	@RequestMapping(value = "/session")
+	public void websocketSession(
+			HttpSession session, ModelMap model
+	) {
+
+		String userID = (String) session.getAttribute("userID");		//아이디
+		String userPW = (String) session.getAttribute("userPW");		//비번
+		String username = (String) session.getAttribute("userNM");		//이름
+		String cmncdCd = (String) session.getAttribute("cmncdCd");  	//직원코드
+		String email = (String) session.getAttribute("email");			//이메일
+		String brncofcNm = (String) session.getAttribute("brncofcNm");  //지점명
+		String dptopt = (String) session.getAttribute("dptopt");		//부서
+		String lelopt = (String) session.getAttribute("lelopt");		//직급
+
+		EmpVO empVO = new EmpVO();
+		empVO.setEmpId(userID);
+		empVO.setEmpPswd(userPW);
+		empVO.setBrncofcNm(brncofcNm);
+		empVO.setEmpNm(username);
+		empVO.setEmpMail(email);
+		empVO.setCmncdCd(cmncdCd);
+		empVO.setDptopt(dptopt); 
+		empVO.setLelopt(lelopt); 
+
+		session.setAttribute("empVO", empVO);
+	}
+	
+	
+	@GetMapping("/chat")
+	public String getempinsert(Model model) {
+	
+		return "chat/chatPopupBubble";
+	}
+	
+	
+
+}

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.prchs.mapper.PrchsMapper">
+<!-- 매입 발주서 리스트 가져오기 -->
+<select id="getSvdPrchsOrdrList" resultType="prchsVO">
+	SELECT P.PRCHS_ID, P.PRCHS_DT, P.PRCHS_AMT, P.CNPT_ID, P.PRCHS_SE, C.CNPT_CHARGER, PRCHS_SE
+	FROM PRCHS P LEFT OUTER JOIN CNPT C
+	ON (P.CNPT_ID = C.CNPT_ID)
+	WHERE PRCHS_SE = '저장'
+</select>
+
+<!-- 매입발주서 상세조회 => 매입발주서 클릭했을 때 매입한 상품들 조회 -->
+<!-- <select id="" parameterType="string" resultType=""> -->
+<!-- 	SELECT PRCHS_ID, PROD_INFO_ID, PRCHS_GDS_QTY, PRCHS_GDS_AMT, PRCHS_GDS_YN -->
+<!-- 	FROM PRCHS_GDS -->
+<!-- 	WHERE PRCHS_ID = ? -->
+<!-- </select> -->
+
+<!-- 거래처아이디를 Parameter로 받아 매입내역 가져오기 -->
+<!-- <select id=""> -->
+<!-- 	SELECT P.PRCHS_ID, P.PRCHS_DT, P.PRCHS_AMT, P.CNPT_ID, P.PRCHS_SE, C.CNPT_CHARGER -->
+<!-- 	FROM PRCHS P LEFT OUTER JOIN CNPT C -->
+<!-- 	ON (P.CNPT_ID = C.CNPT_ID) -->
+<!-- 	WHERE PRCHS_ID = ? -->
+<!-- </select> -->
+
+</mapper>

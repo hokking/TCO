@@ -1,0 +1,15 @@
+package kr.or.tco.sls.service.Impl;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.tco.sls.service.SlsService;
+
+@Service
+public class SlsServiceImpl implements SlsService {
+
+
+	
+	
+}

@@ -1,0 +1,16 @@
+package kr.or.tco.cal.service;
+
+import java.util.List;
+
+import kr.or.tco.cal.vo.StrgWrhsVO;
+import kr.or.tco.cal.vo.CustNtsVO;
+
+public interface CalService {
+
+	List<StrgWrhsVO> dailyPrc(String keyWord);
+
+	List<StrgWrhsVO> dailySls(String keyWord);
+
+	List<CustNtsVO> dailyCustNts(String keyWord);
+
+}

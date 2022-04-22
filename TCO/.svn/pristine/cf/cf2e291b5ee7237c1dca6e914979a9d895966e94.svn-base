@@ -1,0 +1,77 @@
+package kr.or.tco.main.controller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import kr.or.tco.alam.service.AlamService;
+import kr.or.tco.alam.vo.AlamVO;
+import kr.or.tco.ordr.service.OrdrService;
+import kr.or.tco.ordr.vo.OrdrVO;
+import kr.or.tco.strgstck.service.StrgstckService;
+import kr.or.tco.strgstck.vo.StrgstckVO;
+
+@RequestMapping("/main")
+@Controller
+public class MainController {
+	
+	private static final Logger logger =
+			LoggerFactory.getLogger(MainController.class);
+
+	@Autowired
+	StrgstckService strgstckService;
+	
+	@Autowired
+	OrdrService ordrService;
+	
+	@Autowired 
+	AlamService AlamService;
+	
+	@GetMapping("/mainlist")
+	public String main(Model model, HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		String brncofcId = (String) session.getAttribute("brncofcId");
+		String receiverId = (String) session.getAttribute("userID");
+		
+		List<StrgstckVO> strg ;
+		System.out.println("brncofcId : " + brncofcId);
+		
+		if(brncofcId == "BRN00000") {
+			System.out.println("본사");
+			//본사의 창고재고 현황뽑기
+			strg = this.strgstckService.strgLackList("BRN00000");
+		}else {
+			System.out.println("지점");
+			//지점의 창고재고 현황뽑기
+			strg = this.strgstckService.strgLackList(brncofcId);
+		}
+
+		//수주N 리스트
+		List<OrdrVO> ordr = this.ordrService.rcvOrdrNList();
+
+		model.addAttribute("strg", strg);
+		model.addAttribute("ordr", ordr);
+		
+		
+		//알림리스트
+		List<AlamVO>alamlist = this.AlamService.alamAll(receiverId);
+		logger.info("알람리스트: "+alamlist);
+		model.addAttribute("alam", alamlist);
+		
+		return "main/mainlist";
+	}
+	
+	
+	
+	
+	
+}

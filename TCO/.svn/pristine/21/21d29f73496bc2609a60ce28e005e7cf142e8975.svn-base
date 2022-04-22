@@ -1,0 +1,65 @@
+package kr.or.tco.sig.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.tco.emp.vo.AttachFilesVO;
+import kr.or.tco.notice.vo.BrdVO;
+import kr.or.tco.sig.mapper.SigMapper;
+import kr.or.tco.sig.service.SigService;
+import kr.or.tco.sig.vo.SigVO;
+
+@Service
+public class SigServiceImpl implements SigService{
+
+	@Autowired 
+	SigMapper sigMapper;
+	
+	@Override
+	public List<SigVO>signotice(){
+		return sigMapper.signotice();
+	}
+	
+	@Override
+	public List<SigVO> siglist(Map<String, Object> map) {
+		return sigMapper.siglist(map);
+	}
+
+
+	@Override
+	public int selectCount(Map<String, Object> map) {
+		return sigMapper.selectCount(map);
+	}
+	
+	@Override
+	public String selectname(String empId) {
+		return sigMapper.selectname(empId);
+	}
+
+	@Override
+	public SigVO sigdetail(int brdId) {
+		
+		return sigMapper.sigdetail(brdId);
+	}
+
+	@Override
+	public int sigevi(int brdId) {
+		return sigMapper.sigevi(brdId);
+	}
+
+	@Override
+	public int insertAttachFiles(AttachFilesVO attachFilesVO) {
+		return sigMapper.insertAttachFiles(attachFilesVO);
+		
+	}
+
+	@Override
+	public int siginsert(SigVO sigVO) {
+		return sigMapper.siginsert(sigVO);
+	}
+
+
+}

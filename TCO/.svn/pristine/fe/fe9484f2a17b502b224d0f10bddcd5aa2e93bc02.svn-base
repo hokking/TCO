@@ -1,0 +1,12 @@
+package kr.or.tco.calculate.service;
+
+import java.util.List;
+
+import kr.or.tco.calculate.vo.CalVO;
+
+public interface CalService {
+
+	//창고 입출고 현황
+	List<CalVO> list();
+
+}

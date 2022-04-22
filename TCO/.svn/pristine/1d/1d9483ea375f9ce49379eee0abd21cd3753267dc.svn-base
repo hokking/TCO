@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.cal.mapper.CalMapper">
+
+<!-- 거래처 조회 - 검색 -->
+<select id="dailyPrc" resultType="calVO" parameterType="String">
+	SELECT 	STRG_WRHS_ID,
+			BRNCOFC_ID,
+			PROD_INFO_ID,
+			STRG_WRHS_QTY,
+			STRG_WRHS_DT
+	  FROM  STRG_WRHS
+</select>	
+
+<select id="dailySls" resultType="calVO" parameterType="String">
+	SELECT	CUST_NTSL_ID,
+		    BRNCOFC_ID,
+		    CUST_ID,
+		    PROD_INFO_ID,
+		    CUST_NTSL_DT,
+		    CUST_NTSL_AMT
+	FROM	CUST_NTSL
+</select>	
+
+</mapper>

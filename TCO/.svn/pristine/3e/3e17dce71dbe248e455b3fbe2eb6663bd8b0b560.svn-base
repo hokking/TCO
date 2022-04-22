@@ -1,0 +1,82 @@
+package kr.or.tco.alam.vo;
+
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class AlamVO {
+
+
+	private String alamNum               ;
+	private String title                 ;
+	private String sender                ;
+	private String receiver              ;
+	private String brncofcNm             ;
+	private String shortStockNm          ;
+	private String dptopt                ;
+	private String lelopt                ;
+	private String receptionStatus       ;
+	
+	public String getAlamNum() {
+		return alamNum;
+	}
+	public void setAlamNum(String alamNum) {
+		this.alamNum = alamNum;
+	}
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	public String getSender() {
+		return sender;
+	}
+	public void setSender(String sender) {
+		this.sender = sender;
+	}
+	public String getReceiver() {
+		return receiver;
+	}
+	public void setReceiver(String receiver) {
+		this.receiver = receiver;
+	}
+	public String getBrncofcNm() {
+		return brncofcNm;
+	}
+	public void setBrncofcNm(String brncofcNm) {
+		this.brncofcNm = brncofcNm;
+	}
+	public String getShortStockNm() {
+		return shortStockNm;
+	}
+	public void setShortStockNm(String shortStockNm) {
+		this.shortStockNm = shortStockNm;
+	}
+	public String getDptopt() {
+		return dptopt;
+	}
+	public void setDptopt(String dptopt) {
+		this.dptopt = dptopt;
+	}
+	public String getLelopt() {
+		return lelopt;
+	}
+	public void setLelopt(String lelopt) {
+		this.lelopt = lelopt;
+	}
+	public String getReceptionStatus() {
+		return receptionStatus;
+	}
+	public void setReceptionStatus(String receptionStatus) {
+		this.receptionStatus = receptionStatus;
+	}
+	@Override
+	public String toString() {
+		return "AlamVO [alamNum=" + alamNum + ", title=" + title + ", sender=" + sender + ", receiver=" + receiver
+				+ ", brncofcNm=" + brncofcNm + ", shortStockNm=" + shortStockNm + ", dptopt=" + dptopt + ", lelopt="
+				+ lelopt + ", receptionStatus=" + receptionStatus + "]";
+	}
+	
+	
+	
+}

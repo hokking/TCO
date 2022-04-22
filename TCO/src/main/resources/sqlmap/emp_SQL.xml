@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.emp.mapper.EmpMapper">
+	<resultMap type="kr.or.tco.emp.vo.EmpVO" id="readMap">
+		<result property="empId" column="EMP_ID" />
+		<result property="empNm" column="EMP_NM" />
+		<result property="empJncmpYmd" column="EMP_JNCMP_YMD" />
+		<result property="empBrdt" column="EMP_BRDT" />
+		<result property="empMail" column="EMP_MAIL" />
+		<result property="empPswd" column="EMP_PSWD" />
+		<result property="empImg" column="EMP_IMG" />
+		<result property="empIp" column="EMP_IP" />
+		<result property="empActno" column="EMP_ACTNO" />
+		<result property="empSe" column="EMP_SE" />
+		<result property="rglrempCrtrpy" column="RGLREMP_CRTRPY" />
+		<result property="rglrempBns" column="RGLREMP_BNS" />
+		<result property="rglrempFdpy" column="RGLREMP_FDPY" />
+		<result property="rglrempCrpy" column="RGLREMP_CRPY" />
+		<result property="rglrempBbpy" column="RGLREMP_BBPY" />
+		<result property="ctrtempHrpy" column="CTRTEMP_HRPY" />
+		<result property="ctrtempTm" column="CTRTEMP_TM" />
+		<result property="ctrtempSe" column="CTRTEMP_SE" />
+		<result property="ctrtempHdpy" column="CTRTEMP_HDPY" />
+		<result property="ctrtempTx" column="CTRTEMP_TX" />
+		<result property="cmncdCd" column="CMNCD_CD" />
+		<result property="empTel" column="EMP_TEL" />
+		<result property="empPwsd" column="ENABLED" />
+		<collection property="empAuth" resultMap="empAuthMap"></collection>
+	</resultMap>
+	
+	<resultMap type="kr.or.tco.emp.vo.EmpAuth" id="empAuthMap">
+		<result property="authority" column="AUTHORITY" />
+	</resultMap>
+
+	<insert id="empinsert" parameterType="empVO">
+			<selectKey order="BEFORE" keyProperty="empId,enabled" resultType="empVO">
+				SELECT 'EMP' || LPAD(NVL(MAX(SUBSTR(EMP_ID,4)),0)+1,5,'0') AS empId,
+				          MAX(enabled)+0 AS enabled
+			            FROM EMP
+			</selectKey>
+			
+			INSERT INTO EMP(EMP_ID, EMP_NM,  EMP_BRDT, EMP_MAIL, EMP_JNCMP_YMD,
+	      					 EMP_PSWD, EMP_IP, EMP_ACTNO, EMP_SE, CMNCD_CD , EMP_IMG , EMP_TEL, ENABLED, BRNCOFC_ID)
+			VALUES(#{empId},#{empNm},#{empBrdt},#{empMail}, #{empJncmpYmd},
+			#{empPswd},#{empIp},#{empActno},#{empSe}, #{cmncdCd}, #{empImg}, #{empTel}, #{enabled}, #{brncofcId})
+	</insert>
+
+	<!-- attach_files 테이블로 첨부파일 insert -->
+	<insert id="insertAttachFiles" parameterType="attachFilesVO">
+		<selectKey order="BEFORE" keyProperty="atchfileId" resultType="Integer">
+			SELECT NVL(MAX(ATCHFILE_ID),0)+1 FROM ATCHFILE
+		</selectKey>			
+		
+		
+		INSERT INTO ATCHFILE (ATCHFILE_ID, ATCHFILE_NM, ATCHFILE_SZ, ATCHFILE_DT ) 
+		VALUES (#{atchfileId}, #{atchfileNm}, #{atchfileSz}, SYSDATE)		
+	</insert>
+	
+	<select id="cdselect" parameterType="empVO" resultType="String">
+		SELECT CMNCD_CD 
+		FROM CMNCD
+		WHERE CMNCD_NM1 = #{dptopt}
+        AND CMNCD_NM2 = #{lelopt}
+	</select>
+	
+	<select id="brnselect" parameterType="String" resultType="String">
+		SELECT BRNCOFC_NM 
+		FROM BRNCOFC 
+		WHERE BRNCOFC_ID = #{brncofcId}
+        
+	</select>
+	
+	
+
+	<select id="emplist" resultType="EmpVO">
+		SELECT T.RNUM, T.EMP_ID, T.EMP_NM , T.EMP_SE, T.CMNCD_CD, T.BRNCOFC_ID
+		FROM (
+		    SELECT ROW_NUMBER() OVER (ORDER BY EMP_ID) RNUM, EMP_ID, EMP_NM, EMP_SE, CMNCD_CD, BRNCOFC_ID
+		    FROM   EMP
+	               WHERE  1 = 1
+		   <if test="keyWord!=null and keyWord!=''">
+			    AND    (EMP_ID LIKE '%'||#{keyWord}||'%'
+			    OR     EMP_NM LIKE '%'||#{keyWord}||'%' )
+		  </if>
+		) T
+		WHERE T.RNUM BETWEEN #{currentPage}*#{size}-#{size}+1 AND #{currentPage}*#{size}
+	</select>
+	
+	
+	
+
+	<select id="selectCount" parameterType="hashMap" resultType="int">
+		SELECT COUNT(*)
+		FROM   EMP
+		WHERE  1 = 1
+	    <if test="keyWord!=null and keyWord!=''">
+		    AND    (EMP_ID LIKE '%'||#{keyWord}||'%'
+			OR     EMP_NM LIKE '%'||#{keyWord}||'%' )
+	    </if>
+	</select>
+	
+	<select id="sdselect" parameterType="String" resultType="cmncdVO">
+		SELECT CMNCD_GU_NM, CMNCD_NM1, CMNCD_NM2
+		FROM CMNCD
+		WHERE CMNCD_CD = #{cmncdCd}
+	</select>
+	
+	<select id="empdetail" parameterType="empVO" resultType="empVO">
+		SELECT E.EMP_ID, E.EMP_NM, E.EMP_ACTNO, E.EMP_JNCMP_YMD, E.EMP_BRDT, E.EMP_MAIL, 
+		E.EMP_PSWD, E.EMP_IMG, E.EMP_IP, E.EMP_SE, E.EMP_TEL, E.CMNCD_CD, E.BRNCOFC_ID,
+		C.CMNCD_NM1 as dptopt, C.CMNCD_NM2 as lelopt, B.BRNCOFC_NM
+		FROM EMP E, CMNCD C, BRNCOFC B
+		WHERE E.EMP_ID= #{empId}
+		AND E.CMNCD_CD = C.CMNCD_CD
+		AND E.BRNCOFC_ID = B.BRNCOFC_ID
+	</select>
+
+	<!-- 직원 정보 수정 -->
+	<update id="empInfoUpdate" parameterType="empVO" >
+		UPDATE EMP 
+		   SET EMP_MAIL=#{empMail}
+		     , EMP_TEL=#{empTel}
+		     , EMP_ACTNO=#{empActno}
+		 WHERE EMP_ID=#{empId}
+		   AND EMP_PSWD=#{empPswd}
+	</update>
+	
+	<!-- 연락처 수정 -->
+	<update id="empTelupdate" parameterType="empVO" >
+		UPDATE EMP 
+		SET EMP_TEL=#{empTel}
+		WHERE EMP_ID=#{empId}
+	</update>
+	
+	<!-- 메일 수정  -->
+	<update id="empMailupdate" parameterType="empVO" >
+		UPDATE EMP 
+		SET EMP_MAIL=#{empMail}
+		WHERE EMP_ID=#{empId}
+	</update>
+	
+	<!-- 비밀번호 수정  -->
+	<update id="empPswdupdate" parameterType="empVO" >
+		UPDATE EMP 
+		SET EMP_PSWD = #{empPswd}
+		WHERE EMP_ID=#{empId}
+	</update>
+	
+	<!-- 상태 수정  -->
+	<update id="empSeupdate" parameterType="empVO" >
+		UPDATE EMP 
+		SET EMP_SE = #{empSe}
+		WHERE EMP_ID=#{empId}
+	</update>
+	
+	<!-- 로그인을 위한 EMP와 AUTHORITIES 테이블 조인 -->
+	<select id="read" parameterType="String" resultMap="readMap">
+		SELECT A.EMP_ID,
+				A.EMP_NM,
+				A.EMP_JNCMP_YMD,
+				A.EMP_BRDT,
+				A.EMP_MAIL,
+				A.EMP_PSWD,
+				A.EMP_IMG,
+				A.EMP_IP,
+				A.EMP_ACTNO,
+				A.EMP_SE,
+				A.RGLREMP_CRTRPY,
+				A.RGLREMP_BNS,
+				A.RGLREMP_FDPY,
+				A.RGLREMP_CRPY,
+				A.RGLREMP_BBPY,
+				A.CTRTEMP_HRPY,
+				A.CTRTEMP_TM,
+				A.CTRTEMP_SE,
+				A.CTRTEMP_HDPY,
+				A.CTRTEMP_TX,
+				A.CMNCD_CD,
+				A.EMP_TEL,
+				A.ENABLED,
+				B.AUTHORITY
+				FROM EMP A, AUTHORITIES B
+				WHERE A.EMP_ID = B.EMP_ID
+				AND   A.EMP_ID = #{userName}
+	</select>
+	
+	<!-- 로그인 체크 -->
+	<select id="loginCheck" parameterType="hashMap" resultType="String">
+		SELECT EMP_ID
+		  FROM EMP
+		 WHERE EMP_ID = #{username}
+		   AND EMP_PSWD = #{password}
+	</select>
+	
+<!-- 아이디 까먹었어요 --> 
+	<select id ="forgotId" parameterType="hashMap" resultType="String">
+	    SELECT EMP_ID 
+	    FROM EMP
+	    WHERE EMP_MAIL=#{email}
+	    AND EMP_NM = #{empName}
+		
+	</select>
+	
+<!--비밀번호 까먹었으면, 비밀번호 변경 --> 
+	<update id="updateNewPw" parameterType="hashMap">
+		UPDATE EMP 
+		SET EMP_PSWD = #{newPwd}
+		WHERE EMP_ID=#{empId}
+		AND EMP_NM = #{empName}
+	</update>
+	
+
+</mapper>

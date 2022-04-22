@@ -1,0 +1,51 @@
+package kr.or.tco.notice.controller;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import kr.or.tco.notice.ArticlePage;
+import kr.or.tco.notice.service.NoticeService;
+import kr.or.tco.notice.vo.BrdVO;
+
+@RequestMapping("/notice")
+@Controller
+public class NoticeController {
+
+	@Autowired
+	NoticeService noticeService;
+	
+	@GetMapping("/noticelist")
+	public String noticelist(Model model, @RequestParam(defaultValue="1") int currentPage
+			, @RequestParam(required=false) String keyWord
+			, @RequestParam(defaultValue="7",required=false) int size, @RequestParam Map<String,Object> map) {
+		
+		map.put("keyWord", keyWord);
+		map.put("currentPage", currentPage);
+		map.put("size", size);
+		
+		// 글 목록
+		List<BrdVO> list = noticeService.noticelist(map);
+		// 작성자 이름값 넣어주기
+		for(BrdVO brdVO : list) {
+			String name = noticeService.selectname(brdVO.getEmpId());
+			brdVO.setEmpNm(name);
+		}
+		
+		int total = noticeService.selectCount(map);
+		
+		model.addAttribute("list", new ArticlePage(total, currentPage, size, 5, list));
+				
+		model.addAttribute("total", total);
+		
+		model.addAttribute("data", list);
+		
+		return "notice/noticelist";
+	}
+}

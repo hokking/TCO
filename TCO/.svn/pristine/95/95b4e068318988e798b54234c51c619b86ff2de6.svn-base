@@ -1,0 +1,11 @@
+package kr.or.tco.sls.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.tco.sls.vo.SlsVO;
+
+public interface SlsMapper {
+	
+	public List<SlsVO>list(Map<String, Object>map);
+}

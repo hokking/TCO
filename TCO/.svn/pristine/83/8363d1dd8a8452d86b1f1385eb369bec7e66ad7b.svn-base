@@ -1,0 +1,293 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<body>
+ <!-- start page title -->
+ <div class="row">
+     <div class="col-12">
+         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+             <h1 class="mb-sm-0 font-size-20"><i class="bx bx-buildings"></i>매입발주서</h1>
+
+             <div class="page-title-right">
+                 <ol class="breadcrumb m-0">
+                     <li class="breadcrumb-item"><a href="javascript: void(0);">매입</a></li>
+                     <li class="breadcrumb-item active">매입발주서</li>
+                 </ol>
+             </div>
+
+         </div>
+     </div>
+ </div>
+ <!-- end page title -->
+
+ <div class="row">
+     <div class="col-12">
+         <div class="card">
+             <div class="card-body">
+             
+             	<!-- 날짜 검색 버튼 -->
+		<form action="/sls/list" method="get" name="Frm" id="Frm">	
+		<div class="row">
+			<div class="col-sm-2">
+				<div class="mb-3">
+				<label>시작일</label>
+					<input type="date" name="startDay" 
+					id="startDay" autocomplete="off" class="form-control">
+				</div>
+			</div>
+			<div class="col-sm-2">
+				<div class="mb-3">
+				<label>종료일</label>
+					<input type="date" name="endDay" 
+					id="endDay" autocomplete="off" class="form-control">
+				</div>
+			</div>
+			<div class="col-sm-2">
+				<div class="mb-3">
+				<label>날짜검색</label>
+					<button type="button" class="btn btn-secondary btn-success" style="display: block;" 
+					onclick="fn_submit()"><i class="bx bx-search-alt">검색하기</i></button>
+				</div>
+			</div>
+
+		</div>
+		</form>
+	<!--날짜검색버튼끝-->
+                 <div class="row mb-2">
+                     <div class="col-sm-4">
+                         <div class="search-box me-2 mb-2 d-inline-block">
+                             <div class="position-relative">
+                                 <input type="text" class="form-control" placeholder="Search...">
+                                 <i class="bx bx-search-alt search-icon"></i>
+                             </div>
+                         </div>
+                     </div>
+                     <div class="col-sm-8">
+                         <div class="text-sm-end">
+                             <a href="#" class="btn btn-info btn-rounded waves-effect waves-light mb-2 me-2" data-bs-toggle="modal" data-bs-target="#modalPrchsOrder"><i class="mdi mdi-plus me-1"></i>발주서 작성</a>
+                         </div>
+                     </div><!-- end col-->
+                 </div>
+               
+
+               <!-- Tab panes -->
+               <div class="tab-content p-3">
+                   <div class="tab-pane active" id="cnpt" role="tabpanel">
+					<div class="table">
+                     <table class="table align-middle table-nowrap table-check cnpt">
+                         <thead class="table-light">
+                             <tr>
+                                 <th style="width: 20px;" class="align-middle">
+                                     <div class="form-check font-size-16">
+                                         <input class="form-check-input" type="checkbox" id="checkAll">
+                                         <label class="form-check-label" for="checkAll"></label>
+                                     </div>
+                                 </th>
+                                 <th class="align-middle">순번</th>
+                                 <th class="align-middle">일자</th>
+                                 <th class="align-middle">전표번호</th>
+                                 <th class="align-middle">거래처명</th>
+                                 <th class="align-middle">공급가액</th>
+                                 <th class="align-middle">부가세액</th>
+                                 <th class="align-middle">합계</th>
+                                 <th class="align-middle">상태</th>
+                             </tr>
+                         </thead>
+                         <tbody>
+                         	<c:forEach var="prchsVO" items="${prchsList}">
+                             <tr>
+                                 <td>
+                                     <div class="form-check font-size-16">
+                                         <input class="form-check-input" type="checkbox" id="orderidcheck01">
+                                         <label class="form-check-label" for="orderidcheck01"></label>
+                                     </div>
+                                 </td>
+                                 <!-- 순번 -->
+                                 <td>번호</td>
+                                 <td>${prchsVO.prchsDt}</td>
+                                 <td><a href="/cnpt/detail/${prchsVO.prchsId}" class="text-body fw-bold">${prchsVO.prchsId}</a></td>
+                                 <td>
+                                     ${prchsVO.cnptNm}
+                                 </td>
+                                 <td>
+                                     ${prchsVO.prchsSuAmt}
+                                 </td>
+                                 <td>
+                                 	${prchsVO.prchsVat} 
+<!--                                      <span class="badge badge-pill badge-soft-success font-size-12">Paid</span> -->
+                                 </td>
+                                 <td>
+                                 	${prchsVO.prchsAmt}원
+<!--                                      Button trigger modal -->
+<%--                                      <a href="/cnpt/detail/${cnptVO.cnptId}" class="btn btn-primary btn-sm btn-rounded">상세보기</a> --%>
+                                 </td>
+                                 <td>
+                                     ${prchsVO.prchsSe}
+                                 </td>
+                             </tr>
+                         	</c:forEach>
+                         </tbody>
+                     </table>
+                 </div>
+                 <ul class="pagination pagination-rounded justify-content-end mb-2">
+                     <li class="page-item disabled">
+                         <a class="page-link" href="javascript: void(0);" aria-label="Previous">
+                             <i class="mdi mdi-chevron-left"></i>
+                         </a>
+                     </li>
+                     <li class="page-item active"><a class="page-link" href="javascript: void(0);">1</a></li>
+                     <li class="page-item"><a class="page-link" href="javascript: void(0);">2</a></li>
+                     <li class="page-item"><a class="page-link" href="javascript: void(0);">3</a></li>
+                     <li class="page-item"><a class="page-link" href="javascript: void(0);">4</a></li>
+                     <li class="page-item"><a class="page-link" href="javascript: void(0);">5</a></li>
+                     <li class="page-item">
+                         <a class="page-link" href="javascript: void(0);" aria-label="Next">
+                             <i class="mdi mdi-chevron-right"></i>
+                         </a>
+                     </li>
+                 </ul>
+                   </div>
+                   <!-- 거래중단 거래처 -->
+                   <div class="tab-pane" id="cnptN" role="tabpanel">
+					<div class="table">
+                     <table class="table align-middle table-nowrap table-check">
+                         <thead class="table-light">
+                             <tr>
+                                 <th style="width: 20px;" class="align-middle">
+                                     <div class="form-check font-size-16">
+                                         <input class="form-check-input" type="checkbox" id="checkAll">
+                                         <label class="form-check-label" for="checkAll"></label>
+                                     </div>
+                                 </th>
+                                 <th class="align-middle">순번</th>
+                                 <th class="align-middle">거래처아이디</th>
+                                 <th class="align-middle">거래처명</th>
+                                 <th class="align-middle">거래처 주소</th>
+                                 <th class="align-middle">담당자명</th>
+                                 <th class="align-middle">담당자 이메일</th>
+                                 <th class="align-middle">상세보기</th>
+                             </tr>
+                         </thead>
+                         <tbody>
+                         	<c:forEach var="stpCnptVO" items="${stpList}">
+                             <tr>
+                                 <td>
+                                     <div class="form-check font-size-16">
+                                         <input class="form-check-input" type="checkbox" id="orderidcheck01">
+                                         <label class="form-check-label" for="orderidcheck01"></label>
+                                     </div>
+                                 </td>
+                                 <!-- 순번 -->
+                                 <td>번호</td>
+                                 <td>${stpCnptVO.cnptId}</td>
+                                 <td><a href="/cnpt/detail/${stpCnptVO.cnptId}" class="text-body fw-bold">${stpCnptVO.cnptNm}</a></td>
+                                 <td>
+                                     ${stpCnptVO.cnptAddr}&nbsp;${stpCnptVO.cnptDaddr}
+                                 </td>
+                                 <td>
+                                     ${stpCnptVO.cnptCharger}
+                                 </td>
+                                 <td>
+                                 	${stpCnptVO.cnptMail}
+<!--                                      <span class="badge badge-pill badge-soft-success font-size-12">Paid</span> -->
+                                 </td>
+                                 <td>
+                                     <!-- Button trigger modal -->
+                                     <a href="/cnpt/detail/${stpCnptVO.cnptId}" class="btn btn-primary btn-sm btn-rounded">상세보기</a>
+                                 </td>
+                             </tr>
+                         	</c:forEach>
+                         </tbody>
+                     </table>
+                 </div>
+                 <ul class="pagination pagination-rounded justify-content-end mb-2">
+                     <li class="page-item disabled">
+                         <a class="page-link" href="javascript: void(0);" aria-label="Previous">
+                             <i class="mdi mdi-chevron-left"></i>
+                         </a>
+                     </li>
+                     <li class="page-item active"><a class="page-link" href="javascript: void(0);">1</a></li>
+                     <li class="page-item"><a class="page-link" href="javascript: void(0);">2</a></li>
+                     <li class="page-item"><a class="page-link" href="javascript: void(0);">3</a></li>
+                     <li class="page-item"><a class="page-link" href="javascript: void(0);">4</a></li>
+                     <li class="page-item"><a class="page-link" href="javascript: void(0);">5</a></li>
+                     <li class="page-item">
+                         <a class="page-link" href="javascript: void(0);" aria-label="Next">
+                             <i class="mdi mdi-chevron-right"></i>
+                         </a>
+                     </li>
+                 </ul>
+                   </div>
+               </div>
+             </div>
+         </div>
+         <!-- end card -->
+     </div>
+ </div>
+ <!-- end row -->
+ 
+ <!-- Modal 시작 -->
+ <div>
+    <div class="modal fade" id="modalPrchsOrder" tabindex="-1" aria-labelledby="modalActLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+              <form action="" method="post" id="updateActFrm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalActLabel">매입발주서 작성</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                        <div class="mb-2 row" hidden="true">
+                            <label for="cnptId" class="col-form-label">거래처아이디</label>
+                        </div>
+                        <div class="mb-2 row">
+                            <label class="form-label">은행명</label>
+                            <select class="form-select" title="은행명을 선택해주세요" name="cnptBankNm" id="cnptBankNm" >
+	                          <option>기업은행</option>
+	                          <option>국민은행</option>                                	
+	                          <option>외환은행</option>                                	
+	                          <option>수협</option>                                	
+	                          <option>농협</option>                                	
+	                          <option>우리은행</option>                                	
+	                          <option>제일은행</option>                                	
+	                          <option>씨티은행</option>                                	
+	                          <option>대구은행</option>                                	
+	                          <option>부산은행</option>                                	
+	                          <option>광주은행</option>                                	
+	                          <option>제주은행</option>                                	
+	                          <option>전북은행</option>                                	
+	                          <option>경남은행</option>                                	
+	                          <option>새마을금고</option>                                	
+	                          <option>신협</option>                                	
+	                          <option>우체국</option>                                	
+	                          <option>하나은행</option>                                	
+	                          <option>신한은행</option>                                	
+	                          <option>카카오뱅크</option>                                	
+                            </select>
+                        </div>                     
+                        <div class="mb-2 row">
+                            <label class="form-label">계좌번호</label>
+                            <input class="form-control" type="text" placeholder="계좌번호 입력" name="cnptActno" id="cnptActno">
+                        </div>                     
+                        <div class="mb-2 row">
+                            <label class="form-label">예금주명</label>
+                            <input class="form-control" type="text" placeholder="예금주명 입력" name=cnptActnm id="cnptActnm">
+                        </div>     
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                    <button type="button" class="btn btn-primary" id="updateActBtn">수정</button>
+                </div>
+               </form>
+            </div>
+        </div>
+    </div>
+</div> 
+
+</body>
+<script src="assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+<script src="assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="assets/js/pages/datatables.init.js"></script>
+<script src="assets/js/app.js"></script>
+</html>

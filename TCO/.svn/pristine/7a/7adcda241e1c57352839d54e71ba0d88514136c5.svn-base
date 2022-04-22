@@ -1,0 +1,76 @@
+package kr.or.tco.prod.vo;
+
+public class ProdVO {
+
+	private String prodInfoId       ;
+	private String prodInfoNm       ;
+	private int prodInfoPrchsAmt ;
+	private int prodInfoNtslAmt  ;
+	private String prodInfoLdt      ;
+	private String prodInfoPlor     ;
+	private String cmncdCd          ;
+	private String cmncdNm1          ;
+	private String cmncdNm2          ;
+	
+	public String getProdInfoId() {
+		return prodInfoId;
+	}
+	public void setProdInfoId(String prodInfoId) {
+		this.prodInfoId = prodInfoId;
+	}
+	public String getProdInfoNm() {
+		return prodInfoNm;
+	}
+	public void setProdInfoNm(String prodInfoNm) {
+		this.prodInfoNm = prodInfoNm;
+	}
+	public int getProdInfoPrchsAmt() {
+		return prodInfoPrchsAmt;
+	}
+	public void setProdInfoPrchsAmt(int prodInfoPrchsAmt) {
+		this.prodInfoPrchsAmt = prodInfoPrchsAmt;
+	}
+	public int getProdInfoNtslAmt() {
+		return prodInfoNtslAmt;
+	}
+	public void setProdInfoNtslAmt(int prodInfoNtslAmt) {
+		this.prodInfoNtslAmt = prodInfoNtslAmt;
+	}
+	public String getProdInfoLdt() {
+		return prodInfoLdt;
+	}
+	public void setProdInfoLdt(String prodInfoLdt) {
+		this.prodInfoLdt = prodInfoLdt;
+	}
+	public String getProdInfoPlor() {
+		return prodInfoPlor;
+	}
+	public void setProdInfoPlor(String prodInfoPlor) {
+		this.prodInfoPlor = prodInfoPlor;
+	}
+	public String getCmncdCd() {
+		return cmncdCd;
+	}
+	public void setCmncdCd(String cmncdCd) {
+		this.cmncdCd = cmncdCd;
+	}
+	public String getCmncdNm1() {
+		return cmncdNm1;
+	}
+	public void setCmncdNm1(String cmncdNm1) {
+		this.cmncdNm1 = cmncdNm1;
+	}
+	public String getCmncdNm2() {
+		return cmncdNm2;
+	}
+	public void setCmncdNm2(String cmncdNm2) {
+		this.cmncdNm2 = cmncdNm2;
+	}
+	@Override
+	public String toString() {
+		return "ProdVO [prodInfoId=" + prodInfoId + ", prodInfoNm=" + prodInfoNm + ", prodInfoPrchsAmt="
+				+ prodInfoPrchsAmt + ", prodInfoNtslAmt=" + prodInfoNtslAmt + ", prodInfoLdt=" + prodInfoLdt
+				+ ", prodInfoPlor=" + prodInfoPlor + ", cmncdCd=" + cmncdCd + ", cmncdNm1=" + cmncdNm1 + ", cmncdNm2="
+				+ cmncdNm2 + "]";
+	}
+}

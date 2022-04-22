@@ -1,0 +1,76 @@
+package kr.or.tco.att.controller;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.tco.att.service.impl.AttService;
+import kr.or.tco.cmncd.vo.CmncdVO;
+import kr.or.tco.emp.vo.EmpVO;
+import oracle.jdbc.proxy.annotation.Post;
+
+@RequestMapping("/att")
+@Controller
+public class AttController {
+
+	@Autowired AttService attService;
+	private static final Logger logger = 
+			LoggerFactory.getLogger(AttController.class);
+	
+	@GetMapping("/attlist")
+	public String attdetail() {
+		
+		return "att/attlist";
+	}
+	
+	@GetMapping("/attdetail")
+	public String attlist(Model model, HttpServletRequest request) {
+		HttpSession session = request.getSession(false);
+		// getAttribute의 리턴값은 object
+		String userId = String.valueOf(session.getAttribute("userID"));
+		logger.info("userid는:" + userId);
+		
+		EmpVO empVO = attService.binfoselect(userId);
+		CmncdVO cmncdVO = attService.sdselect(empVO.getCmncdCd());
+		empVO.setOpt(cmncdVO.getCmncdGuNm());
+		empVO.setDptopt(cmncdVO.getCmncdNm1());
+		empVO.setLelopt(cmncdVO.getCmncdNm2());
+		
+		model.addAttribute("empVO", empVO);
+		
+		return "att/attdetail";
+	}
+	
+	// 출근
+	@ResponseBody
+	@PostMapping("/attin")
+	public int attin(HttpServletRequest request) {
+		String day = request.getParameter("day");
+		String time = request.getParameter("time");
+		
+		logger.info("출근시간과 날짜: "+day+time);
+		
+		return 1;
+	}
+	
+	// 퇴근
+	@ResponseBody
+	@PostMapping("/attout")
+	public int attout(HttpServletRequest request) {
+		String day = request.getParameter("day");
+		String time = request.getParameter("time");
+		
+		logger.info("퇴근시간과 날짜: "+day+time);
+		
+		return 1;
+	}
+}

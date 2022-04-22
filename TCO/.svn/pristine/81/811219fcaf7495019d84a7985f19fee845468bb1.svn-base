@@ -1,0 +1,83 @@
+package kr.or.tco.sttst.service;
+
+import java.util.List;
+
+import kr.or.tco.cal.vo.CustNtsVO;
+import kr.or.tco.emp.vo.EmpVO;
+import kr.or.tco.prchs.vo.PrchsVO;
+import kr.or.tco.sls.vo.SlsVO;
+import kr.or.tco.sttst.vo.SttstVO;
+
+public interface SttstService {
+	
+	
+	/**
+	 * 일일매출차트
+	 * @return
+	 */
+	List<SlsVO>getDailyIncome();
+	
+	
+	
+	/**
+	 * 일일매입차트
+	 * @return
+	 */
+	List<PrchsVO>getDailyPurchase();
+	
+	
+	
+	/**
+	 * 월간매출차트
+	 * @return
+	 */
+	List<SlsVO>getMonthIncome();
+	
+	
+	
+	
+	/**
+	 * 년간매출차트
+	 * @return
+	 */
+	List<SlsVO>getYearlyIncome();
+	
+	
+	
+	/**
+	 * 매장별 일일 차트
+	 * @return session값을 받아서 매장별 일일 차트
+	 */
+	List<CustNtsVO>getBrnChart(String brncofcId);
+	
+	
+	
+	
+	/**
+	 * 조직도 jstree
+	 * @param parentId 
+	 * @param list 
+	 * @return
+	 */
+	List<SttstVO>grouplist();
+	
+	
+	/**
+	 * 조직도 jsGrid
+	 * @return
+	 */
+	List<EmpVO>groupemp(String childId);
+
+	
+	
+	
+
+	/**
+	 * 연령/성별 별 선호 카테고리 찾기
+	 * @return
+	 */
+	List<SttstVO> PrfredCtg();
+
+
+	
+}

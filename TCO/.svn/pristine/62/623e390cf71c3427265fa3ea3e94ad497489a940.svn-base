@@ -1,0 +1,49 @@
+package kr.or.tco.prchsgds.vo;
+
+public class PrchsGdsVO {
+	private String prchsId;	//매입아이디
+	private String prodInfoId;	//상품아이디
+	private int prchsGdsQty;	//매입수량
+	private int prchsGdsAmt;	//매입단가
+	private String prchsGdsYn;	//입고여부
+	
+	
+	public String getPrchsId() {
+		return prchsId;
+	}
+	public void setPrchsId(String prchsId) {
+		this.prchsId = prchsId;
+	}
+	public String getProdInfoId() {
+		return prodInfoId;
+	}
+	public void setProdInfoId(String prodInfoId) {
+		this.prodInfoId = prodInfoId;
+	}
+	public int getPrchsGdsQty() {
+		return prchsGdsQty;
+	}
+	public void setPrchsGdsQty(int prchsGdsQty) {
+		this.prchsGdsQty = prchsGdsQty;
+	}
+	public int getPrchsGdsAmt() {
+		return prchsGdsAmt;
+	}
+	public void setPrchsGdsAmt(int prchsGdsAmt) {
+		this.prchsGdsAmt = prchsGdsAmt;
+	}
+	public String getPrchsGdsYn() {
+		return prchsGdsYn;
+	}
+	public void setPrchsGdsYn(String prchsGdsYn) {
+		this.prchsGdsYn = prchsGdsYn;
+	}
+	
+	@Override
+	public String toString() {
+		return "PrchsGdsVO [prchsId=" + prchsId + ", prodInfoId=" + prodInfoId + ", prchsGdsQty=" + prchsGdsQty
+				+ ", prchsGdsAmt=" + prchsGdsAmt + ", prchsGdsYn=" + prchsGdsYn + "]";
+	}
+	
+	
+}

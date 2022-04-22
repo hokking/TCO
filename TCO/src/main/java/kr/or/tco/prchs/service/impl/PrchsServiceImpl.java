@@ -1,0 +1,245 @@
+package kr.or.tco.prchs.service.impl;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.tco.cnpt.vo.CnptVO;
+import kr.or.tco.prchs.controller.PrchsController;
+import kr.or.tco.prchs.mapper.PrchsMapper;
+import kr.or.tco.prchs.service.PrchsService;
+import kr.or.tco.prchs.vo.PrchsVO;
+import kr.or.tco.prchsgds.vo.PrchsGdsVO;
+import kr.or.tco.prod.vo.ProdVO;
+
+@Service
+public class PrchsServiceImpl implements PrchsService {
+	
+	final static Logger logger = 
+			LoggerFactory.getLogger(PrchsServiceImpl.class);
+	
+	@Autowired
+	PrchsMapper prchsMapper;
+	
+	//매입 발주서 리스트 가져오기
+	@Override
+	public List<PrchsVO> getSvdPrchsOrdrList(Map<String,Object> date) {
+		return prchsMapper.getSvdPrchsOrdrList(date);
+	}
+	
+	//매입 명세서 리스트 가져오기
+	@Override
+	public List<PrchsVO> getPrchsSpeceList(Map<String, String> date) {
+		return prchsMapper.getPrchsSpeceList(date);
+	}
+
+	//거래처명 검색
+	@Override
+	public List<CnptVO> cnptSearchList(String keyWord) {
+		return prchsMapper.cnptSearchList(keyWord);
+	}
+	
+	//자동완성
+	@Override
+	public JSONArray autoSearch(String keyWord) throws IOException {
+		 
+	    JSONArray arrayObj = new JSONArray();
+	    JSONObject jsonObj = null; 
+	    ArrayList<String> resultlist = new ArrayList<String>(); 
+	 
+	    // JPA 기능 사용, 포함 단어 검색 메서드인 findByMovieTitleContains();를 이용해도 괜찮음
+//	    List<Movie> movies = prchsMapper.findByMovieTitleStartsWith(searchValue, Sort.by(Sort.Direction.ASC, "movieTitle"));
+	    List<CnptVO> cnptVO = prchsMapper.cnptSearchList(keyWord);
+	    
+//	    String[] movies = {"톰소여의 모험","알간모르간","이터널스","톰소여와 함게","늑대와함께 톰소여","톰소여와 짜장면","톰소여와 짬뽕"};
+	    
+	    // 
+	    int cnt = 0;
+	   
+	    for(CnptVO vo : cnptVO) { 
+//	        String str = vo.getCnptNm();
+//	        resultlist.add(str); 
+	        
+	        jsonObj = new JSONObject();
+	        jsonObj.put("cnptNm", vo.getCnptNm());
+	        jsonObj.put("cnptId", vo.getCnptId());
+	        jsonObj.put("cnptCharger", vo.getCnptCharger());
+	        jsonObj.put("cnptEmail", vo.getCnptMail());
+	        arrayObj.add(jsonObj); 
+	    } 
+//	    //뽑은 후 json파싱 
+//	    for(String str : resultlist) {
+//	        jsonObj = new JSONObject();
+//	        jsonObj.put("data", str);
+//	        arrayObj.add(jsonObj); 
+//	    } 
+	 
+	    return arrayObj;
+	 
+	}
+
+	//매입아이디로 매입정보 가져오기
+	@Override
+	public List<PrchsVO> getPrchsVODetail(String prchsId) {
+		return prchsMapper.getPrchsVODetail(prchsId);
+	}
+	
+	//매입발주서 수정 - 이제 해야됨 ㅜ
+	@Override
+	public int updatePrchs(PrchsVO prchsVO) {
+		
+		String prchsId = prchsVO.getPrchsId();
+		
+		//삭제하기
+		prchsMapper.deletePrchsGds(prchsId);
+		
+		//prchsId 연결해주기
+		List<PrchsGdsVO> prchsGdsVOs = prchsVO.getPrchsGdsVO();
+		for(PrchsGdsVO prchsGdsVO : prchsGdsVOs) {
+			prchsGdsVO.setPrchsId(prchsVO.getPrchsId());
+		}
+		
+		//결과 담을 변수
+		int result = 0; 
+		
+		//매입상품 insert하기
+		for(PrchsGdsVO vo : prchsGdsVOs) {
+			//매입상품 하나씩 꺼내서 insert
+			vo.setPrchsId(prchsId);
+			//매입상품 insert
+			result += prchsMapper.insertPrchsGds(vo);
+		}
+		
+		logger.info(prchsVO.getPrchsId() + "아이디 이무니다.");
+		
+		return prchsMapper.updatePrchs(prchsVO);
+	}
+
+	//매입발주서 전송 - 됨
+	@Override
+	public int sendPrchs(String prchsId) {
+		return prchsMapper.sendPrchs(prchsId);
+	}
+	
+	//매입발주서 작성 - 된다~!!!!!!!!!!!!!!!!!!!!
+	@Override
+	public int insertPrchs(PrchsVO prchsVO) {
+		//insert
+		prchsMapper.insertPrchs(prchsVO);
+		
+		logger.info("prchsVO : {}",prchsVO);
+		String prchsId = prchsVO.getPrchsId();
+		
+		logger.info("아이디 잘드러완는지,,  : " + prchsId);
+		
+		//결과 담을 변수
+		int result = 0; 
+		
+		//매입상품 insert하기
+		for(PrchsGdsVO vo : prchsVO.getPrchsGdsVO()) {
+			//매입상품 하나씩 꺼내서 insert
+			vo.setPrchsId(prchsId);
+			//매입상품 insert
+			result += prchsMapper.insertPrchsGds(vo);
+		}
+		
+		return result;
+	}
+	
+	//거래처 아이디로 상품정보 가져오기
+	@Override
+	public List<ProdVO> getProdInfoByCnptId(String cnptId) {
+		return prchsMapper.getProdInfoByCnptId(cnptId);
+	}
+	
+	//거래처명 검색으로 거래처별 매입현황 리스트 가져오기
+	@Override
+	public List<PrchsVO> getPrchsByCnptNm(Map<String, String> date) {
+		return prchsMapper.getPrchsByCnptNm(date);
+	}
+	
+	//품목명 검색으로 거래처별 매입현황 리스트 가져오기
+	@Override
+	public List<PrchsVO> getPrchsByProdNm(Map<String, String> date) {
+		return prchsMapper.getPrchsByProdNm(date);
+	}
+	
+	//매입현황 리스트
+	@Override
+	public List<PrchsVO> getPrchsCondition(Map<String, Object> date) {
+		return prchsMapper.getPrchsCondition(date);
+	}
+	
+	//매입상품 입고상태 Y로 변경
+	@Override
+	public int updatePrchsYn(PrchsGdsVO prchsGdsVO) {
+		return prchsMapper.updatePrchsYn(prchsGdsVO);
+	}
+	
+	//창고입고 테이블에 insert
+	@Override
+	public int strgwrhsInsert(PrchsGdsVO prchsGdsVO) {
+		return prchsMapper.strgwrhsInsert(prchsGdsVO);
+	}
+
+	//창고재고 테이블에 insert 하기
+	@Override
+	public int addStrgStck(PrchsGdsVO prchsGdsVO) {
+		return prchsMapper.addStrgStck(prchsGdsVO);
+	}
+	
+	//행의 수
+	@Override
+	public int selectCount(Map<String, Object> map) {
+		return prchsMapper.selectCount(map);
+	}
+	
+	//창고부족재고에서 발주 눌렀을때
+	@Override
+	public int orderLack(PrchsVO prchsVO) {
+		//insert
+		prchsMapper.orderLack(prchsVO);
+		
+		logger.info("prchsVO : {}",prchsVO);
+		String prchsId = prchsVO.getPrchsId();
+		
+		logger.info("아이디 잘드러완는지,,  : " + prchsId);
+		
+		//결과 담을 변수
+		int result = 0; 
+		
+		//매입상품 insert하기
+		for(PrchsGdsVO vo : prchsVO.getPrchsGdsVO()) {
+			//매입상품 하나씩 꺼내서 insert
+			vo.setPrchsId(prchsId);
+			//매입상품 insert
+			result += prchsMapper.insertPrchsGds(vo);
+		}
+		return result;
+	}
+	
+	//매입발주서 삭제
+	@Override
+	public int deletePrchs(String prchsId) {
+		int result = 0;
+		int gdsResult = 0;
+		//매입상품 먼저 삭제
+		gdsResult =  prchsMapper.deletePrchsGds(prchsId);
+		
+		//매입상품 몇개 삭제됐나?
+		logger.info("매입상품 몇개 삭제됐나?" + gdsResult);
+		
+		//매입발주서 삭제
+		result = prchsMapper.deletePrchs(prchsId);
+		
+		return result;
+	}
+}

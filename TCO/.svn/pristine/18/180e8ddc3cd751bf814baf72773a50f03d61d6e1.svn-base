@@ -1,0 +1,43 @@
+package kr.or.tco.cal.controller;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import kr.or.tco.cal.service.CalService;
+import kr.or.tco.cal.vo.StrgWrhsVO;
+import kr.or.tco.cal.vo.CustNtsVO;
+
+//정산 컨트롤러
+@RequestMapping("/calculate")
+@Controller
+public class CalController {
+
+	private static final Logger logger = 
+			LoggerFactory.getLogger(CalController.class);
+	
+	@Autowired CalService calService;
+	
+	/**
+	 *  일일 매입 정산
+	 *  @return 일일 매입 vo 가 담긴 list 를 리턴.
+	 */
+	@RequestMapping(value = "/dailyPrc" ,method = RequestMethod.GET)
+	public String dailyPrc(Model model, @RequestParam(required = false)String keyWord){
+		
+		logger.info("keyWord: "+keyWord);
+		List<StrgWrhsVO>dailyPrc = this.calService.dailyPrc(keyWord);
+		List<CustNtsVO>dailyCustNts = this.calService.dailyCustNts(keyWord);
+		model.addAttribute("dailyPrc",dailyPrc);
+		model.addAttribute("dailyCustNts",dailyCustNts);
+		return "calculate/dailyPrc";
+	}
+	
+}

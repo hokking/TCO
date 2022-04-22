@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.emp.mapper.EmpMapper">
+
+	<insert id="empinsert" parameterType="empVO">
+		
+			<selectKey order="BEFORE" keyProperty="empId" resultType="String">
+				SELECT 'EMP' || LPAD(NVL(MAX(SUBSTR(EMP_ID,4)),0)+1,5,'0') FROM EMP
+			</selectKey>
+			INSERT INTO EMP(EMP_ID, EMP_NM,  EMP_BRDT, EMP_MAIL, EMP_JNCMP_YMD,
+	      					 EMP_PSWD, EMP_IP, EMP_ACTNO, EMP_SE, CMNCD_CD , EMP_IMG , EMP_TEL)
+			VALUES(#{empId},#{empNm},#{empBrdt},#{empMail}, #{empJncmpYmd},
+			#{empPswd},#{empIp},#{empActno},#{empSe}, #{cmncdCd}, #{empImg}, #{empTel})
+			
+	</insert>
+
+<!-- attach_files 테이블로 첨부파일 insert -->
+	
+<insert id="insertAttachFiles" parameterType="attachFilesVO">
+	<selectKey order="BEFORE" keyProperty="atchfileId" resultType="Integer">
+		SELECT NVL(MAX(ATCHFILE_ID),0)+1 FROM ATCHFILE
+	</selectKey>			
+	INSERT INTO ATCHFILE (ATCHFILE_ID, ATCHFILE_NM, ATCHFILE_SZ, ATCHFILE_DT ) 
+	VALUES (#{atchfileId}, #{atchfileNm}, #{atchfileSz}, SYSDATE)		
+</insert>
+	
+	<select id="cdselect" parameterType="empVO" resultType="String">
+		SELECT CMNCD_CD 
+		FROM CMNCD
+		WHERE CMNCD_GU_NM = #{opt}
+	    AND CMNCD_NM1 = #{dptopt}
+        AND CMNCD_NM2 = #{lelopt}
+	</select>
+
+</mapper>

@@ -1,0 +1,280 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<!DOCTYPE html>
+<script>
+//로딩창
+var myVar;
+window.onload = function myFunction() {
+// 	로딩창 시간설정
+  myVar = setTimeout(showPage, 0);
+}
+
+function showPage() {
+  document.getElementById("loader").style.display = "none";
+  document.getElementById("myDiv").style.display = "block";
+}
+
+//검색폼
+function fn_submit(){
+	var frm = document.searchForm;
+	frm.submit();
+}
+
+//dataTable 엑셀
+$(document).ready( function() {
+	 
+    $('#example').DataTable( {
+        dom: 'Bfrtip',
+        buttons: [{
+        	text: '엑셀다운로드',
+            extend: 'excelHtml5',
+            customize: function( xlsx ) {
+                var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                $('row c[r^="C"]', sheet).attr( 's', '2' );
+	            }
+	        }]
+    } );
+} );
+
+</script>
+
+<!-- 로딩창출력 -->
+<div id="loader"></div>
+
+<!-- myDiv안에는 로딩후 출력할 창을 넣는다 -->
+<div style="display:none;" id="myDiv">
+
+<html>
+<script type="text/javascript">
+	document.window.onload = function(){
+		document.write(일일정산 : 판매총액-구매총액 =  <c:out value="${slssum - prcsum}"/>);
+	}		
+
+</script>
+<head>
+<title>일일정산</title>
+</head>
+<body>
+
+	<div class="card">
+		<div class="card-body">
+			<h4 class="card-title mb-4">일일정산 = 재고 + 입고 - 출고 where = 해당일자</h4>
+			<!--날짜 검색 버튼-->
+			<div class="row">
+				<div class="col-sm-2">
+					<div class="mb-3">
+						<label>시작일</label> <input class="form-control" type="date"
+							value="" id="startdate-input">
+					</div>
+				</div>
+				<div class="col-sm-2">
+					<div class="mb-3">
+						<label>종료일</label> <input class="form-control" type="date"
+							value="" id="enddate-input">
+					</div>
+				</div>
+				<div class="col-sm-2">
+					<div class="mb-3">
+						<label>매입/매출</label> <select class="form-select">
+							<option>매입</option>
+							<option>매출</option>
+						</select>
+					</div>
+				</div>
+				<div class="col-sm-2">
+					<div class="mb-3">
+						<label>지점선택</label> <select class="form-select">
+							<option>본사</option>
+							<option>인천</option>
+							<option>대전</option>
+						</select>
+					</div>
+				</div>
+						<div class="col-sm-2">
+					<div class="mb-3">
+						<label>검색</label>
+						<div class="input-group mb-3">
+							<input type="text" class="form-control" id="">
+							<button class="btn btn-success" type="button" id="">찾기</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!--날짜검색버튼-->
+		</div>
+	</div>
+
+		<div class="card-body">
+			<div class="row">
+		
+				<div class="col-xl-6">
+				<div class="card">
+				<table class="table align-middle table-nowrap">
+					<thead>
+						<tr>
+							<th>입고번호</th>			<!-- STRG_WRHS_DT -->
+							<th>창고입고일</th>			<!-- STRG_WRHS_QTY -->
+							<th>지점명</th>			<!-- STRG_WRHS_DT -->
+							<th>상품명</th>			<!-- BRNCOFC_ID -->
+							<th>창고 수량</th>			<!-- PROD_INFO_ID  -->
+							<th>입고가격</th>			<!-- STRG_WRHS_QTY -->
+							<th>입고총액</th>			<!--  -->
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+							<!--foreach문으로 출력-->
+						<c:set var ="prcsum" value="0"/>
+						<c:forEach var="calVO" items="${dailyPrc}" varStatus="status">
+							<tr>
+								<td><a href="#">${calVO.strgWrhsId}</a></td><!-- 입고번호 -->
+								<td><a href="#">${fn:substring(calVO.strgWrhsDt,0,10) }</a></td><!-- 창고입고일 -->
+								<td><a href="#">${calVO.brncofcNm}</a></td><!-- 지점명 -->
+								<td><a href="#">${calVO.prodInfoNm}</a></td><!-- 상품명 -->
+								<td><a href="#">${calVO.strgWrhsQty} ea</a></td><!-- 창고 수량 -->
+								<td><a href="#">${calVO.prodInfoPrchsAmt}원</a></td><!-- 입고가격 -->
+								<td><a href="#">${calVO.strgWrhsTotal}원</a></td><!-- 입고가격 -->
+								<td>
+									<div class="dropdown">
+										<a href="#" class="dropdown-toggle card-drop"
+											data-bs-toggle="dropdown" aria-expanded="false"> <i
+											class="mdi mdi-dots-horizontal font-size-18"></i>
+										</a>
+										<ul class="dropdown-menu dropdown-menu-end">
+											<li><a href="#" class="dropdown-item"><i
+													class="mdi mdi-pencil font-size-16 text-success me-1"></i>
+													Edit</a></li>
+											<li><a href="#" class="dropdown-item"><i
+													class="mdi mdi-trash-can font-size-16 text-danger me-1"></i>
+													Delete</a></li>
+										</ul>
+									</div>
+								</td>
+							</tr>
+							<c:set var="prcsum" value="${prcsum + calVO.strgWrhsTotal}"/>
+						</c:forEach>
+					</tbody>
+					<tr><td><c:out value=" 구매총액 : ${prcsum}"/></td></tr>
+				</table>
+				</div>
+				</div>
+				
+				<div class="col-xl-6">
+				<div class="card">
+				<table class="table align-middle table-nowrap">
+					<thead>
+						<tr>
+							<th>체크</th>
+							<th>판매번호</th>			<!-- cust_ntsl_id -->
+							<th>소비자판매일</th>			<!-- cust_ntsl_dt -->
+							<th>지점명</th>			<!-- brncofc_id -->
+							<th>상품번호</th>			<!-- prod_info_id  -->
+							<th>상품명</th>			<!-- prod_info_id  -->
+							<th>고객아이디</th>			<!-- cust_id -->
+							<th>판매수량</th>			<!-- cust_id -->
+							<th>판매가격</th>			<!-- cust_ntsl_amt -->
+							<th>판매총액</th>			<!-- cust_ntsl_amt -->
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+							<!--foreach문으로 출력-->
+						<c:set var ="slssum" value="0"/>
+						<c:forEach var="cnptVO" items="${dailyCustNts}">
+							<tr>
+								<td>
+									<div class="form-check font-size-16">
+										<input class="form-check-input" type="checkbox"
+											id="customerlistcheck01"> <label
+											class="form-check-label" for="customerlistcheck01"></label>
+									</div>
+								</td>
+
+
+								<td><a href="#">${custNtsVO.custNtslId}</a></td>
+								<td>
+									<a href="#">${custNtsVO.brncofcId}</a>
+								</td>
+
+								<td><a href="#">${custNtsVO.custId}</a></td>
+								<td><a href="#">${custNtsVO.prodInfoId}</a></td>
+								<td><a href="#">${custNtsVO.custNtslDt}</a></td>
+								<td><a href="#">${custNtsVO.custNtslAmt}</a></td>
+								<td><a href="#">${custNtsVO.custNtslTotal}</a></td>
+								<td>
+									<div class="dropdown">
+										<a href="#" class="dropdown-toggle card-drop"
+											data-bs-toggle="dropdown" aria-expanded="false"> <i
+											class="mdi mdi-dots-horizontal font-size-18"></i>
+										</a>
+										<ul class="dropdown-menu dropdown-menu-end">
+											<li><a href="#" class="dropdown-item"><i
+													class="mdi mdi-pencil font-size-16 text-success me-1"></i>
+													Edit</a></li>
+											<li><a href="#" class="dropdown-item"><i
+													class="mdi mdi-trash-can font-size-16 text-danger me-1"></i>
+													Delete</a></li>
+										</ul>
+									</div>
+								</td>
+							</tr>
+							<c:set var="prcsum" value="${slssum + custNtsVO.custNtslTotal}"/>
+						</c:forEach>
+					</tbody>
+					<tr><td><c:out value=" 판매총액 : ${slssum}"/></td></tr>
+				</table>
+				<c:out value=" 일일정산 : 판매총액-구매총액 =  ${slssum - prcsum}"/>
+				</div>
+				</div>
+				
+			</div>
+		</div>
+		
+<!-- 상세정보 modal -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display: none;">
+     <div class="modal-dialog">
+         <div class="modal-content">
+             <div class="modal-header">
+                 <h5 class="modal-title" id="exampleModalLabel">상세정보</h5>
+                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+             </div>
+             <div class="modal-body">
+                 <form>
+                     <div class="mb-3">
+                         <label for="recipient-name" class="col-form-label">Recipient:</label>
+                         <input type="text" class="form-control" id="recipient-name">
+                     </div>
+                     <div class="mb-3">
+                         <label for="recipient-name" class="col-form-label">Recipient:</label>
+                         <input type="text" class="form-control" id="recipient-name">
+                     </div>
+                     <div class="mb-3">
+                         <label for="recipient-name" class="col-form-label">Recipient:</label>
+                         <input type="text" class="form-control" id="recipient-name">
+                     </div>
+                     <div class="mb-3">
+                         <label for="recipient-name" class="col-form-label">Recipient:</label>
+                         <input type="text" class="form-control" id="recipient-name">
+                     </div>
+                     <div class="mb-3">
+                         <label for="recipient-name" class="col-form-label">Recipient:</label>
+                         <input type="text" class="form-control" id="recipient-name">
+                     </div>
+                     <div class="mb-3">
+                         <label for="recipient-name" class="col-form-label">Recipient:</label>
+                         <input type="text" class="form-control" id="recipient-name">
+                     </div>
+                 </form>
+             </div>
+             <div class="modal-footer">
+                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+             </div>
+         </div>
+     </div>
+ </div>
+ <!-- 상세정보 modal -->		
+	
+</body>
+</html>

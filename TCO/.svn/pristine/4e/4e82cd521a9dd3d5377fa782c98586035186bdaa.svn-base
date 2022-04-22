@@ -1,0 +1,58 @@
+package kr.or.tco.cnpt.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.tco.cnpt.mapper.CnptMapper;
+import kr.or.tco.cnpt.service.CnptService;
+import kr.or.tco.cnpt.vo.CnptVO;
+
+//거래처 서비스
+@Service
+public class CnptServiceImpl implements CnptService {
+
+	@Autowired
+	CnptMapper cnptMapper;
+	
+	//거래처 조회
+	@Override
+	public List<CnptVO> list(String keyWord) {
+		return cnptMapper.list(keyWord);
+	}
+
+	//거래처 등록
+	@Override
+	public int insert(CnptVO cnptVO) {
+		return cnptMapper.insert(cnptVO);
+	}
+
+	//거래처 상세조회
+	@Override
+	public CnptVO detail(String cnptId) {
+		return cnptMapper.detail(cnptId);
+	}
+	
+	//거래처 수정 - 기본정보
+	@Override
+	public CnptVO updateBasic(CnptVO cnptVO) {
+		return cnptMapper.updateBasic(cnptVO);
+	}
+	//거래처 수정 - 계좌정보
+	@Override
+	public CnptVO updateAct(CnptVO cnptVO) {
+		return cnptMapper.updateAct(cnptVO);
+	}
+	//거래처 수정 - 담당자 정보
+	@Override
+	public CnptVO updateCharger(CnptVO cnptVO) {
+		return cnptMapper.updateCharger(cnptVO);
+	}
+	//거래처 삭제
+	@Override
+	public int delete(String cnptId) {
+		return cnptMapper.delete(cnptId);
+	}
+
+}

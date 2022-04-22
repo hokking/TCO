@@ -1,0 +1,16 @@
+package kr.or.tco.sal.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@RequestMapping("/sal")
+@Controller
+public class SalController {
+
+	@GetMapping("/sallist")
+	public String sallist() {
+		
+		return "sal/sallist";
+	}
+}

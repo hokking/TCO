@@ -1,0 +1,56 @@
+package kr.or.tco.cust.service;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.tco.cust.vo.CustVO;
+
+public interface CustService {
+
+	// 고객 등록
+	int custInsert(CustVO custVO);
+
+	// 고객 목록 - 일반
+	public List<CustVO> custSelect(Map<String, Object> map);
+	
+	// 고객 목록 - 휴면
+	public List<CustVO> custSelectH(Map<String, Object> map);
+	
+	// 고객 목록 - 탈퇴
+	public List<CustVO> custSelectT(Map<String, Object> map);
+	
+	// 고객 전체 인원수 - 일반
+	public int getCustTotal(Map<String, Object> map);
+	
+	// 고객 전체 인원수 - 휴면
+	public int getCustTotal1(Map<String, Object> map);
+	
+	// 고객 전체 인원수 - 탈퇴
+	public int getCustTotal2(Map<String, Object> map);
+	
+	// 고객 상세 정보
+	public CustVO custDetailSelect(String custId);
+	
+	// 고객 정보 수정
+	public int custDetailUpdate(CustVO custVO);
+	
+	// 고객 상태 수정 - 탈퇴
+	public int custDeleteUpdate(String custId);
+	
+	// 마케팅 수신 동의 고객 목록
+	public List<CustVO> custMktSelect(Map<String, Object> map);
+	
+	// 마케팅 수신 동의 고객 목록 - 휴면
+	public List<CustVO> custMktSelect1(Map<String, Object> map);
+	
+	// 마케팅 수신 동의 고객 목록 - 탈퇴
+	public List<CustVO> custMktSelect2(Map<String, Object> map);
+
+	List<CustVO> custQRSelect(Map<String, String> map2);
+
+	//소비자판매 자동으로 하기 위한 쿼리
+	public int autoNtsl(Map<String, Object> map);
+
+	//상품명으로 가격찾기
+	public int amtFind(String prodInfoId);
+}

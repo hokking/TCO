@@ -1,0 +1,46 @@
+package kr.or.tco.prchs.controller;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import kr.or.tco.prchs.service.PrchsService;
+import kr.or.tco.prchs.vo.PrchsVO;
+
+//매입 컨트롤러
+@RequestMapping("/prchs")
+@Controller
+public class PrchsController {
+	
+	@Autowired
+	PrchsService prchsService;
+	
+	final static Logger logger = 
+			LoggerFactory.getLogger(PrchsController.class);
+	
+	//매입 발주서 화면
+	@GetMapping("/prchsOrder")
+	public String prchsOrder(Model model) {
+		
+		//매입발주서에 저장된 목록 가져오기
+		List<PrchsVO> prchsList = prchsService.getSvdPrchsOrdrList();
+		//Model에 저장
+		model.addAttribute("prchsList", prchsList);
+		return "prchs/prchsOrder";
+	}
+	
+	//매입 명세서 화면
+	@GetMapping("/prchsSpece")
+	public String prchsSpece(Model model) {
+		
+		//매입명세서 목록 가져오기
+		List<PrchsVO> speceList = prchsService.getPrchsSpeceList();
+		return "prchs/prchsSpece";
+	}
+}

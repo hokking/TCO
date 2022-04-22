@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.cust.mapper.CustMapper">
+
+	<insert id="custInsert" parameterType="custVO">
+		<selectKey order="BEFORE" keyProperty="custId" resultType="String">
+			SELECT CASE WHEN MAX(SUBSTR(CUST_ID, 1, 8)) = TO_CHAR(SYSDATE, 'YYYYMMDD')
+			       THEN TO_CHAR(SYSDATE, 'YYYYMMDD') || LPAD(NVL(SUBSTR(MAX(CUST_ID), 9, 4), 0) + 1, 4, '0')
+			       ELSE TO_CHAR(SYSDATE, 'YYYYMMDD') || '0001'
+			       END
+			  FROM CUST
+		</selectKey>
+		INSERT INTO CUST
+		VALUES (#{custId}, #{custNm}, #{custTel}, #{custMail}, #{custZip}, 
+				#{custAddr}, #{custDaddr}, #{custBrdt}, #{custMrgYn}, '일반', 
+				#{custCrcdNo}, #{custGndr}, #{custMktRcptnAgreYn}, 'B103')
+	</insert>	
+	
+	<select id="custSelect" resultType="custVO">
+		SELECT CUST_ID, CUST_NM, CUST_TEL, CUST_MAIL, CUST_ZIP,
+		       CUST_ADDR, CUST_DADDR, CUST_BRDT, CUST_MRG_YN,
+		       CUST_STTS, CUST_CRCD_NO, CUST_GNDR,
+		       CUST_MKT_RCPTN_AGRE_YN, CMNCD_CD
+		  FROM CUST
+	</select>
+</mapper>

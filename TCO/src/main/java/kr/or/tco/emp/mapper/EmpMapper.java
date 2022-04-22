@@ -1,0 +1,60 @@
+package kr.or.tco.emp.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.tco.cmncd.vo.CmncdVO;
+import kr.or.tco.emp.vo.AttachFilesVO;
+
+import kr.or.tco.emp.vo.EmpVO;
+
+
+public interface EmpMapper {
+
+	
+	public int empinsert(EmpVO empVO);
+	
+	public int insertAttachFiles(AttachFilesVO attachFilesVO);
+		
+	public String cdselect(EmpVO empVO);
+	
+	public String brnselect(String brncofcId);
+	
+	// 고객목록
+	public List<EmpVO> emplist(Map<String, Object> map);
+		
+		
+	//  행의 수
+	public int selectCount(Map<String,Object> map) ;
+	
+	// 직원 상세조회
+	public EmpVO empdetail(EmpVO empVO);
+	
+	// 소속 부서 직급
+	public CmncdVO sdselect(String cmncdCd);
+	
+	// 직원 정보수정
+	public int empTelupdate(EmpVO empVO);
+	public int empMailupdate(EmpVO empVO);
+	public int empPswdupdate(EmpVO empVO);
+	public int empSeupdate(EmpVO empVO);
+	
+	//로그인을 위한 EMP와 AUTHORITIES 테이블 조인
+	public EmpVO read(String userName);
+	
+	// 로그인 체크
+	public String loginCheck(Map<String, Object> map);
+	
+	// 직원 정보 직접 수정
+	public int empInfoUpdate(EmpVO empVO);
+	
+	// 아이디 찾기
+	public String forgotId(Map<String, Object> map);
+	
+	// 비번 잊어버렸을때, 새로 만들기 
+	public int updateNewPw(Map<String, Object> map);
+	//소속찾기
+	public Map<String, Object> empBelong(String username);
+
+
+}

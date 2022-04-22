@@ -1,0 +1,159 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<!DOCTYPE html>
+<html>
+<head>
+<title>Insert title here</title>
+<style type="text/css">
+	label{
+	text-align: center;
+	}
+</style>
+<link href="/resources/css/ui.jqgrid.css" rel="stylesheet" type="text/css" />
+<link href="/resources/css/jquery-ui.min.css" rel="stylesheet" type="text/css"/>
+<script src="/resources/js/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="/resources/js/jqgrid/grid.locale-kr.js"></script>
+<script type="text/javascript" src="/resources/js/jqgrid/jquery.jqGrid.min.js"></script>
+<script type="text/javascript" src="/resources/js/jquery-ui.min.js"></script>
+<script type="text/javascript">
+	
+	function getgrid(dt){
+		$('#gridlist').jqGrid({
+			url:"/sls/slspagelist/"+dt,
+            loadtext: '로딩중입니다',
+            datatype:"json",
+            loadonce: true,
+            mtype : "POST",
+            autowidth: true,
+            height: 500,
+            colNames:[ "판매코드", "이름", "가격", "수량"],
+            colModel:[
+                      {name:"custNtslId", index:"custNtslId", align:"center"},
+                      {name:"prodInfoNm", index:"prodInfoNm", align:"center"},
+                      {name:"custNtslAmt", index:"custNtslAmt", align:"left"},
+                      {name:"custNtslQty", index:"custNtslQty", align:"left"}
+                    ],
+            caption: "매출명세",
+            rownumbers : true,
+            viewrecords:true,
+            rowNum:20,
+            rowList: [20,40,60],
+            onSelectRow:function(id){
+            	//리스트에서 클릭시 이벤트 처리
+            	console.log(id);
+            },
+            pager: '#pager'	
+		});
+	};
+	
+	
+	
+	$('document').ready(function(){
+		$('.detail').attr('readonly',true);
+		//받아온 날짜를 넣어서 그리드에서 파라미터로 받아옴
+		var dt = $('#slsDt').val();
+		console.log(dt);
+		getgrid(dt);
+		
+		$(window).on('resize.jqGrid', function () {
+		    jQuery("#gridlist").jqGrid( 'setGridWidth', $("#content").width() );
+		});
+
+	});
+</script>
+</head>
+<body>
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h1 class="mb-sm-0 font-size-20">매출 명세서</h1>
+
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Sales</a></li>
+                    <li class="breadcrumb-item active">Detail</li>
+                </ol>
+           
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- end page title -->
+
+<!-- form태그 시작 -->
+<div class="row">
+    <div class="col-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex gap-3" style="float: right;">
+                	<button type="button" class="btn btn-secondary btn-success" style="display: block;">
+                		매출명세서 출력(미구현)
+                	</button>
+				</div>
+           	</div>
+			<hr><br>
+                <div class="mb-3 row">
+                    <label for="example-text-input" class="col-md-2 col-form-label">매출번호</label>
+                    <div class="col-md-4">
+                        <input class="form-control detail" type="text" value="${slsVO.slsId}" />
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label class="col-md-2 col-form-label">지점아이디</label>
+                    <div class="col-md-6">
+                        <input class="form-control detail" type="tel" value="${slsVO.brncofcId}" />
+                    </div>
+                </div>                 
+                <div class="mb-3 row">
+                    <label for="example-email-input" class="col-md-2 col-form-label">지점명</label>
+                    <div class="col-md-6">
+                        <input class="form-control detail" type="email" value="${slsVO.brncofcNm}" />
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label for="example-month-input" class="col-md-2 col-form-label">등록일 </label>
+                    <div class="col-md-6">
+                        <input id="slsDt" name="slsDt" class="form-control detail" type="date" value="<fmt:formatDate value="${slsVO.slsDt}" pattern="yyyy-MM-dd"/>"/>
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label for="example-url-input" class="col-md-2 col-form-label">매입액</label>
+                    <div class="col-md-6">
+                    	<fmt:formatNumber value="${slsVO.prcAmt}" pattern="#,###.##원" var="prcAmt" />
+                        <input class="form-control detail" type="text" value="${prcAmt}"/>
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label for="example-url-input" class="col-md-2 col-form-label">순이익</label>
+                    <div class="col-md-6">
+                    	<fmt:formatNumber value="${slsVO.netincome}" pattern="#,###.##원" var="netincome" />
+                        <input class="form-control detail" type="text" value="${netincome}"/>
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label for="example-url-input" class="col-md-2 col-form-label">총매출액</label>
+                    <div class="col-md-6">
+                    	<fmt:formatNumber value="${slsVO.slsAmt}" pattern="#,###.##원" var="slsAmt" />
+                        <input class="form-control detail" type="text" value="${slsAmt}"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-6">
+        	<div class="card" id="content">	
+	        	<div class="mb-3 row">
+	                <div class="col-md-6">
+	                    <div id="grid">
+							<table id="gridlist"></table>
+							<div id="pager"></div>
+						</div>
+	                </div>
+	            </div>
+	        </div>
+        </div>
+    </div> <!-- end col -->
+</body>
+</html>

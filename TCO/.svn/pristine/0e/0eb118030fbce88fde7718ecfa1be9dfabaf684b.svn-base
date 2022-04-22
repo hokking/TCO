@@ -1,0 +1,12 @@
+package kr.or.tco.att.service.impl;
+
+import kr.or.tco.cmncd.vo.CmncdVO;
+import kr.or.tco.emp.vo.EmpVO;
+
+public interface AttService {
+	// 로그인한 유저의 기본정보 select
+	public EmpVO binfoselect(String empId) ;
+	
+	// 로그인한 유저의 공통코드에 따른 부서/직급
+	public CmncdVO sdselect(String cmncdCd);
+}

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.alam.mapper.AlamMapper">
+
+	<insert id="alamInsert" parameterType="HashMap">
+		<selectKey order="BEFORE" keyProperty="alamnum" resultType="Integer">
+				 SELECT NVL(MAX(ALAMNUM),0)+1  FROM ALAM
+		</selectKey>
+		INSERT INTO ALAM (
+	    ALAMNUM,    
+	    TITLE,    SENDER,    RECEIVER,    BRNCOFCNM,    
+	    SHORTSTOCKNM,  DPTOPT,    LELOPT,    RECEPTION_STATUS
+		) VALUES (
+	    #{alamnum},    
+	    #{title},    #{sender},    #{receiver},  #{brncofcnm},    
+	    #{shortstocknm},  #{dptopt},    #{lelopt},    #{receptionStatus})
+	</insert>
+	
+	
+	<update id="alamUpdate" parameterType="HashMap">
+		UPDATE alam
+	    SET receptionstatus = 'Y'
+		WHERE alamnum =  #{alamnum}
+	</update>
+
+	<select id="alamTable" parameterType="HashMap" resultType="alamVO">
+		
+		SELECT  alamnum,
+			    title,
+			    sender,
+			    receiver,
+			    brncofcnm,
+			    shortstocknm,
+			    dptopt,
+			    lelopt,
+			    reception_status
+			FROM
+			    alam
+			where
+			    reception_status = 'X'
+			and receiver = #{receiver}
+	
+	</select>	
+	
+	
+</mapper>

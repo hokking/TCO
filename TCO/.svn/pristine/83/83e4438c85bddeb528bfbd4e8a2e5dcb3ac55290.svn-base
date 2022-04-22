@@ -1,0 +1,5 @@
+package kr.or.tco.prchs.service;
+
+public interface PrchsService {
+
+}

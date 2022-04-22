@@ -1,0 +1,68 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+
+        <!-- start page title -->
+        <div class="row">
+            <div class="col-12">
+                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+         					 <h1 class="mb-sm-0 font-size-20">🧾상세 재고 현황</h1>
+                </div>
+            </div>
+        </div>
+        <!-- end page title -->
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                    <form name="searchFrm" id="searchFrm" action="/strgstck/detailstock">
+                    <div class="row mb-2">
+                     <div class="col-sm-3">
+                         <div class="search-box me-2 mb-2 d-inline-block">
+                             <div class="position-relative">
+                                 <input class="form-control" type="search"  name="keyWord" id="keyWord" value="${param.keyWord}" placeholder="상품명입력">
+                                 <i class="bx bx-search-alt search-icon"></i>
+                             </div>
+                         </div>
+                         <div class="col-sm-1 seicon">
+                     	     <button type="submit" class="btn btn-info btn-rounded waves-effect waves-light seicon" hidden="true" ><i class="bx bx-search-alt-2"></i></button>
+                         </div>
+                     </div>
+                   
+                    </div>
+                    </form>
+
+                       <div class="table-rep-plugin">
+                            <div class="table-wrapper">
+                              <div class="table-responsive mb-0 fixed-solution" data-pattern="priority-columns">
+                                <div class="sticky-table-header" style="height: 46px; visibility: hidden; top: -1px; width: auto;"></div>
+                                <table id="tech-companies-1" class="table table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th data-priority="1" id="tech-companies-1-col-1">상품명</th>
+                                        <th data-priority="3" id="tech-companies-1-col-2">창고재고수량</th>
+                                        <th data-priority="1" id="tech-companies-1-col-3">창고안전재고수</th>
+                                        <th data-priority="3" id="tech-companies-1-col-4">창고기본보유수량</th>
+                            
+
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+	                                  <c:forEach var="list" items="${list}"> 
+		                                    <tr>
+		                                        <td data-org-colspan="1" data-priority="1" data-columns="tech-companies-1-col-1">${list.prodInfoNmDisplay}</td>
+		                                        <td data-org-colspan="1" data-priority="3" data-columns="tech-companies-1-col-2">${list.strgStckQty}</td>
+		                                        <td data-org-colspan="1" data-priority="3" data-columns="tech-companies-1-col-4">${list.strgStckSftyQty}</td>
+		                                        <td data-org-colspan="1" data-priority="3" data-columns="tech-companies-1-col-5">${list.strgStckDfltQty}</td>
+                                 
+		                                    </tr>
+	                                    </c:forEach> 
+                                    </tbody>
+                                </table>
+                            </div></div>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- end col -->
+        </div> <!-- end row -->

@@ -1,0 +1,104 @@
+package kr.or.tco.calculate.vo;
+
+public class CalVO {
+    ///소비자 판매 테이블
+	private String custNtslId;
+	private String brncofc_id;
+	private String cust_id;
+	private String prod_info_id;
+	private String cust_ntsl_dt;
+	private int cust_ntsl_amt;
+	
+	
+	///창고입고 테이블
+	private String strgWrhsId;
+	private String brncofcId;
+	private String prodInfoId;
+	private String strgWrhsQty;
+	private String strgWrhsDtA;       
+	                                   
+	
+	
+	public String getCustNtslId() {
+		return custNtslId;
+	}
+	public void setCustNtslId(String custNtslId) {
+		this.custNtslId = custNtslId;
+	}
+	public String getBrncofc_id() {
+		return brncofc_id;
+	}
+	public void setBrncofc_id(String brncofc_id) {
+		this.brncofc_id = brncofc_id;
+	}
+	public String getCust_id() {
+		return cust_id;
+	}
+	public void setCust_id(String cust_id) {
+		this.cust_id = cust_id;
+	}
+	public String getProd_info_id() {
+		return prod_info_id;
+	}
+	public void setProd_info_id(String prod_info_id) {
+		this.prod_info_id = prod_info_id;
+	}
+	public String getCust_ntsl_dt() {
+		return cust_ntsl_dt;
+	}
+	public void setCust_ntsl_dt(String cust_ntsl_dt) {
+		this.cust_ntsl_dt = cust_ntsl_dt;
+	}
+	public int getCust_ntsl_amt() {
+		return cust_ntsl_amt;
+	}
+	public void setCust_ntsl_amt(int cust_ntsl_amt) {
+		this.cust_ntsl_amt = cust_ntsl_amt;
+	}
+	
+	
+	
+	
+	
+	public String getStrgWrhsId() {
+		return strgWrhsId;
+	}
+	public void setStrgWrhsId(String strgWrhsId) {
+		this.strgWrhsId = strgWrhsId;
+	}
+	public String getBrncofcId() {
+		return brncofcId;
+	}
+	public void setBrncofcId(String brncofcId) {
+		this.brncofcId = brncofcId;
+	}
+	public String getProdInfoId() {
+		return prodInfoId;
+	}
+	public void setProdInfoId(String prodInfoId) {
+		this.prodInfoId = prodInfoId;
+	}
+	public String getStrgWrhsQty() {
+		return strgWrhsQty;
+	}
+	public void setStrgWrhsQty(String strgWrhsQty) {
+		this.strgWrhsQty = strgWrhsQty;
+	}
+	public String getStrgWrhsDtA() {
+		return strgWrhsDtA;
+	}
+	public void setStrgWrhsDtA(String strgWrhsDtA) {
+		this.strgWrhsDtA = strgWrhsDtA;
+	}
+	
+	@Override
+	public String toString() {
+		return "CalVO [custNtslId=" + custNtslId + ", brncofc_id=" + brncofc_id + ", cust_id=" + cust_id
+				+ ", prod_info_id=" + prod_info_id + ", cust_ntsl_dt=" + cust_ntsl_dt + ", cust_ntsl_amt="
+				+ cust_ntsl_amt + ", strgWrhsId=" + strgWrhsId + ", brncofcId=" + brncofcId + ", prodInfoId="
+				+ prodInfoId + ", strgWrhsQty=" + strgWrhsQty + ", strgWrhsDtA=" + strgWrhsDtA + "]";
+	}
+	
+	
+	
+}

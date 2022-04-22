@@ -1,0 +1,40 @@
+package kr.or.tco.att.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.tco.att.mapper.AttMapper;
+import kr.or.tco.att.vo.WorksttsVO;
+import kr.or.tco.cmncd.vo.CmncdVO;
+import kr.or.tco.emp.vo.EmpVO;
+
+@Service
+public class AttServiceImpl implements AttService{
+
+	@Autowired AttMapper attMapper;
+	@Override
+	public EmpVO binfoselect(String empId) {
+		return attMapper.binfoselect(empId);
+	}
+
+	@Override
+	public CmncdVO sdselect(String cmncdCd) {
+		return attMapper.sdselect(cmncdCd);
+	}
+
+	@Override
+	public WorksttsVO checkselect(String empId) {
+		return attMapper.checkselect(empId);
+	}
+
+	@Override
+	public int inselect(WorksttsVO worksttsVO) {
+		return attMapper.inselect(worksttsVO);
+	}
+
+	@Override
+	public int outselect(WorksttsVO worksttsVO) {
+		return attMapper.outselect(worksttsVO);
+	}
+
+}

@@ -1,0 +1,23 @@
+package kr.or.tco.sttst.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.tco.sls.vo.SlsVO;
+import kr.or.tco.sttst.mapper.SttstMapper;
+import kr.or.tco.sttst.service.SttstService;
+
+@Service
+public class SttstServiceimpl implements SttstService {
+	
+	@Autowired SttstMapper sttstMapper;
+
+	@Override
+	public List<SlsVO> getDailyIncome() {
+		return sttstMapper.getDailyIncome();
+	}
+	
+	
+}

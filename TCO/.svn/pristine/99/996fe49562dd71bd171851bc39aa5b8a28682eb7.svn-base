@@ -1,0 +1,82 @@
+package kr.or.tco.cal.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import kr.or.tco.cal.mapper.CalMapper;
+import kr.or.tco.cal.service.CalService;
+import kr.or.tco.cal.vo.StrgWrhsVO;
+import kr.or.tco.cmncd.vo.CmncdVO;
+import kr.or.tco.prod.vo.ProdVO;
+import kr.or.tco.cal.vo.CustNtsVO;
+import kr.or.tco.cal.vo.PosVO;
+@Service
+public class CalServiceImpl implements CalService{
+
+	@Autowired CalMapper calMapper;
+	
+	@Override
+	public List<StrgWrhsVO> dailyPrc(Map<String,Object> map) {
+		return this.calMapper.dailyPrc( map);
+	}
+
+	@Override
+	public List<CustNtsVO> dailyCustNts(Map<String,Object> map) {
+		return this.calMapper.dailyCustNts(map);
+	}
+
+
+	@Override
+	public int getSGWTotal(Map<String, Object> map) {
+		return this.calMapper.getSGWTotal(map);
+	}
+
+	@Override
+	public int getCNLTotal(Map<String, Object> map) {
+		return this.calMapper.getCNLTotal(map);
+	}
+
+	@Override
+	public int dailyCalInsert(Map<String, Object> map) {
+		return this.calMapper.dailyCalInsert(map);
+	}
+
+	@Override
+	public ProdVO prodDetail(String prodInfoNm) {
+		return this.calMapper.prodDetail(prodInfoNm);
+	}
+
+	@Override
+	public List<CmncdVO> cdnm2List(String prodInfoNm) {
+		return this.calMapper.cdnm2List(prodInfoNm);
+	}
+
+	@Override
+	public List<PosVO> prodList(Map<String, String> map) {
+		return this.calMapper.prodList(map);
+	}
+
+	@Override
+	public String custValChk(Map<String, String> map) {
+		return this.calMapper.custValChk(map);
+	}
+
+	@Override
+	public int CustNtsInsert(Map<String, Object> map) {
+		return this.calMapper.CustNtsInsert(map);
+	}
+
+	@Override
+	public int streStckDsc(Map<String, Object> map2) {
+		return this.calMapper.streStckDsc(map2);
+	}
+
+	@Override
+	public ProdVO salesSuspensionChk(String prodInfoId) {
+		return this.calMapper.salesSuspensionChk(prodInfoId);
+	}
+
+
+}

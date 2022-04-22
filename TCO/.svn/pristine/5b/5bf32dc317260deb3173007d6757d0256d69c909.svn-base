@@ -1,0 +1,14 @@
+package kr.or.tco.cust.service;
+
+import java.util.List;
+
+import kr.or.tco.cust.vo.CustVO;
+
+public interface CustService {
+
+	// 고객 등록
+	int custInsert(CustVO custVO);
+
+	// 고객 목록
+	public List<CustVO> custSelect();
+}

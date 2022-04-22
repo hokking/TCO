@@ -1,0 +1,132 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<script type="text/javascript">
+	
+//     function fn_search(){
+    	
+// 	    var frm = document.frm;
+// 	    console.log("frm.size : " + frm.size.value);
+// 	    console.log("frm.keyWord : " + frm.keyWord.value);
+// 	    frm.submit();
+// 	}
+	
+</script>
+
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0 font-size-18">고객 조회</h4>
+
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Ecommerce</a></li>
+                    <li class="breadcrumb-item active">Customers</li>
+                </ol>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- end page title -->
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-sm-8" style="width: 70%;">
+                	<form name="frm" id="frm" action="/cust/custlist" method="get">
+                        <div class="search-box me-2 mb-2 d-inline-block">
+                            <div class="position-relative">
+                                <input name="keyWord" id="keyWord" type="text" value="${param.keyWord}" class="form-control" placeholder="Search..." style="float: left; width: 70%;">
+                                <i class="bx bx-search-alt search-icon"></i>
+                                <button type="submit" class="btn btn-secondary btn-rounded waves-effect waves-light" style="width: 30%;">검색</button>
+                            </div>
+                        </div>
+                    </form>
+                    </div>
+                    <div class="col-sm-4" style="width: 30%;">
+                        <div class="text-sm-end">
+                            <button type="button" onclick="location.href='/cust/custinsert';" class="btn btn-info btn-rounded waves-effect waves-light mb-2 me-2"><i class="mdi mdi-plus me-1"></i> 고객등록 </button>
+                        </div>
+                    </div><!-- end col-->
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle table-nowrap">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>고객번호</th>
+                                <th>고객명</th>
+                                <th>전화번호</th>
+                                <th>이메일</th>
+                                <th>등급</th>
+                                <th>비고</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        	<c:set var="i" value="${list.currentPage*7-6-1}" />
+                           	<c:forEach var="custVO" items="${list.content}">
+                            	<tr>
+	                                <td>${custVO.rnum}</td>
+	                                <td><a href="/cust/custdetail?custId=${custVO.custId}">${custVO.custId}</a></td>
+	                                <td><a href="/cust/custdetail?custId=${custVO.custId}">${custVO.custNm}</a></td>
+	                                <td>${custVO.custTel}</td>
+	                                <td>${custVO.custMail}</td>
+	                                <td>
+	                                	<c:if test="${custVO.cmncdNm1 eq 'SILVER'}">
+	                                	<span class="badge badge-soft-dark font-size-12">${custVO.cmncdNm1}</span></c:if>
+	                                	<c:if test="${custVO.cmncdNm1 eq 'GOLD'}">
+	                                	<span class="badge bg-warning font-size-12">${custVO.cmncdNm1}</span></c:if>
+	                                	<c:if test="${custVO.cmncdNm1 eq 'VIP'}">
+	                                	<span class="badge bg-info font-size-12">${custVO.cmncdNm1}</span></c:if>
+	                                </td>
+	                                <td>
+	                                    <div class="dropdown">
+	                                        <a href="#" class="dropdown-toggle card-drop" data-bs-toggle="dropdown" aria-expanded="false">
+	                                            <i class="mdi mdi-dots-horizontal font-size-18"></i>
+	                                        </a>
+	                                        <ul class="dropdown-menu dropdown-menu-end">
+	                                            <li><a href="/cust/custdetail?custId=${custVO.custId}" class="dropdown-item"><i class="mdi mdi-pencil font-size-16 text-success me-1"></i> 수정</a></li>
+	                                            <li><a href="/cust/custdelete?custId=${custVO.custId}" class="dropdown-item"><i class="mdi mdi-trash-can font-size-16 text-danger me-1"></i> 탈퇴</a></li>
+	                                        </ul>
+	                                    </div>
+	                                </td>
+                            	</tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- 페이징처리 시작 -->
+                <ul class="pagination pagination-rounded justify-content-end mb-2">
+                    <li class="page-item <c:if test='${list.startPage<6}'>disabled</c:if>">
+                        <a class="page-link" href="/cust/custlist?currentPage=${list.startPage-5}&keyWord=${param.keyWord}" aria-label="Previous">
+                            <i class="mdi mdi-chevron-left"></i>
+                        </a>
+                    </li>
+                    <c:forEach var="pNo" begin="${list.startPage}" end="${list.endPage}" step="1">
+	                    <li class="page-item <c:if test='${list.currentPage eq pNo}'>active</c:if> " >
+	                        <a class="page-link" href="/cust/custlist?currentPage=${pNo}&keyWord=${param.keyWord}">${pNo}</a>
+	                    </li>       
+                    </c:forEach> 
+                    <li class="page-item <c:if test='${list.endPage>=list.totalPages}'>disabled</c:if>">
+                        <a class="page-link" href="/cust/custlist?currentPage=${list.startPage+5}&keyWord=${param.keyWord}" aria-label="Next">
+                            <i class="mdi mdi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+                <!-- 페이징처리 끝 -->
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-xl-3 col-lg-4 col-sm-6 mb-2">
+    <div class="p-3">
+        <p>A warning message, with a function attached to the "Confirm"-button...</p>
+        <button type="button" class="btn btn-primary waves-effect waves-light" id="sa-warning">Click me</button>
+    </div>
+</div>
+<!-- end row -->

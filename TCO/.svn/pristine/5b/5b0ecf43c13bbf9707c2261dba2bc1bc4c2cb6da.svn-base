@@ -1,0 +1,97 @@
+package kr.or.tco.cnpt.vo;
+
+import org.springframework.stereotype.Repository;
+
+//거래처 VO
+@Repository
+public class CnptVO {
+	private String cnptId;
+	private String cnptNm;
+	private String cnptTel;
+	private String cnptMail;
+	private int cnptZip;
+	private String cnptAddr;
+	private String cnptDaddr;
+	private String cnptBankNm;
+	private String cnptActno;
+	private String cnptActnm;
+	private String cnptCharger;
+	
+	
+	public String getCnptId() {
+		return cnptId;
+	}
+	public void setCnptId(String cnptId) {
+		this.cnptId = cnptId;
+	}
+	public String getCnptNm() {
+		return cnptNm;
+	}
+	public void setCnptNm(String cnptNm) {
+		this.cnptNm = cnptNm;
+	}
+	public String getCnptTel() {
+		return cnptTel;
+	}
+	public void setCnptTel(String cnptTel) {
+		this.cnptTel = cnptTel;
+	}
+	public String getCnptMail() {
+		return cnptMail;
+	}
+	public void setCnptMail(String cnptMail) {
+		this.cnptMail = cnptMail;
+	}
+	public int getCnptZip() {
+		return cnptZip;
+	}
+	public void setCnptZip(int cnptZip) {
+		this.cnptZip = cnptZip;
+	}
+	public String getCnptAddr() {
+		return cnptAddr;
+	}
+	public void setCnptAddr(String cnptAddr) {
+		this.cnptAddr = cnptAddr;
+	}
+	public String getCnptDaddr() {
+		return cnptDaddr;
+	}
+	public void setCnptDaddr(String cnptDaddr) {
+		this.cnptDaddr = cnptDaddr;
+	}
+	public String getCnptBankNm() {
+		return cnptBankNm;
+	}
+	public void setCnptBankNm(String cnptBankNm) {
+		this.cnptBankNm = cnptBankNm;
+	}
+	public String getCnptActno() {
+		return cnptActno;
+	}
+	public void setCnptActno(String cnptActno) {
+		this.cnptActno = cnptActno;
+	}
+	public String getCnptActnm() {
+		return cnptActnm;
+	}
+	public void setCnptActnm(String cnptActnm) {
+		this.cnptActnm = cnptActnm;
+	}
+	public String getCnptCharger() {
+		return cnptCharger;
+	}
+	public void setCnptCharger(String cnptCharger) {
+		this.cnptCharger = cnptCharger;
+	}
+	@Override
+	public String toString() {
+		return "CnptVO [cnptId=" + cnptId + ", cnptNm=" + cnptNm + ", cnptTel=" + cnptTel + ", cnptMail=" + cnptMail
+				+ ", cnptZip=" + cnptZip + ", cnptAddr=" + cnptAddr + ", cnptDaddr=" + cnptDaddr + ", cnptBankNm="
+				+ cnptBankNm + ", cnptActno=" + cnptActno + ", cnptActnm=" + cnptActnm + ", cnptCharger=" + cnptCharger
+				+ "]";
+	}
+	
+	
+	
+}

@@ -1,0 +1,82 @@
+package kr.or.tco.cnpt.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import kr.or.tco.cnpt.service.CnptService;
+import kr.or.tco.cnpt.vo.CnptVO;
+
+//거래처 컨트롤러
+@RequestMapping("/cnpt")
+@Controller
+public class CnptController {
+	
+	@Autowired
+	CnptService cnptService;
+	
+	//거래처 조회
+	@RequestMapping("/list")
+	public String list(@RequestParam(required=false) String keyWord, Model model) {
+		//거래처 목록 불러오기
+		List<CnptVO> list = cnptService.list(keyWord);
+		//거래처 목록 Model에 저장
+		model.addAttribute("list", list);
+		
+		return "cnpt/list";
+	}
+	
+	//거래처 상세조회
+	@RequestMapping("/detail/{cnptId}")
+	public String detail(@PathVariable("cnptId") String cnptId,
+			Model model) {
+		CnptVO cnptVO = this.cnptService.detail(cnptId);
+		
+		model.addAttribute("cnptVO", cnptVO);
+		
+		return "cnpt/detail";
+	}
+	
+	//거래처 등록
+	@RequestMapping("/insert")
+	public String insert(@ModelAttribute CnptVO cnptVO) {
+		int result = this.cnptService.insert(cnptVO);
+		
+		//정상적으로 등록
+		if(result > 0) {
+			//forward
+			return "cnpt/insert";
+		}else { //등록 실패
+			
+			return "redirect:cnpt/insert";
+		}
+		
+	}
+	
+	//거래처 삭제
+	@RequestMapping("/delete")
+	public String delete(@RequestParam String cnptId) {
+		int result = this.cnptService.delete(cnptId);
+		
+		if(result > 0) {
+			//거래처 목록 페이지로 돌아감
+			//forward
+			return "cnpt/insert";
+		}else { //삭제 실패
+			return "redirect:cnpt/insert";
+		}
+	}
+	
+}
+
+
+
+
+
+

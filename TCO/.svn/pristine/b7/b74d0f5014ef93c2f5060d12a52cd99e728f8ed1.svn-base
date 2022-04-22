@@ -1,0 +1,103 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+<!-- datepicker를 사용하여 월 선택창 만들어야한다. -->
+<div class="row">
+	<div class="col-12">
+		<div
+			class="page-title-box d-sm-flex align-items-center justify-content-between">
+			<h4 class="mb-sm-0 font-size-18">월별 매출 통계</h4>
+
+			<div class="page-title-right">
+				<ol class="breadcrumb m-0">
+					<li class="breadcrumb-item"><a href="javascript: void(0);">Statics</a></li>
+					<li class="breadcrumb-item active">Monthly Sales Static</li>
+				</ol>
+			</div>
+
+		</div>
+	</div>
+</div>
+<div class="card">
+	<div class="card-body">
+		<!-- row -->
+		<div class="row">
+			<div class="col-3">
+				<!-- 년과 월도 c:foreach로 돌려서 있는 달만 뜨게해야한다. -->
+				<select class="form-control" id='selectyear'>
+					<option>2000</option>
+					<option>2001</option>
+					<option>2002</option>
+					<option>2003</option>
+				</select>
+			</div>
+			<div class="col-3">
+				<select class="form-control" id='selectmonth'>
+					<option>1</option>
+					<option>2</option>
+					<option>3</option>
+					<option>4</option>
+				</select>
+			</div>
+			</div>
+			<div class="row">
+			<div class="col-6">
+				<div class="linechart" style="height: 100%; width: 100%;">
+					<canvas id="myChart"></canvas>
+				</div>
+			</div>
+		</div>
+		<!-- row -->
+	</div>
+</div>
+<script type="text/javascript">
+	$(function(){
+		$.ajax({
+			url:"/sttst/monthly",
+			async:true,
+			type: "POST",
+			dataType:"json",
+			contentType: "application/json; charset=utf-8",
+			success:function(data){
+				var salelist=[];
+				var datelist=[];
+				
+				$.each(data,function(){
+					salelist.push(this["sale"])
+					datelist.push(this["date"])
+				})
+				
+				console.log(salelist);
+				console.log(datelist);
+				const ctx = document.getElementById('myChart').getContext('2d');
+				// 그래픽 엔진으로 유명한 것 (DirectX, OpenGL)
+				const myChart = new Chart(ctx, {
+				    type: 'bar', //bar,line,pie,doughnut,radar
+				    //labels : x축의 값
+				    //datasets : y축의 값 data의 값, 속성들 지정
+				    data: {
+				        labels: datelist,
+				        datasets: [{
+				            label: '월별 매출 현황',
+				            data: salelist,
+				            backgroundColor: [
+				                'pink'
+				            ],
+				            borderColor: [
+				            	'pink'
+				            ],
+				            borderWidth: 3
+				        }]
+				    },
+				    options: {
+				        scales: {
+				            y: {
+				                beginAtZero: true
+				            }
+				        }
+				    }
+				});
+			}
+		});			
+	})
+</script>

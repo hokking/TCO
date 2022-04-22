@@ -1,0 +1,208 @@
+package kr.or.tco.craw.controller;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.json.simple.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+ 
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.sun.media.jfxmedia.logging.Logger;
+ 
+@RequestMapping("/craw")
+@Controller
+public class CrawController {
+ 
+    @RequestMapping(value="/craw_main")
+    public String main() {
+        return "craw/craw_main";
+    }
+    
+    //홈플 크롤링
+    @RequestMapping(value="/craw_hp")
+    @ResponseBody
+    public Map<String,Object> craw_hp( Model model)throws Exception {
+    	
+    	 Document doc= new Document(null);
+        try { String url = "https://front.homeplus.co.kr/leaflet?gnbNo=201";
+        	  doc =Jsoup.connect(url).get();
+        	  System.out.println(doc.toString()); 
+    	} catch (IOException e) {
+        		e.printStackTrace(); 
+        }
+
+        Elements itemName = doc.select("<p class=\'css-1tf7nrf-defaultStyle-Typography-ellips\'>");
+        Elements itemPrice = doc.select("strong class=\"priceValue\"");
+        int itemLength = itemName.size();
+        int priceLength = itemPrice.size();
+        System.out.println("상품명의 갯수"+itemLength);
+        System.out.println("상품가격의 갯수"+priceLength);
+        
+        List<String> itemList = new ArrayList<String>();
+        itemList.add(itemName.select(".css-1tf7nrf-defaultStyle-Typography-ellips").text()); //상품 이름
+        
+        List<String> priceList = new ArrayList<String>();
+        priceList.add(itemPrice.select(".css-1tf7nrf-defaultStyle-Typography-ellips").text()); //상품 이름
+        
+        Map<String,Object> resultMap = new HashMap<String,Object>();
+        resultMap.put("itemList", itemList);
+        resultMap.put("priceList", priceList);
+        
+        
+        return resultMap;
+    }
+    
+    //이마트 크롤링
+    @RequestMapping(value="/craw_em")
+    @ResponseBody
+    public Map<String,Object> craw_em( Model model)throws Exception {
+    	
+    	boolean result =false;
+    	
+	   	Document doc= new Document(null);
+	    try { String url = "https://www.ssg.com/service/emart/dvstore.ssg";
+	     	  doc =Jsoup.connect(url).get();
+	     	  System.out.println(doc.toString()); 
+	 	} catch (IOException e) {
+	     		e.printStackTrace(); 
+	    }
+	    Elements itemName = doc.select("<em class=\"tx_ko\">");
+        Elements itemPrice = doc.select("<em class=\"ssg_price\">1,650</em>");
+        int itemLength = itemName.size();
+        int priceLength = itemPrice.size();
+        System.out.println("상품명의 갯수"+itemLength);
+        System.out.println("상품가격의 갯수"+priceLength);
+        
+        List<String> itemList = new ArrayList<String>();
+        itemList.add(itemName.select(".css-1tf7nrf-defaultStyle-Typography-ellips").text()); //상품 이름
+        
+        List<String> priceList = new ArrayList<String>();
+        priceList.add(itemPrice.select(".css-1tf7nrf-defaultStyle-Typography-ellips").text()); //상품 이름
+        
+        Map<String,Object> resultMap = new HashMap<String,Object>();
+        resultMap.put("itemList", itemList);
+        resultMap.put("priceList", priceList);
+    	
+    	
+    	return resultMap;
+    }
+    //쿠팡 크롤링
+    @ResponseBody
+    @RequestMapping(value="/craw_cp")
+    public Map<String,Object> craw_cp( Model model)throws Exception {
+    	
+	   	Document doc= new Document(null);
+	    try { String url ="https://www.coupang.com/np/categories/393760";
+	     	  doc =Jsoup.connect(url).get();
+//	     	  System.out.println(doc.toString()); 
+	 	} catch (IOException e) {
+	     		e.printStackTrace(); 
+	    }
+	    Elements itemName = doc.select(".name");
+        Elements itemPrice = doc.select(".price-value");
+        int itemLength = itemName.size();
+        int priceLength = itemPrice.size();
+        System.out.println("상품명의 갯수"+itemLength);
+        System.out.println("상품가격의 갯수"+priceLength);
+        
+		//Iterator을 사용하여 하나씩 값 가져오기
+		Iterator<Element> ie1 = itemName.select(".name").iterator();
+		Iterator<Element> ie2 = itemPrice.select(".price-value").iterator();
+		        
+		while (ie1.hasNext()) {
+			System.out.println(ie1.next().text()+"\t"+ie2.next().text());
+		}
+        
+        List<String> itemList = new ArrayList<String>();
+        itemList.add(itemName.select(".name").text()); //상품 이름
+        
+        List<String> priceList = new ArrayList<String>();
+        priceList.add(itemPrice.select(".price-value").text()); //상품 이름
+        
+        Map<String,Object> resultMap = new HashMap<String,Object>();
+        resultMap.put("itemList", itemList);
+        resultMap.put("priceList", priceList);
+    	
+    	return resultMap;
+    }
+    
+    
+    
+  //날씨 크롤링
+    @ResponseBody
+    @RequestMapping(value="/craw_weather", method = RequestMethod.POST)
+    public String craw_weather( Model model)throws Exception {
+       
+       Gson gson = new Gson();
+       JsonArray jArray = new JsonArray();
+       
+       String target = "https://weather.naver.com/today/07140113";
+
+        Document document = Jsoup.connect(target).get();
+
+        Elements script = document.getElementsByTag("script");
+        String[] split = document.html().split("\n");
+        
+        Map<String, Object>map = new HashMap<String, Object>();
+        
+        for (String s : split) {
+        	JsonObject object = new JsonObject();
+            if(s.contains("weatherSummary")) {
+               String word=s.substring(81, 86);
+               String word2 =s.substring(99, 101);
+               String word3 =s.substring(114,117);
+               String temp =s.substring(214,215);
+               String temp2 =s.substring(225,228);
+               String temp3 =s.substring(205,230);
+               
+               System.out.println(s.indexOf("tmpr"));
+               boolean sunny = temp3.matches("(.*)맑음(.*)");
+               boolean rainy = temp3.matches("(.*)흐림(.*)");
+               boolean cloud = temp3.matches("(.*)구름(.*)");
+               
+               String totaltemp = "";
+               if(sunny=true) {
+                  totaltemp = "맑음"; 
+               }else if(rainy=true) {
+                  totaltemp = "흐림";
+               }else if(cloud=true) {
+                  totaltemp = "구름많음";
+               }
+               object.addProperty("city",word);
+               object.addProperty("si",word2);
+               object.addProperty("dong",word3);
+               object.addProperty("tempch",temp);
+               object.addProperty("temp",temp2);
+               object.addProperty("totaltemp",totaltemp);
+               
+               jArray.add(object);
+               
+               };
+               String json = gson.toJson(jArray);
+               return json;
+        }
+		return target;
+
+    }
+
+    
+ 
+    
+    
+  
+}

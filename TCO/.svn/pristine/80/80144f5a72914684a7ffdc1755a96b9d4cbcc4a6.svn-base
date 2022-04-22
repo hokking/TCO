@@ -1,0 +1,20 @@
+package kr.or.tco.prod.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.tco.cmncd.vo.CmncdVO;
+import kr.or.tco.prod.vo.ProdVO;
+
+public interface ProdMapper {
+
+	//상품 목록
+	public List<ProdVO> prodList(Map<String, String> map);
+	
+	//상품 상세 조회
+	public ProdVO prodDetail(String prodInfoId);
+	
+	//상품아이디에 따른 중분류 뽑기
+	public List<CmncdVO> cdnm2List(String prodInfoId);
+
+}

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.alam.mapper.AlamMapper">
+
+	<insert id="alamInsert" parameterType="HashMap">
+		<selectKey order="BEFORE" keyProperty="alamnum" resultType="Integer">
+				 SELECT NVL(MAX(ALAMNUM),0)+1  FROM ALAM
+		</selectKey>
+		INSERT INTO ALAM (
+	    ALAMNUM,    
+	    TITLE,    SENDER,    RECEIVER,    BRNCOFCNM,    
+	    SHORTSTOCKNM,  DPTOPT,    LELOPT,    RECEPTION_STATUS
+		) VALUES (
+	    #{alamnum},    
+	    #{title},    #{sender},    #{receiver},  #{brncofcnm},    
+	    #{shortstocknm},  #{dptopt},    #{lelopt},    #{receptionStatus})
+	</insert>
+	
+	
+	
+	
+	<update id="alamUpdate" parameterType="HashMap">
+		UPDATE alam
+	    SET receptionstatus = 'Y'
+		WHERE alamnum =  #{alamnum}
+	</update>
+	
+	<update id="alamCountMinus" parameterType="HashMap">
+		<selectKey order="BEFORE" keyProperty="COUNTALARM,enabled" resultType="alamVO">
+			SELECT COUNTALARM
+			FROM emp
+			where EMP_ID = #{empId}
+		</selectKey>
+		UPDATE emp
+	    SET COUNTALARM = COUNTALARM -1
+		WHERE EMP_ID =  #{empId}
+	</update>
+	
+	<update id="alamCountPlus" parameterType="HashMap">
+		<selectKey order="BEFORE" keyProperty="countAlarm,enabled" resultType="alamVO">
+			SELECT 'alam' || LPAD(NVL(MAX(SUBSTR(ALAMNUM,4)),0)+1,5,'0')
+			AS ALAMNUM,	MAX(enabled)+0
+			AS enabled
+			FROM ALAM
+		</selectKey>
+		UPDATE emp
+	    SET COUNTALARM = 'Y'
+		WHERE alamnum =  #{alamnum}
+	</update>
+	
+</mapper>

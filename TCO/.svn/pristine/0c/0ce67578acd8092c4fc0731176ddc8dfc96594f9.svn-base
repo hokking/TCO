@@ -1,0 +1,201 @@
+package kr.or.tco.emp.vo;
+
+import java.util.Date;
+
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class EmpVO {
+
+	
+	private String empId;
+	private String empNm;
+	private String brncofcId;
+	private String deptCd;
+	private String empJbps;
+	private Date empJncmpYmd;
+	private Date empBrdt;
+	private String empMail;
+	private String empPswd;
+	private String empImg;
+	private String empIp;
+	private String empActno;
+	private String empSe;
+	private int rglrempCrtrpy;
+	private int rglrempBns;
+	private int rglrempFdpy;
+	private int rglrempCrpy;
+	private int rglrempBbpy;
+	private int ctrtempHrpy;
+	private int ctrtempTm;
+	private String ctrtempSe;
+	private int ctrtempHdpy;
+	private int ctrtempTx;
+	
+	// 순번 추가 부탁
+		private int rnum;
+		
+	public String getEmpId() {
+		return empId;
+	}
+	public void setEmpId(String empId) {
+		this.empId = empId;
+	}
+	public String getEmpNm() {
+		return empNm;
+	}
+	public void setEmpNm(String empNm) {
+		this.empNm = empNm;
+	}
+	public String getBrncofcId() {
+		return brncofcId;
+	}
+	public void setBrncofcId(String brncofcId) {
+		this.brncofcId = brncofcId;
+	}
+	public String getDeptCd() {
+		return deptCd;
+	}
+	public void setDeptCd(String deptCd) {
+		this.deptCd = deptCd;
+	}
+	public String getEmpJbps() {
+		return empJbps;
+	}
+	public void setEmpJbps(String empJbps) {
+		this.empJbps = empJbps;
+	}
+	public Date getEmpJncmpYmd() {
+		return empJncmpYmd;
+	}
+	public void setEmpJncmpYmd(Date empJncmpYmd) {
+		this.empJncmpYmd = empJncmpYmd;
+	}
+	public Date getEmpBrdt() {
+		return empBrdt;
+	}
+	public void setEmpBrdt(Date empBrdt) {
+		this.empBrdt = empBrdt;
+	}
+	public String getEmpMail() {
+		return empMail;
+	}
+	public void setEmpMail(String empMail) {
+		this.empMail = empMail;
+	}
+	public String getEmpPswd() {
+		return empPswd;
+	}
+	public void setEmpPswd(String empPswd) {
+		this.empPswd = empPswd;
+	}
+	public String getEmpImg() {
+		return empImg;
+	}
+	public void setEmpImg(String empImg) {
+		this.empImg = empImg;
+	}
+	public String getEmpIp() {
+		return empIp;
+	}
+	public void setEmpIp(String empIp) {
+		this.empIp = empIp;
+	}
+	public String getEmpActno() {
+		return empActno;
+	}
+	public void setEmpActno(String empActno) {
+		this.empActno = empActno;
+	}
+	public String getEmpSe() {
+		return empSe;
+	}
+	public void setEmpSe(String empSe) {
+		this.empSe = empSe;
+	}
+	public int getRglrempCrtrpy() {
+		return rglrempCrtrpy;
+	}
+	public void setRglrempCrtrpy(int rglrempCrtrpy) {
+		this.rglrempCrtrpy = rglrempCrtrpy;
+	}
+	public int getRglrempBns() {
+		return rglrempBns;
+	}
+	public void setRglrempBns(int rglrempBns) {
+		this.rglrempBns = rglrempBns;
+	}
+	public int getRglrempFdpy() {
+		return rglrempFdpy;
+	}
+	public void setRglrempFdpy(int rglrempFdpy) {
+		this.rglrempFdpy = rglrempFdpy;
+	}
+	public int getRglrempCrpy() {
+		return rglrempCrpy;
+	}
+	public void setRglrempCrpy(int rglrempCrpy) {
+		this.rglrempCrpy = rglrempCrpy;
+	}
+	public int getRglrempBbpy() {
+		return rglrempBbpy;
+	}
+	public void setRglrempBbpy(int rglrempBbpy) {
+		this.rglrempBbpy = rglrempBbpy;
+	}
+	public int getCtrtempHrpy() {
+		return ctrtempHrpy;
+	}
+	public void setCtrtempHrpy(int ctrtempHrpy) {
+		this.ctrtempHrpy = ctrtempHrpy;
+	}
+	public int getCtrtempTm() {
+		return ctrtempTm;
+	}
+	public void setCtrtempTm(int ctrtempTm) {
+		this.ctrtempTm = ctrtempTm;
+	}
+	public String getCtrtempSe() {
+		return ctrtempSe;
+	}
+	public void setCtrtempSe(String ctrtempSe) {
+		this.ctrtempSe = ctrtempSe;
+	}
+	public int getCtrtempHdpy() {
+		return ctrtempHdpy;
+	}
+	public void setCtrtempHdpy(int ctrtempHdpy) {
+		this.ctrtempHdpy = ctrtempHdpy;
+	}
+	public int getCtrtempTx() {
+		return ctrtempTx;
+	}
+	public void setCtrtempTx(int ctrtempTx) {
+		this.ctrtempTx = ctrtempTx;
+	}
+	
+	
+	
+	public int getRnum() {
+		return rnum;
+	}
+	public void setRnum(int rnum) {
+		this.rnum = rnum;
+	}
+	@Override
+	public String toString() {
+		return "EmpVO [empId=" + empId + ", empNm=" + empNm + ", brncofcId=" + brncofcId + ", deptCd=" + deptCd
+				+ ", empJbps=" + empJbps + ", empJncmpYmd=" + empJncmpYmd + ", empBrdt=" + empBrdt + ", empMail="
+				+ empMail + ", empPswd=" + empPswd + ", empImg=" + empImg + ", empIp=" + empIp + ", empActno="
+				+ empActno + ", empSe=" + empSe + ", rglrempCrtrpy=" + rglrempCrtrpy + ", rglrempBns=" + rglrempBns
+				+ ", rglrempFdpy=" + rglrempFdpy + ", rglrempCrpy=" + rglrempCrpy + ", rglrempBbpy=" + rglrempBbpy
+				+ ", ctrtempHrpy=" + ctrtempHrpy + ", ctrtempTm=" + ctrtempTm + ", ctrtempSe=" + ctrtempSe
+				+ ", ctrtempHdpy=" + ctrtempHdpy + ", ctrtempTx=" + ctrtempTx + ", rnum=" + rnum + "]";
+	}
+	
+	
+	
+	
+	
+	
+}

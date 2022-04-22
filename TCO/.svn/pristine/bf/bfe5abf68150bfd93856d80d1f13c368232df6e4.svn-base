@@ -1,0 +1,71 @@
+package kr.or.tco.att.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.tco.att.mapper.AttMapper;
+import kr.or.tco.att.vo.WorksttsVO;
+import kr.or.tco.cmncd.vo.CmncdVO;
+import kr.or.tco.emp.vo.EmpVO;
+
+@Service
+public class AttServiceImpl implements AttService{
+
+	@Autowired AttMapper attMapper;
+	@Override
+	public EmpVO binfoselect(String empId) {
+		return attMapper.binfoselect(empId);
+	}
+
+	@Override
+	public CmncdVO sdselect(String cmncdCd) {
+		return attMapper.sdselect(cmncdCd);
+	}
+
+	@Override
+	public int checkIselect(String empId) {
+		return attMapper.checkIselect(empId);
+	}
+
+	@Override
+	public int checkOselect(String empId) {
+		return attMapper.checkOselect(empId);
+	}
+	
+	@Override
+	public int inselect(WorksttsVO worksttsVO) {
+		return attMapper.inselect(worksttsVO);
+	}
+
+	@Override
+	public int outselect(String empId) {
+		return attMapper.outselect(empId);
+	}
+
+	@Override
+	public int enbgselect(String empId) {
+		return attMapper.enbgselect(empId);
+	}
+
+	@Override
+	public int CKenbgselect(String empId) {
+		return attMapper.CKenbgselect(empId);
+	}
+
+	@Override
+	public int enbgupdate(WorksttsVO worksttsVO) {
+		return attMapper.enbgupdate(worksttsVO);
+	}
+
+	@Override
+	public int st(String empId) {
+		return attMapper.st(empId);
+	}
+
+	@Override
+	public int end(String empId) {
+		return attMapper.end(empId);
+	}
+
+
+}

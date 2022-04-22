@@ -1,0 +1,25 @@
+package kr.or.tco.brnc.vo;
+
+public class BrncVO {
+	
+	private String brncofcId;
+	private String brncofcNm;
+	
+	public String getBrncofcId() {
+		return brncofcId;
+	}
+	public void setBrncofcId(String brncofcId) {
+		this.brncofcId = brncofcId;
+	}
+	public String getBrncofcNm() {
+		return brncofcNm;
+	}
+	public void setBrncofcNm(String brncofcNm) {
+		this.brncofcNm = brncofcNm;
+	}
+	
+	@Override
+	public String toString() {
+		return "BrncVO [brncofcId=" + brncofcId + ", brncofcNm=" + brncofcNm + "]";
+	}
+}

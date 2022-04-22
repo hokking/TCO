@@ -1,0 +1,1197 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<title>고객 목록</title>
+<style type="text/css">
+.btn-toolbar {
+	display : none;
+}
+.deleteCust{
+	cursor : pointer;
+	border : none;
+	background-color: white;
+}
+</style>
+</head>
+<script type="text/javascript">
+cust_chk = [];
+id_chk = [];
+function chkAll(){
+	$('#checkAll').on('click', function() {
+		if ($('#checkAll').is(':checked')) {
+			$('input[name=custchk]:checkbox').prop('checked', true);
+		} else {
+			$('input[name=custchk]:checkbox').prop('checked', false);
+// 			cust_chk = new Array();
+// 			id_chk = new Array();
+		}
+		custChk();
+	})
+}
+
+function chkCust() {
+	$("input:checkbox[name=custchk]").on("click", function() {
+		var total = $("input[name=custchk]").length;
+		var checked = $("input[name=custchk]:checked").length;
+		
+		console.log("aaa", total);
+		console.log("aaa", checked);
+		
+		if(total != checked)  {
+			$("#checkAll").prop("checked", false);
+		} else  {
+			$("#checkAll").prop("checked", true); 
+		}
+		
+		custChk();
+	});
+}
+
+function chng() {
+	$(".ipt").on('change', function() {
+		achk_arr = new Array();
+		gchk_arr = new Array();
+		rchk_arr = new Array();
+		mchk_arr = new Array();
+// 		alert("aa");
+		$('input:checkbox[name=age]:checked').each(function() {
+			var chk = $(this).val();
+			if(chk == 'aall') {
+				achk_arr = new Array();
+				return false;
+			}
+			achk_arr.push(chk);
+		})
+		$('input:checkbox[name=gender]:checked').each(function() {
+			var chk = $(this).val();
+			if(chk == "gall") {
+				gchk_arr = new Array();
+				return false;
+			}
+			gchk_arr.push(chk);
+		})
+		$('input:checkbox[name=rank]:checked').each(function() {
+			var chk = $(this).val();
+			if(chk == "rall") {
+				rchk_arr = new Array();
+				return false;
+			}
+			rchk_arr.push(chk);
+		})
+		$('input:checkbox[name=mrg]:checked').each(function() {
+			var chk = $(this).val();
+			if(chk == "mall") {
+				mchk_arr = new Array();
+				return false;
+			}
+			mchk_arr.push(chk);
+		})
+		console.log(achk_arr);
+		console.log(gchk_arr);
+		console.log(rchk_arr);
+		console.log(mchk_arr);
+		$.ajax({
+			type : "POST",
+			url : "/cust/custfilter",
+			dataType : "json",
+// 			traditional : true,
+		    contentType : "application/x-www-form-urlencoded; charset=utf-8",
+			data : {
+				"age" : achk_arr,
+				"gender" : gchk_arr,
+				"rank" : rchk_arr,
+				"mrg" : mchk_arr
+			},
+			success : function(res) {
+				console.log(res);
+// 				$("#res").html(res);
+				var str = "";
+				$.each(res, function(i, custVO) {
+					str += '<tr>';
+					str += '<td>';
+					str += '<div class="form-check font-size-16 form-check-info chk">';
+					str += '<input class="form-check-input" name="custchk" type="checkbox" id="' + custVO.custId + '" value="' + custVO.custMail + '">';
+					str += '<label class="form-check-label" for="orderidcheck02"></label>';
+					str += '</div>'					
+					str += '</td>';
+					str += '<td><a href="/cust/custdetail/' + custVO.custId + '" class="text-body fw-bold">' + custVO.custId + '</a></td>';
+					str += '<td>' + custVO.custNm + '</td>'
+					str += '<td>' + custVO.custMail + '</td>'
+					str += '<td>' + custVO.age + '</td>'
+					str += '<td>';
+					if(custVO.custGndr == 'F') {
+						str += '<span class="badge bg-primary font-size-12">여성</span>';
+					} else if(custVO.custGndr == 'M') {
+						str += '<span class="badge badge-soft-primary font-size-12">남성</span>';
+					}
+					str += '</td>';
+					str += '<td>';
+					if(custVO.custMrgYn == 'Y') {
+						str += '<span class="badge bg-success font-size-12">기혼</span>';
+					} else if(custVO.custMrgYn == 'N') {
+						str += '<span class="badge badge-soft-success font-size-12">미혼</span>';
+					}
+					str += '</td>';
+					str += '<td>';
+					if(custVO.cmncdNm1 == 'SILVER') {
+						str += '<span class="badge badge-soft-dark font-size-12">' + custVO.cmncdNm1 + '</span>';
+					} else if(custVO.cmncdNm1 == 'GOLD') {
+						str += '<span class="badge bg-warning font-size-12">' + custVO.cmncdNm1 + '</span>';
+					} else if(custVO.cmncdNm1 == 'VIP') {
+						str += '<span class="badge bg-info font-size-12">' + custVO.cmncdNm1 + '</span>';
+					}
+					str += '</td>';
+					str += '<td data-org-colspan="1" data-priority="6" data-columns="tech-companies-1-col-6"><a href="#" onclick="window.open(' + "'https://chart.apis.google.com/chart?cht=qr&chl=${custVO.custId}&chld=L|2&chs=200','name','resizable=no width=400 height=400');return false" + '">고객QR생성</a>';
+					str += '</td>';
+					str += '</tr>';
+				}) // 괄호 꼭!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 써주기
+				$("#res").html(str);
+               	
+				chkchng();
+			}
+
+		})
+
+	})
+}
+
+function chng1() {
+	$(".ipt1").on('change', function() {
+		achk_arr = new Array();
+		gchk_arr = new Array();
+		rchk_arr = new Array();
+		mchk_arr = new Array();
+// 		alert("aa");
+		$('input:checkbox[name=age1]:checked').each(function() {
+			var chk = $(this).val();
+			if(chk == 'aall1') {
+				achk_arr = new Array();
+				return false;
+			}
+			achk_arr.push(chk);
+		})
+		$('input:checkbox[name=gender1]:checked').each(function() {
+			var chk = $(this).val();
+			if(chk == "gall1") {
+				gchk_arr = new Array();
+				return false;
+			}
+			gchk_arr.push(chk);
+		})
+		$('input:checkbox[name=rank1]:checked').each(function() {
+			var chk = $(this).val();
+			if(chk == "rall1") {
+				rchk_arr = new Array();
+				return false;
+			}
+			rchk_arr.push(chk);
+		})
+		$('input:checkbox[name=mrg1]:checked').each(function() {
+			var chk = $(this).val();
+			if(chk == "mall1") {
+				mchk_arr = new Array();
+				return false;
+			}
+			mchk_arr.push(chk);
+		})
+		console.log(achk_arr);
+		console.log(gchk_arr);
+		console.log(rchk_arr);
+		console.log(mchk_arr);
+		$.ajax({
+			type : "POST",
+			url : "/cust/custfilter1",
+			dataType : "json",
+// 			traditional : true,
+		    contentType : "application/x-www-form-urlencoded; charset=utf-8",
+			data : {
+				"age" : achk_arr,
+				"gender" : gchk_arr,
+				"rank" : rchk_arr,
+				"mrg" : mchk_arr
+			},
+			success : function(res) {
+				console.log(res);
+// 				$("#res").html(res);
+				var str = "";
+				$.each(res, function(i, custVO) {
+					str += '<tr>';
+					str += '<td><a href="/cust/custdetail/' + custVO.custId + '" class="text-body fw-bold">' + custVO.custId + '</a></td>';
+					str += '<td>' + custVO.custNm + '</td>'
+					str += '<td>' + custVO.custMail + '</td>'
+					str += '<td>' + custVO.age + '</td>'
+					str += '<td>';
+					if(custVO.custGndr == 'F') {
+						str += '<span class="badge bg-primary font-size-12">여성</span>';
+					} else if(custVO.custGndr == 'M') {
+						str += '<span class="badge badge-soft-primary font-size-12">남성</span>';
+					}
+					str += '</td>';
+					str += '<td>';
+					if(custVO.custMrgYn == 'Y') {
+						str += '<span class="badge bg-success font-size-12">기혼</span>';
+					} else if(custVO.custMrgYn == 'N') {
+						str += '<span class="badge badge-soft-success font-size-12">미혼</span>';
+					}
+					str += '</td>';
+					str += '<td>';
+					if(custVO.cmncdNm1 == 'SILVER') {
+						str += '<span class="badge badge-soft-dark font-size-12">' + custVO.cmncdNm1 + '</span>';
+					} else if(custVO.cmncdNm1 == 'GOLD') {
+						str += '<span class="badge bg-warning font-size-12">' + custVO.cmncdNm1 + '</span>';
+					} else if(custVO.cmncdNm1 == 'VIP') {
+						str += '<span class="badge bg-info font-size-12">' + custVO.cmncdNm1 + '</span>';
+					}
+					str += '</td>';
+					str += '<td data-org-colspan="1" data-priority="6" data-columns="tech-companies-1-col-6"><a href="#" onclick="window.open(' + "'https://chart.apis.google.com/chart?cht=qr&chl=${custVO.custId}&chld=L|2&chs=200','name','resizable=no width=400 height=400');return false" + '">고객QR생성</a>';
+					str += '</td>';
+					str += '</tr>';
+				}) // 괄호 꼭!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 써주기
+				$("#res1").html(str);
+                	
+			}
+
+		})
+
+	})
+}
+
+function chng2() {
+	$(".ipt2").on('change', function() {
+		achk_arr = new Array();
+		gchk_arr = new Array();
+		rchk_arr = new Array();
+		mchk_arr = new Array();
+// 		alert("aa");
+		$('input:checkbox[name=age2]:checked').each(function() {
+			var chk = $(this).val();
+			if(chk == 'aall2') {
+				achk_arr = new Array();
+				return false;
+			}
+			achk_arr.push(chk);
+		})
+		$('input:checkbox[name=gender2]:checked').each(function() {
+			var chk = $(this).val();
+			if(chk == "gall2") {
+				gchk_arr = new Array();
+				return false;
+			}
+			gchk_arr.push(chk);
+		})
+		$('input:checkbox[name=rank2]:checked').each(function() {
+			var chk = $(this).val();
+			if(chk == "rall2") {
+				rchk_arr = new Array();
+				return false;
+			}
+			rchk_arr.push(chk);
+		})
+		$('input:checkbox[name=mrg2]:checked').each(function() {
+			var chk = $(this).val();
+			if(chk == "mall2") {
+				mchk_arr = new Array();
+				return false;
+			}
+			mchk_arr.push(chk);
+		})
+		console.log(achk_arr);
+		console.log(gchk_arr);
+		console.log(rchk_arr);
+		console.log(mchk_arr);
+		$.ajax({
+			type : "POST",
+			url : "/cust/custfilter2",
+			dataType : "json",
+// 			traditional : true,
+		    contentType : "application/x-www-form-urlencoded; charset=utf-8",
+			data : {
+				"age" : achk_arr,
+				"gender" : gchk_arr,
+				"rank" : rchk_arr,
+				"mrg" : mchk_arr
+			},
+			success : function(res) {
+				console.log(res);
+// 				$("#res").html(res);
+				var str = "";
+				$.each(res, function(i, custVO) {
+					str += '<tr>';
+					str += '<td><a href="/cust/custdetail/' + custVO.custId + '" class="text-body fw-bold">' + custVO.custId + '</a></td>';
+					str += '<td>' + custVO.custNm + '</td>'
+					str += '<td>' + custVO.custMail + '</td>'
+					str += '<td>' + custVO.age + '</td>'
+					str += '<td>';
+					if(custVO.custGndr == 'F') {
+						str += '<span class="badge bg-primary font-size-12">여성</span>';
+					} else if(custVO.custGndr == 'M') {
+						str += '<span class="badge badge-soft-primary font-size-12">남성</span>';
+					}
+					str += '</td>';
+					str += '<td>';
+					if(custVO.custMrgYn == 'Y') {
+						str += '<span class="badge bg-success font-size-12">기혼</span>';
+					} else if(custVO.custMrgYn == 'N') {
+						str += '<span class="badge badge-soft-success font-size-12">미혼</span>';
+					}
+					str += '</td>';
+					str += '<td>';
+					if(custVO.cmncdNm1 == 'SILVER') {
+						str += '<span class="badge badge-soft-dark font-size-12">' + custVO.cmncdNm1 + '</span>';
+					} else if(custVO.cmncdNm1 == 'GOLD') {
+						str += '<span class="badge bg-warning font-size-12">' + custVO.cmncdNm1 + '</span>';
+					} else if(custVO.cmncdNm1 == 'VIP') {
+						str += '<span class="badge bg-info font-size-12">' + custVO.cmncdNm1 + '</span>';
+					}
+					str += '</td>';
+					str += '<td data-org-colspan="1" data-priority="6" data-columns="tech-companies-1-col-6"><a href="#" onclick="window.open(' + "'https://chart.apis.google.com/chart?cht=qr&chl=${custVO.custId}&chld=L|2&chs=200','name','resizable=no width=400 height=400');return false" + '">고객QR생성</a>';
+					str += '</td>';
+					str += '</tr>';
+				}) // 괄호 꼭!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 써주기
+				$("#res2").html(str);
+                	
+			}
+
+		})
+
+	})
+}
+
+function aclick() {
+	$(".a").on("click", function() {
+		var vlu = $(this).val();
+		var nm = $(this).attr("name");
+		allChk(vlu, nm);
+	})
+}
+
+function incheckbox() {
+	$("input:checkbox").on("click", function() {
+		var vlu = $(this).attr("name");
+		var dd = vlu.slice(-1, vlu.length);
+		if(dd == '1') {
+			lenChk1(vlu);
+		} else if(dd == '2') {
+			lenChk2(vlu);
+		} else {
+			lenChk(vlu);
+		}
+	})
+}
+
+function chkchng() {
+	$(".chk").on("change", function() {
+		custChk();
+	})
+}
+
+function mailclick() {
+		$("#mail").on("click", function() {
+// 		alert(cust_chk);
+		if(cust_chk.length != 0) {
+			location.href = "/cust/custmail?sendCust=" + cust_chk + "&custId=" + id_chk;
+		} else {
+			alert("선택된 고객이 없습니다");
+		}
+	});
+}
+
+$(function(){
+	
+	chkAll();
+	chkCust();
+	chng();
+	chng1();
+	chng2();
+	aclick();
+	incheckbox();
+	chkchng();
+	mailclick();
+
+});
+	
+function custChk(){
+	cust_chk = [];
+	id_chk = [];
+	$('input:checkbox[name=custchk]:checked').each(function() {
+		var chk = $(this).val();
+		var id = $(this).attr("id");
+		cust_chk.push(chk);
+		id_chk.push(id);
+	});
+	console.log(cust_chk);
+	console.log(id_chk);
+}
+
+function allChk(vlu, nm){
+	var al = '#' + vlu;
+	if ($(al).is(':checked')) {
+		$('input[name='+nm+']:checkbox').prop('checked', true);
+	} else {
+		$('input[name='+nm+']:checkbox').prop('checked', false);
+	}
+}
+
+function lenChk(vlu){
+	var d = vlu.substring(0,1);
+	var al = '#' + d + 'all';
+	var total = $("input[name="+vlu+"]").length;
+	var checked = $("input[name="+vlu+"]:checked").length;
+	
+	console.log("++ : " + checked);
+	
+	if(total != checked)  {
+		$(al).prop("checked", false);
+	} else {
+		$(al).prop("checked", true); 
+	}
+}
+
+function lenChk1(vlu){
+	var d = vlu.substring(0,1);
+	var al = '#' + d + 'all1';
+	
+	var total = $("input[name="+vlu+"]").length;
+	var checked = $("input[name="+vlu+"]:checked").length;
+	
+	if(total != checked)  {
+		$(al).prop("checked", false);
+	} else  {
+		$(al).prop("checked", true); 
+	}
+}
+
+function lenChk2(vlu){
+	var d = vlu.substring(0,1);
+	var al = '#' + d + 'all2';
+	
+	var total = $("input[name="+vlu+"]").length;
+	var checked = $("input[name="+vlu+"]:checked").length;
+	
+	if(total != checked)  {
+		$(al).prop("checked", false);
+	} else  {
+		$(al).prop("checked", true); 
+	}
+}
+
+</script>
+
+
+<body>
+ <!-- start page title -->
+ <div class="row">
+     <div class="col-12">
+         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+             <h1 class="mb-sm-0 font-size-20">📢고객 홍보</h1>
+
+             <div class="page-title-right">
+                 <ol class="breadcrumb m-0">
+                     <li class="breadcrumb-item"><a href="javascript: void(0);">고객</a></li>
+                     <li class="breadcrumb-item active">고객조회</li>
+                 </ol>
+             </div>
+
+         </div>
+     </div>
+ </div>
+ <!-- end page title -->
+
+ <div class="row">
+     <div class="col-12">
+         <div class="card">
+             <div class="card-body">
+             
+                 <div class="row mb-2">
+                    <div class="col-sm-8" style="width: 70%;">
+                	<form name="frm" id="frm" action="/cust/custlist" method="get">
+                        <div class="search-box me-2 mb-2 d-inline-block">
+                            <div class="position-relative">
+                                <input name="keyWord" id="keyWord" type="text" value="${param.keyWord}" class="form-control" placeholder="Search..." style="float: left; width: 70%;">
+                                <i class="bx bx-search-alt search-icon"></i>
+                                <button type="submit" class="btn btn-secondary btn-rounded waves-effect waves-light" style="width: 30%;">검색</button>
+                            </div>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+               <!-- Nav tabs -->
+                <ul class="nav nav-tabs nav-tabs-custom" role="tablist">
+	               <!-- 회원상태 - 일반 -->
+                   <li class="nav-item">
+                       <a class="nav-link active" data-bs-toggle="tab" href="#cust" role="tab">
+                           <span class="d-none d-sm-block"> 일반</span> 
+                       </a>
+                   </li>
+	               <!-- 회원상태 - 휴면 -->
+                   <li class="nav-item">
+                       <a class="nav-link" data-bs-toggle="tab" href="#custH" role="tab">
+                           <span class="d-none d-sm-block"> 휴면</span> 
+                       </a>
+                   </li>
+	               <!-- 회원상태 - 탈퇴 -->
+                   <li class="nav-item">
+                       <a class="nav-link" data-bs-toggle="tab" href="#custT" role="tab">
+                           <span class="d-none d-sm-block"> 탈퇴</span> 
+                       </a>
+                   </li>
+               </ul>
+               <!-- Tab panes -->
+               <!-- 일반 고객 -->
+               <div class="tab-content p-3">
+                   <div class="tab-pane active" id="cust" role="tabpanel">
+                   <div class="row">
+	                    <div class="col mb-2">
+	                        <div class="btn-group ipt" role="group" aria-label="Basic checkbox toggle button group">
+                                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" style="width: 160px; height: 40px;" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                      	 연  령  별 <i class="mdi mdi-chevron-down" style="float: right;"></i>
+                                  </button>
+                                  <ul id="chk" class="dropdown-menu" aria-labelledby="dropdownMenuClickableInside" data-popper-placement="top-start" style="position: absolute; inset: auto auto 0px 0px; margin: 0px; transform: translate(0px, -38.9375px);" data-popper-reference-hidden="" data-popper-escaped="">
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input a" type="checkbox" id="aall" name="age" value="aall">
+	                                     <label class="form-check-label" for="aall">
+	                                         &nbsp;&nbsp;ALL
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a20" name="age" value="20">
+	                                     <label class="form-check-label" for="a20">
+	                                         &nbsp;&nbsp;20
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a30" name="age" value="30">
+	                                     <label class="form-check-label" for="a30">
+	                                         &nbsp;&nbsp;30
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a40" name="age" value="40">
+	                                     <label class="form-check-label" for="a40">
+	                                         &nbsp;&nbsp;40
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a50" name="age" value="50">
+	                                     <label class="form-check-label" for="a50">
+	                                         &nbsp;&nbsp;50
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a60" name="age" value="60">
+	                                     <label class="form-check-label" for="a60">
+	                                         &nbsp;&nbsp;60
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a70" name="age" value="70">
+	                                     <label class="form-check-label" for="a70">
+	                                         &nbsp;&nbsp;70
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a80" name="age" value="80">
+	                                     <label class="form-check-label" for="a80">
+	                                         &nbsp;&nbsp;80
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a90" name="age" value="90">
+	                                     <label class="form-check-label" for="a90">
+	                                         &nbsp;&nbsp;90
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a100" name="age" value="100">
+	                                     <label class="form-check-label" for="a100">
+	                                         &nbsp;&nbsp;100
+	                                     </label>
+	                                 </div></li>
+                                  </ul>
+                              </div>
+                              
+                              
+	                         <div class="btn-group ipt" role="group" aria-label="Basic checkbox toggle button group">
+                                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" style="width: 160px; height: 40px;" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                      	 &nbsp; 성    별 &nbsp; <i class="mdi mdi-chevron-down" style="float: right;"></i>
+                                  </button>
+                                  <ul id="chk" class="dropdown-menu" aria-labelledby="dropdownMenuClickableInside" data-popper-placement="top-start" style="position: absolute; inset: auto auto 0px 0px; margin: 0px; transform: translate(0px, -38.9375px);" data-popper-reference-hidden="" data-popper-escaped="">
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input a" type="checkbox" id="gall" name="gender" value="gall">
+	                                     <label class="form-check-label" for="gall">
+	                                         &nbsp;&nbsp;ALL
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="f" name="gender" value="F">
+	                                     <label class="form-check-label" for="f">
+	                                         &nbsp;&nbsp;여성
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="m" name="gender" value="M">
+	                                     <label class="form-check-label" for="m">
+	                                         &nbsp;&nbsp;남성
+	                                     </label>
+	                                 </div></li>
+                                  </ul>
+                              </div>
+                              
+	                         <div class="btn-group ipt" role="group" aria-label="Basic checkbox toggle button group">
+                                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" style="width: 160px; height: 40px;" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                      	 &nbsp; 등  급  별 &nbsp; <i class="mdi mdi-chevron-down" style="float: right;"></i>
+                                  </button>
+                                  <ul id="chk" class="dropdown-menu" aria-labelledby="dropdownMenuClickableInside" data-popper-placement="top-start" style="position: absolute; inset: auto auto 0px 0px; margin: 0px; transform: translate(0px, -38.9375px);" data-popper-reference-hidden="" data-popper-escaped="">
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input a" type="checkbox" id="rall" name="rank" value="rall">
+	                                     <label class="form-check-label" for="rall">
+	                                         &nbsp;&nbsp;ALL
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="vip" name="rank" value="VIP">
+	                                     <label class="form-check-label" for="vip">
+	                                         &nbsp;&nbsp;VIP
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="gold" name="rank" value="GOLD">
+	                                     <label class="form-check-label" for="gold">
+	                                         &nbsp;&nbsp;GOLD
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="silver" name="rank" value="SILVER">
+	                                     <label class="form-check-label" for="silver">
+	                                         &nbsp;&nbsp;SILVER
+	                                     </label>
+	                                 </div></li>
+                                  </ul>
+                              </div>
+                              
+                              
+	                         <div class="btn-group ipt" role="group" aria-label="Basic checkbox toggle button group">
+                                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" style="width: 160px; height: 40px;" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                      	 &nbsp; 결혼여부 &nbsp; <i class="mdi mdi-chevron-down" style="float: right;"></i>
+                                  </button>
+                                  <ul id="chk" class="dropdown-menu" aria-labelledby="dropdownMenuClickableInside" data-popper-placement="top-start" style="position: absolute; inset: auto auto 0px 0px; margin: 0px; transform: translate(0px, -38.9375px);" data-popper-reference-hidden="" data-popper-escaped="">
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input a" type="checkbox" id="mall" name="mrg" value="mall">
+	                                     <label class="form-check-label" for="mall">
+	                                         &nbsp;&nbsp;ALL
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="mrgy" name="mrg" value="Y">
+	                                     <label class="form-check-label" for="mrgy">
+	                                         &nbsp;&nbsp;기혼
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="mrgn" name="mrg" value="N">
+	                                     <label class="form-check-label" for="mrgn">
+	                                         &nbsp;&nbsp;미혼
+	                                     </label>
+	                                 </div></li>
+                                  </ul>
+                              </div>
+                             <button type="button" id="mail" class="btn btn-outline-info dropdown-toggle" style="width: 160px; height: 40px; float: right;">&nbsp; 메일 전송 &nbsp;</button>
+							  
+	                    </div>
+                    </div>
+					<div class="table">
+                     <table class="table align-middle table-nowrap table-check">
+                         <thead class="table-light">
+                             <tr>
+                                 <th style="width: 20px;" class="align-middle">
+                                     <div class="form-check font-size-16 form-check-info">
+                                         <input class="form-check-input" type="checkbox" id="checkAll" value="checkAll">
+                                         <label class="form-check-label" for="checkAll"></label>
+                                     </div>
+                                 </th>
+                                 <th class="align-middle">고객번호</th>
+                                 <th class="align-middle">고객명</th>
+                                 <th class="align-middle">이메일</th>
+                                 <th class="align-middle">연령대</th>
+                                 <th class="align-middle">성별</th>
+                                 <th class="align-middle">결혼여부</th>
+                                 <th class="align-middle">등급</th>
+                                 <th class="align-middle">고객 QR 코드</th>
+                             </tr>
+                         </thead>
+						
+                         <tbody id="res">
+                         	<c:forEach var="custVO" items="${list}">
+                             <tr>
+                                 <!-- 체크박스 -->
+                                 <td>
+                                     <div class="form-check font-size-16 form-check-info chk">
+                                         <input class="form-check-input" name="custchk" type="checkbox" id="${custVO.custId}" value="${custVO.custMail}">
+                                         <label class="form-check-label" for="orderidcheck02"></label>
+                                     </div>
+                                 </td>
+                                 <td><a href="/cust/custdetail/${custVO.custId}" class="text-body fw-bold">${custVO.custId}</a></td>
+                                 <td id="cunm">${custVO.custNm}</td>
+                                 <td>${custVO.custMail}</td>
+                                 <td>${custVO.age}</td>
+                                 <td>
+                                	<c:if test="${custVO.custGndr eq 'F'}">
+                                	<span class="badge bg-primary font-size-12">여성</span></c:if>
+                                	<c:if test="${custVO.custGndr eq 'M'}">
+                                	<span class="badge badge-soft-primary font-size-12">남성</span></c:if>
+                                 </td>
+                                 <td>
+                                	<c:if test="${custVO.custMrgYn eq 'Y'}">
+                                	<span class="badge bg-success font-size-12">기혼</span></c:if>
+                                	<c:if test="${custVO.custMrgYn eq 'N'}">
+                                	<span class="badge badge-soft-success font-size-12">미혼</span></c:if>
+                                 </td>
+                                 <td>
+                                	<c:if test="${custVO.cmncdNm1 eq 'SILVER'}">
+                                	<span class="badge badge-soft-dark font-size-12">${custVO.cmncdNm1}</span></c:if>
+                                	<c:if test="${custVO.cmncdNm1 eq 'GOLD'}">
+                                	<span class="badge bg-warning font-size-12">${custVO.cmncdNm1}</span></c:if>
+                                	<c:if test="${custVO.cmncdNm1 eq 'VIP'}">
+                                	<span class="badge bg-info font-size-12">${custVO.cmncdNm1}</span></c:if>
+                                 </td>
+                               	 <td data-org-colspan="1" data-priority="6" data-columns="tech-companies-1-col-6"><a href="#" onclick="window.open('https://chart.apis.google.com/chart?cht=qr&chl=${custVO.custId}&chld=L|2&chs=200','name','resizable=no width=400 height=400');return false">고객QR생성</a>
+                               	 </td>
+                             </tr>
+                         	</c:forEach>
+                         </tbody>
+                     </table>
+                 </div>
+                   </div>
+                   <!-- 휴면 고객 -->
+                   <div class="tab-pane" id="custH" role="tabpanel">
+					<div class="row">
+	                    <div class="col mb-2">
+	                    	<div class="btn-group ipt1" role="group" aria-label="Basic checkbox toggle button group">
+                                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" style="width: 160px; height: 40px;" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                      	 연  령  별 <i class="mdi mdi-chevron-down" style="float: right;"></i>
+                                  </button>
+                                  <ul id="chk" class="dropdown-menu" aria-labelledby="dropdownMenuClickableInside" data-popper-placement="top-start" style="position: absolute; inset: auto auto 0px 0px; margin: 0px; transform: translate(0px, -38.9375px);" data-popper-reference-hidden="" data-popper-escaped="">
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input a" type="checkbox" id="aall1" name="age1" value="aall1">
+	                                     <label class="form-check-label" for="aall1">
+	                                         &nbsp;&nbsp;ALL
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a20" name="age1" value="20">
+	                                     <label class="form-check-label" for="a20">
+	                                         &nbsp;&nbsp;20
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a30" name="age1" value="30">
+	                                     <label class="form-check-label" for="a30">
+	                                         &nbsp;&nbsp;30
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a40" name="age1" value="40">
+	                                     <label class="form-check-label" for="a40">
+	                                         &nbsp;&nbsp;40
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a50" name="age1" value="50">
+	                                     <label class="form-check-label" for="a50">
+	                                         &nbsp;&nbsp;50
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a60" name="age1" value="60">
+	                                     <label class="form-check-label" for="a60">
+	                                         &nbsp;&nbsp;60
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a70" name="age1" value="70">
+	                                     <label class="form-check-label" for="a70">
+	                                         &nbsp;&nbsp;70
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a80" name="age1" value="80">
+	                                     <label class="form-check-label" for="a80">
+	                                         &nbsp;&nbsp;80
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a90" name="age1" value="90">
+	                                     <label class="form-check-label" for="a90">
+	                                         &nbsp;&nbsp;90
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a100" name="age1" value="100">
+	                                     <label class="form-check-label" for="a100">
+	                                         &nbsp;&nbsp;100
+	                                     </label>
+	                                 </div></li>
+                                  </ul>
+                              </div>
+                              
+                              
+	                         <div class="btn-group ipt1" role="group" aria-label="Basic checkbox toggle button group">
+                                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" style="width: 160px; height: 40px;" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                      	 &nbsp; 성    별 &nbsp; <i class="mdi mdi-chevron-down" style="float: right;"></i>
+                                  </button>
+                                  <ul id="chk" class="dropdown-menu" aria-labelledby="dropdownMenuClickableInside" data-popper-placement="top-start" style="position: absolute; inset: auto auto 0px 0px; margin: 0px; transform: translate(0px, -38.9375px);" data-popper-reference-hidden="" data-popper-escaped="">
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input a" type="checkbox" id="gall1" name="gender1" value="gall1">
+	                                     <label class="form-check-label" for="gall1">
+	                                         &nbsp;&nbsp;ALL
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="f" name="gender1" value="F">
+	                                     <label class="form-check-label" for="f">
+	                                         &nbsp;&nbsp;여성
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="m" name="gender1" value="M">
+	                                     <label class="form-check-label" for="m">
+	                                         &nbsp;&nbsp;남성
+	                                     </label>
+	                                 </div></li>
+                                  </ul>
+                              </div>
+                              
+	                         <div class="btn-group ipt1" role="group" aria-label="Basic checkbox toggle button group">
+                                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" style="width: 160px; height: 40px;" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                      	 &nbsp; 등  급  별 &nbsp; <i class="mdi mdi-chevron-down" style="float: right;"></i>
+                                  </button>
+                                  <ul id="chk" class="dropdown-menu" aria-labelledby="dropdownMenuClickableInside" data-popper-placement="top-start" style="position: absolute; inset: auto auto 0px 0px; margin: 0px; transform: translate(0px, -38.9375px);" data-popper-reference-hidden="" data-popper-escaped="">
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input a" type="checkbox" id="rall1" name="rank1" value="rall1">
+	                                     <label class="form-check-label" for="rall1">
+	                                         &nbsp;&nbsp;ALL
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="vip" name="rank1" value="VIP">
+	                                     <label class="form-check-label" for="vip">
+	                                         &nbsp;&nbsp;VIP
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="gold" name="rank1" value="GOLD">
+	                                     <label class="form-check-label" for="gold">
+	                                         &nbsp;&nbsp;GOLD
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="silver" name="rank1" value="SILVER">
+	                                     <label class="form-check-label" for="silver">
+	                                         &nbsp;&nbsp;SILVER
+	                                     </label>
+	                                 </div></li>
+                                  </ul>
+                              </div>
+                              
+                              
+	                         <div class="btn-group ipt1" role="group" aria-label="Basic checkbox toggle button group">
+                                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" style="width: 160px; height: 40px;" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                      	 &nbsp; 결혼여부 &nbsp; <i class="mdi mdi-chevron-down" style="float: right;"></i>
+                                  </button>
+                                  <ul id="chk" class="dropdown-menu" aria-labelledby="dropdownMenuClickableInside" data-popper-placement="top-start" style="position: absolute; inset: auto auto 0px 0px; margin: 0px; transform: translate(0px, -38.9375px);" data-popper-reference-hidden="" data-popper-escaped="">
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input a" type="checkbox" id="mall1" name="mrg1" value="mall1">
+	                                     <label class="form-check-label" for="mall1">
+	                                         &nbsp;&nbsp;ALL
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="mrgy" name="mrg1" value="Y">
+	                                     <label class="form-check-label" for="mrgy">
+	                                         &nbsp;&nbsp;기혼
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="mrgn" name="mrg1" value="N">
+	                                     <label class="form-check-label" for="mrgn">
+	                                         &nbsp;&nbsp;미혼
+	                                     </label>
+	                                 </div></li>
+                                  </ul>
+                              </div>
+							  
+	                    </div>
+                    </div>
+					<div class="table">
+                     <table class="table align-middle table-nowrap table-check">
+                         <thead class="table-light">
+                             <tr>
+                                 <th class="align-middle">고객번호</th>
+                                 <th class="align-middle">고객명</th>
+                                 <th class="align-middle">이메일</th>
+                                 <th class="align-middle">연령대</th>
+                                 <th class="align-middle">성별</th>
+                                 <th class="align-middle">결혼여부</th>
+                                 <th class="align-middle">등급</th>
+                                 <th class="align-middle">고객 QR 코드</th>
+                             </tr>
+                         </thead>
+						
+                         <tbody id="res1">
+                         	<c:forEach var="custVO" items="${list1}">
+                             <tr>
+                                 <td><a href="/cust/custdetail/${custVO.custId}" class="text-body fw-bold">${custVO.custId}</a></td>
+                                 <td id="cunm">${custVO.custNm}</td>
+                                 <td>${custVO.custMail}</td>
+                                 <td>${custVO.age}</td>
+                                 <td>
+                                	<c:if test="${custVO.custGndr eq 'F'}">
+                                	<span class="badge bg-primary font-size-12">여성</span></c:if>
+                                	<c:if test="${custVO.custGndr eq 'M'}">
+                                	<span class="badge badge-soft-primary font-size-12">남성</span></c:if>
+                                 </td>
+                                 <td>
+                                	<c:if test="${custVO.custMrgYn eq 'Y'}">
+                                	<span class="badge bg-success font-size-12">기혼</span></c:if>
+                                	<c:if test="${custVO.custMrgYn eq 'N'}">
+                                	<span class="badge badge-soft-success font-size-12">미혼</span></c:if>
+                                 </td>
+                                 <td>
+                                	<c:if test="${custVO.cmncdNm1 eq 'SILVER'}">
+                                	<span class="badge badge-soft-dark font-size-12">${custVO.cmncdNm1}</span></c:if>
+                                	<c:if test="${custVO.cmncdNm1 eq 'GOLD'}">
+                                	<span class="badge bg-warning font-size-12">${custVO.cmncdNm1}</span></c:if>
+                                	<c:if test="${custVO.cmncdNm1 eq 'VIP'}">
+                                	<span class="badge bg-info font-size-12">${custVO.cmncdNm1}</span></c:if>
+                                 </td>
+                               	 <td data-org-colspan="1" data-priority="6" data-columns="tech-companies-1-col-6"><a href="#" onclick="window.open('https://chart.apis.google.com/chart?cht=qr&chl=${custVO.custId}&chld=L|2&chs=200','name','resizable=no width=400 height=400');return false">고객QR생성</a>
+                               	 </td>
+                             </tr>
+                         	</c:forEach>
+                         </tbody>
+                     </table>
+                 </div>
+                   </div>
+                   <!-- 탈퇴 고객 -->
+                   <div class="tab-pane" id="custT" role="tabpanel">
+					<div class="row">
+	                    <div class="col mb-2">
+	                    <div class="btn-group ipt2" role="group" aria-label="Basic checkbox toggle button group">
+                                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" style="width: 160px; height: 40px;" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                      	 연  령  별 <i class="mdi mdi-chevron-down" style="float: right;"></i>
+                                  </button>
+                                  <ul id="chk" class="dropdown-menu" aria-labelledby="dropdownMenuClickableInside" data-popper-placement="top-start" style="position: absolute; inset: auto auto 0px 0px; margin: 0px; transform: translate(0px, -38.9375px);" data-popper-reference-hidden="" data-popper-escaped="">
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input a" type="checkbox" id="aall2" name="age2" value="aall2">
+	                                     <label class="form-check-label" for="aall2">
+	                                         &nbsp;&nbsp;ALL
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a20" name="age2" value="20">
+	                                     <label class="form-check-label" for="a20">
+	                                         &nbsp;&nbsp;20
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a30" name="age2" value="30">
+	                                     <label class="form-check-label" for="a30">
+	                                         &nbsp;&nbsp;30
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a40" name="age2" value="40">
+	                                     <label class="form-check-label" for="a40">
+	                                         &nbsp;&nbsp;40
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a50" name="age2" value="50">
+	                                     <label class="form-check-label" for="a50">
+	                                         &nbsp;&nbsp;50
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a60" name="age2" value="60">
+	                                     <label class="form-check-label" for="a60">
+	                                         &nbsp;&nbsp;60
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a70" name="age2" value="70">
+	                                     <label class="form-check-label" for="a70">
+	                                         &nbsp;&nbsp;70
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a80" name="age2" value="80">
+	                                     <label class="form-check-label" for="a80">
+	                                         &nbsp;&nbsp;80
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a90" name="age2" value="90">
+	                                     <label class="form-check-label" for="a90">
+	                                         &nbsp;&nbsp;90
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="a100" name="age2" value="100">
+	                                     <label class="form-check-label" for="a100">
+	                                         &nbsp;&nbsp;100
+	                                     </label>
+	                                 </div></li>
+                                  </ul>
+                              </div>
+                              
+                              
+	                         <div class="btn-group ipt2" role="group" aria-label="Basic checkbox toggle button group">
+                                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" style="width: 160px; height: 40px;" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                      	 &nbsp; 성    별 &nbsp; <i class="mdi mdi-chevron-down" style="float: right;"></i>
+                                  </button>
+                                  <ul id="chk" class="dropdown-menu" aria-labelledby="dropdownMenuClickableInside" data-popper-placement="top-start" style="position: absolute; inset: auto auto 0px 0px; margin: 0px; transform: translate(0px, -38.9375px);" data-popper-reference-hidden="" data-popper-escaped="">
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input a" type="checkbox" id="gall2" name="gender2" value="gall2">
+	                                     <label class="form-check-label" for="gall2">
+	                                         &nbsp;&nbsp;ALL
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="f" name="gender2" value="F">
+	                                     <label class="form-check-label" for="f">
+	                                         &nbsp;&nbsp;여성
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="m" name="gender2" value="M">
+	                                     <label class="form-check-label" for="m">
+	                                         &nbsp;&nbsp;남성
+	                                     </label>
+	                                 </div></li>
+                                  </ul>
+                              </div>
+                              
+	                         <div class="btn-group ipt2" role="group" aria-label="Basic checkbox toggle button group">
+                                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" style="width: 160px; height: 40px;" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                      	 &nbsp; 등  급  별 &nbsp; <i class="mdi mdi-chevron-down" style="float: right;"></i>
+                                  </button>
+                                  <ul id="chk" class="dropdown-menu" aria-labelledby="dropdownMenuClickableInside" data-popper-placement="top-start" style="position: absolute; inset: auto auto 0px 0px; margin: 0px; transform: translate(0px, -38.9375px);" data-popper-reference-hidden="" data-popper-escaped="">
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input a" type="checkbox" id="rall2" name="rank2" value="rall2">
+	                                     <label class="form-check-label" for="rall2">
+	                                         &nbsp;&nbsp;ALL
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="vip" name="rank2" value="VIP">
+	                                     <label class="form-check-label" for="vip">
+	                                         &nbsp;&nbsp;VIP
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="gold" name="rank2" value="GOLD">
+	                                     <label class="form-check-label" for="gold">
+	                                         &nbsp;&nbsp;GOLD
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="silver" name="rank2" value="SILVER">
+	                                     <label class="form-check-label" for="silver">
+	                                         &nbsp;&nbsp;SILVER
+	                                     </label>
+	                                 </div></li>
+                                  </ul>
+                              </div>
+                              
+                              
+	                         <div class="btn-group ipt2" role="group" aria-label="Basic checkbox toggle button group">
+                                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" style="width: 160px; height: 40px;" id="dropdownMenuClickableInside" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                      	 &nbsp; 결혼여부 &nbsp; <i class="mdi mdi-chevron-down" style="float: right;"></i>
+                                  </button>
+                                  <ul id="chk" class="dropdown-menu" aria-labelledby="dropdownMenuClickableInside" data-popper-placement="top-start" style="position: absolute; inset: auto auto 0px 0px; margin: 0px; transform: translate(0px, -38.9375px);" data-popper-reference-hidden="" data-popper-escaped="">
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input a" type="checkbox" id="mall2" name="mrg2" value="mall2">
+	                                     <label class="form-check-label" for="mall2">
+	                                         &nbsp;&nbsp;ALL
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="mrgy" name="mrg2" value="Y">
+	                                     <label class="form-check-label" for="mrgy">
+	                                         &nbsp;&nbsp;기혼
+	                                     </label>
+	                                 </div></li>
+                                      <li><div class="dropdown-item form-check-info">
+	                                     <input class="form-check-input" type="checkbox" id="mrgn" name="mrg2" value="N">
+	                                     <label class="form-check-label" for="mrgn">
+	                                         &nbsp;&nbsp;미혼
+	                                     </label>
+	                                 </div></li>
+                                  </ul>
+                              </div>
+	                    </div>
+                    </div>
+					<div class="table">
+                     <table class="table align-middle table-nowrap table-check">
+                         <thead class="table-light">
+                             <tr>
+                                 <th class="align-middle">고객번호</th>
+                                 <th class="align-middle">고객명</th>
+                                 <th class="align-middle">이메일</th>
+                                 <th class="align-middle">연령대</th>
+                                 <th class="align-middle">성별</th>
+                                 <th class="align-middle">결혼여부</th>
+                                 <th class="align-middle">등급</th>
+                                 <th class="align-middle">고객 QR 코드</th>
+                             </tr>
+                         </thead>
+						
+                         <tbody id="res2">
+                         	<c:forEach var="custVO" items="${list2}">
+                             <tr>
+                                 <!-- 체크박스 -->
+                                 <td><a href="/cust/custdetail/${custVO.custId}" class="text-body fw-bold">${custVO.custId}</a></td>
+                                 <td id="cunm">${custVO.custNm}</td>
+                                 <td>${custVO.custMail}</td>
+                                 <td>${custVO.age}</td>
+                                 <td>
+                                	<c:if test="${custVO.custGndr eq 'F'}">
+                                	<span class="badge bg-primary font-size-12">여성</span></c:if>
+                                	<c:if test="${custVO.custGndr eq 'M'}">
+                                	<span class="badge badge-soft-primary font-size-12">남성</span></c:if>
+                                 </td>
+                                 <td>
+                                	<c:if test="${custVO.custMrgYn eq 'Y'}">
+                                	<span class="badge bg-success font-size-12">기혼</span></c:if>
+                                	<c:if test="${custVO.custMrgYn eq 'N'}">
+                                	<span class="badge badge-soft-success font-size-12">미혼</span></c:if>
+                                 </td>
+                                 <td>
+                                	<c:if test="${custVO.cmncdNm1 eq 'SILVER'}">
+                                	<span class="badge badge-soft-dark font-size-12">${custVO.cmncdNm1}</span></c:if>
+                                	<c:if test="${custVO.cmncdNm1 eq 'GOLD'}">
+                                	<span class="badge bg-warning font-size-12">${custVO.cmncdNm1}</span></c:if>
+                                	<c:if test="${custVO.cmncdNm1 eq 'VIP'}">
+                                	<span class="badge bg-info font-size-12">${custVO.cmncdNm1}</span></c:if>
+                                 </td>
+                               	 <td data-org-colspan="1" data-priority="6" data-columns="tech-companies-1-col-6"><a href="#" onclick="window.open('https://chart.apis.google.com/chart?cht=qr&chl=${custVO.custId}&chld=L|2&chs=200','name','resizable=no width=400 height=400');return false">고객QR생성</a>
+                               	 </td>
+                             </tr>
+                         	</c:forEach>
+                         </tbody>
+                     </table>
+                 </div>
+                   </div>
+               </div>
+             </div>
+         </div>
+         <!-- end card -->
+     </div>
+ </div>
+ <!-- end row -->
+
+
+</body>
+</html>

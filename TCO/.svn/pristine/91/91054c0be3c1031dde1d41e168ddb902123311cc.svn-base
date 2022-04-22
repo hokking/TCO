@@ -1,0 +1,44 @@
+package kr.or.tco.cal.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import kr.or.tco.cal.mapper.CalMapper;
+import kr.or.tco.cal.service.CalService;
+import kr.or.tco.cal.vo.StrgWrhsVO;
+import kr.or.tco.cal.vo.CustNtsVO;
+@Service
+public class CalServiceImpl implements CalService{
+
+	@Autowired CalMapper calMapper;
+	
+	@Override
+	public List<StrgWrhsVO> dailyPrc(Map<String,Object> map) {
+		return this.calMapper.dailyPrc( map);
+	}
+
+	@Override
+	public List<StrgWrhsVO> dailySls(Map<String,Object> map) {
+		return this.calMapper.dailySls( map);
+	}
+
+	@Override
+	public List<CustNtsVO> dailyCustNts(Map<String,Object> map) {
+		return this.calMapper.dailyCustNts(map);
+	}
+
+
+	@Override
+	public int getSGWTotal(Map<String, Object> map) {
+		return this.calMapper.getSGWTotal(map);
+	}
+
+	@Override
+	public int getCNLTotal(Map<String, Object> map) {
+		return this.calMapper.getCNLTotal(map);
+	}
+
+
+}

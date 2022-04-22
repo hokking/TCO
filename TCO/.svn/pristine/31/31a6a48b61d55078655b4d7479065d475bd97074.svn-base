@@ -1,0 +1,15 @@
+package kr.or.tco.emp.service.impl;
+
+import java.util.List;
+
+import kr.or.tco.emp.vo.AttachFilesVO;
+import kr.or.tco.emp.vo.EmpVO;
+
+public interface EmpService {
+
+	public int empinsert(EmpVO empVO);
+
+	public int insertAttachFiles(List<AttachFilesVO> attachFilesVO);
+	
+	public String cdselect(EmpVO empVO);
+}

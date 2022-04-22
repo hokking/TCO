@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.strgstck.mapper.StrgstckMapper">
+	<!-- * selectKey?
+	일련번호 처리
+	마이바티스는 쿼리 실행 시 파라미터를 치환해줌 
+	 -->
+	
+	<!-- 상품 등록시 본사 insert -->
+	<insert id="strgTcoInsert" parameterType="strgstckVO">
+		<selectKey order="BEFORE" keyProperty="prodInfoId" resultType="String">
+			SELECT 'PROD' || LPAD(NVL(MAX(SUBSTR(PROD_INFO_ID,5)),0),5,'0') FROM PROD_INFO
+		</selectKey>
+		INSERT INTO strg_stck (
+		    brncofc_id
+		   ,prod_info_id 
+		   ,strg_stck_qty 
+		   ,strg_stck_sfty_qty
+		   ,strg_stck_dflt_qty
+		   ,strg_stck_yn 
+		   ,strg_stck_ordr_yn
+		) VALUES (
+		    'BRN00000'
+		   ,#{prodInfoId}
+		   ,0
+		   ,#{strgStckSftyQty}
+		   ,#{strgStckDfltQty}
+		   ,'Y'
+		   ,'O'
+		)
+	</insert>
+	
+	<!-- 상품 등록시 지점 insert -->
+	<insert id="strgBrncInsert" parameterType="String">
+		INSERT INTO strg_stck (
+		    brncofc_id
+		   ,prod_info_id 
+		   ,strg_stck_qty 
+		   ,strg_stck_sfty_qty
+		   ,strg_stck_dflt_qty
+		   ,strg_stck_yn 
+		   ,strg_stck_ordr_yn
+		) VALUES (
+		    #{brncofcId}
+		    ,(SELECT 'PROD' || LPAD(NVL(MAX(SUBSTR(PROD_INFO_ID,5)),0),5,'0') FROM PROD_INFO)
+		    ,0
+		    ,0
+		    ,0
+		    ,'N'
+		    ,'O'
+		)
+	</insert>
+	
+	<!-- 상품 정보 테이블에서 상품 삭제시 창고재고 본사 인스턴스 삭제 -->
+	<delete id="strgTcoDelete" parameterType="String">
+		DELETE FROM STRG_STCK
+		WHERE  BRNCOFC_ID ='BRN00000'
+		AND    PROD_INFO_ID =#{prodInfoId}
+	</delete>
+	
+	<!-- 수주버튼 클릭시 창고 출고 insert -->
+	<insert id="shipStrg" parameterType="hashMap">
+		INSERT INTO STRG_SHMT (
+			STRG_SHMT_ID
+		   ,BRNCOFC_ID
+		   ,PROD_INFO_ID
+		   ,STRG_SHMT_QTY
+		   ,STRG_SHMT_DT
+		   ,BRNCOFC_ID_WR
+		) VALUES (
+		    STRG_SHMT_SEQ.NEXTVAL
+		   ,#{brncofcId}
+		   ,#{prodInfoId}
+		   ,#{strgShmtQty}
+		   ,SYSDATE
+		   ,#{brncofcIdWr} )
+	</insert>
+	
+	<!-- 본사창고의 현재고 확인 -->
+	<select id="nowStck" resultType="Integer" parameterType="String">
+		SELECT STRG_STCK_QTY
+		FROM   STRG_STCK
+		WHERE  BRNCOFC_ID='BRN00000'
+		AND    PROD_INFO_ID=#{prodInfoId}
+	</select>
+	
+	<!-- 본사의 창고 재고 update -->
+	<update id="stckUpdate" parameterType="hashMap">
+		UPDATE STRG_STCK
+		   SET STRG_STCK_QTY=(#{strgStckQty} - #{ordrQty})  
+		 WHERE BRNCOFC_ID ='BRN00000'
+		   AND PROD_INFO_ID =#{prodInfoId}
+	</update>
+	
+	<!-- 본사의 창고출고 List 뽑기.. 근데 이제 필터를 곁들인.. 사실 필터를 안곁들인 -->
+	<select id="headShipList" resultType="strgstckVO">
+		SELECT S.STRG_SHMT_ID
+			 , S.BRNCOFC_ID
+			 , S.PROD_INFO_ID
+			 , S.STRG_SHMT_QTY
+		     , S.STRG_SHMT_DT
+		     , P.PROD_INFO_NM
+		     , P.PROD_INFO_PRCHS_AMT
+		     , P.CMNCD_CD
+		     , B.BRNCOFC_NM
+		     , C.CMNCD_NM1
+		     , C.CMNCD_NM2
+		     , S.BRNCOFC_ID_WR
+		  FROM STRG_SHMT S, PROD_INFO P, BRNCOFC B, CMNCD C
+		 WHERE S.BRNCOFC_ID_WR=B.BRNCOFC_ID
+		   AND S.PROD_INFO_ID=P.PROD_INFO_ID
+		   AND P.CMNCD_CD=C.CMNCD_CD
+		   AND S.BRNCOFC_ID='BRN00000'
+		 ORDER BY S.STRG_SHMT_ID DESC
+	</select>
+	
+	<!-- 지점의 창고출고(매장입고) 목록뽑기 -->
+	<select id="branchShipList" resultType="strgstckVO" parameterType="String">
+		SELECT S.STRG_SHMT_ID
+			 , S.BRNCOFC_ID
+			 , S.PROD_INFO_ID
+			 , S.STRG_SHMT_QTY
+		     , S.STRG_SHMT_DT
+		     , P.PROD_INFO_NM
+		     , P.PROD_INFO_PRCHS_AMT
+		     , P.CMNCD_CD
+		     , B.BRNCOFC_NM
+		     , C.CMNCD_NM1
+		     , C.CMNCD_NM2
+             , S.BRNCOFC_ID_WR
+		  FROM STRG_SHMT S, PROD_INFO P, BRNCOFC B, CMNCD C
+		 WHERE S.BRNCOFC_ID=B.BRNCOFC_ID
+		   AND S.PROD_INFO_ID=P.PROD_INFO_ID
+		   AND P.CMNCD_CD=C.CMNCD_CD
+           AND S.BRNCOFC_ID=#{brncofcId}
+		 ORDER BY S.STRG_SHMT_ID DESC
+	</select>
+	
+	<!-- 지점의 창고입고 목록뽑기 -->
+	<select id="branchWrHouseList" resultType="strgstckVO" parameterType="String">
+		SELECT S.STRG_WRHS_ID
+		      ,S.BRNCOFC_ID
+		      ,S.PROD_INFO_ID
+		      ,S.STRG_WRHS_QTY
+		      ,S.STRG_WRHS_DT
+		      ,P.PROD_INFO_PRCHS_AMT
+		      ,P.PROD_INFO_NM
+		      ,P.CMNCD_CD
+		      ,C.CMNCD_NM1
+		      ,C.CMNCD_NM2
+		      ,B.BRNCOFC_NM
+		      ,N.CNPT_ID
+              ,N.CNPT_NM
+		FROM   STRG_WRHS S, PROD_INFO P, CMNCD C, BRNCOFC B, CNPT N
+		WHERE S.BRNCOFC_ID=B.BRNCOFC_ID
+		  AND S.PROD_INFO_ID=P.PROD_INFO_ID
+		  AND P.CMNCD_CD=C.CMNCD_CD
+		  AND N.CNPT_ID=P.CNPT_ID
+		  AND S.BRNCOFC_ID=#{brncofcId}
+		ORDER BY S.STRG_WRHS_ID DESC
+	</select>
+	
+	<!-- 지점의 창고 부족재고 현황뽑기(지점의 모든 제품 현황) -->
+	<select id="strgLackList" resultType="strgstckVO" parameterType="String">
+		SELECT S.BRNCOFC_ID
+		     , S.PROD_INFO_ID
+		     , S.STRG_STCK_QTY
+		     , S.STRG_STCK_SFTY_QTY
+		     , S.STRG_STCK_DFLT_QTY
+		     , S.STRG_STCK_YN
+		     , S.STRG_STCK_ORDR_YN
+		     , B.BRNCOFC_NM
+		     , P.PROD_INFO_NM
+		     , C.CMNCD_CD
+		     , C.CMNCD_NM1
+		     , C.CMNCD_NM2
+		     , N.CNPT_ID
+		     , N.CNPT_NM
+		  FROM STRG_STCK S, BRNCOFC B, PROD_INFO P, CMNCD C, CNPT N
+		 WHERE S.BRNCOFC_ID=B.BRNCOFC_ID
+		   AND S.PROD_INFO_ID=P.PROD_INFO_ID
+		   AND C.CMNCD_CD=P.CMNCD_CD
+		   AND N.CNPT_ID=P.CNPT_ID
+		   AND S.BRNCOFC_ID=#{brncofcId}
+		 ORDER BY S.STRG_STCK_QTY ASC
+	</select>
+	
+	<!-- 상세재고현황 이므니다?  -->
+	<select id="detailstock" resultType="strgstckVO" parameterType="hashMap">
+	    SELECT
+		    S.BRNCOFC_ID,
+		    S.PROD_INFO_ID,
+		    S.STRG_STCK_QTY,
+		    S.STRG_STCK_SFTY_QTY,
+		    S.STRG_STCK_DFLT_QTY,
+		    P.PROD_INFO_NM,
+            P.CMNCD_CD,
+            C.CMNCD_NM1,
+            C.CMNCD_NM2
+		FROM
+		    STRG_STCK S, PROD_INFO P , CMNCD C
+		WHERE 
+			S.PROD_INFO_ID = P.PROD_INFO_ID    
+        AND
+            C.CMNCD_CD=  P.CMNCD_CD
+		AND
+			 S.BRNCOFC_ID  = #{brncofcId}
+		<if test="keyWord!=null and keyWord!=''">
+			    AND    ( P.PROD_INFO_NM LIKE '%'||#{keyWord}||'%')
+		  </if>
+	</select>
+	
+	<!-- 지점 부족재고 현황에서 매장 재고보충 클릭시 창고 재고 update -->
+	<update id="refillStorage" parameterType="hashMap">
+		UPDATE STRG_STCK
+		SET    STRG_STCK_QTY = STRG_STCK_QTY - #{refill}
+		WHERE  BRNCOFC_ID =#{brncofcId}
+		AND    PROD_INFO_ID =#{prodInfoId}
+	</update>
+	
+	<!-- 지점 부족재고 현황에서 매장 재고보충 클릭시 창고 출고 insert -->
+	<insert id="refillInsert" parameterType="hashMap">
+		INSERT INTO STRG_SHMT (
+		    STRG_SHMT_ID,
+		    BRNCOFC_ID,
+		    PROD_INFO_ID,
+		    STRG_SHMT_QTY,
+		    STRG_SHMT_DT,
+		    BRNCOFC_ID_WR
+		) VALUES (
+		    STRG_SHMT_SEQ.NEXTVAL,
+		    #{brncofcId},
+		    #{prodInfoId},
+		    #{strgShmtQty},
+		    SYSDATE,
+		    NULL
+		)
+	</insert>
+	
+	<!-- 지점의 창고재고가 안전재고 밑으로 떨어지면 발주여부를 N으로 update -->
+	<update id="underSafty" parameterType="String">
+		UPDATE STRG_STCK
+		SET    STRG_STCK_ORDR_YN = 'N'
+		WHERE  BRNCOFC_ID =#{brncofcId}
+		AND    STRG_STCK_QTY - STRG_STCK_SFTY_QTY &lt; 0
+		AND    STRG_STCK_ORDR_YN = 'O'
+	</update>
+	
+	<!-- 부족재고현황에서 발주시 발주여부 Y로 수정 -->
+	<update id="lackUpdate" parameterType="hashMap">
+		UPDATE STRG_STCK
+		SET    STRG_STCK_ORDR_YN = 'Y'
+		WHERE  BRNCOFC_ID =#{brncofcId}
+		AND    PROD_INFO_ID =#{prodInfoId}
+	</update>
+	
+	<!-- 발주 수량 구하기(기본보유수량 - 현재고) -->
+	<select id="ordrQtyStrg" resultType="Integer" parameterType="hashMap">
+		SELECT STRG_STCK_DFLT_QTY - STRG_STCK_QTY AS REFILL
+		FROM   STRG_STCK
+		WHERE  PROD_INFO_ID=#{prodInfoId}
+		AND    BRNCOFC_ID=#{brncofcId}
+	</select>
+	
+	<!-- 본사의 창고재고 가져오기 -->
+	<select id="getHeadshipStock" resultType="strgstckVO" parameterType="prodVO">
+		SELECT 	S.BRNCOFC_ID, 
+			    S.PROD_INFO_ID, 
+			    S.STRG_STCK_QTY, 
+			    S.STRG_STCK_SFTY_QTY, 
+			    S.STRG_STCK_DFLT_QTY, 
+			    S.STRG_STCK_YN, 
+			    S.STRG_STCK_ORDR_YN,
+			    P.PROD_INFO_NM, 
+			    P.PROD_INFO_PRCHS_AMT, 
+			    P.PROD_INFO_NTSL_AMT, 
+			    P.PROD_INFO_LDT, 
+			    P.PROD_INFO_PLOR, 
+			    P.CMNCD_CD, 
+			    P.PROD_INFO_YN, 
+			    P.CNPT_ID
+		FROM 	STRG_STCK S LEFT OUTER JOIN PROD_INFO P
+		ON 		S.PROD_INFO_ID = P.PROD_INFO_ID
+		WHERE 	BRNCOFC_ID = 'BRN00000'
+	</select>
+	
+</mapper>

@@ -1,0 +1,356 @@
+package kr.or.tco.prchs.controller;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.ibatis.annotations.Param;
+import org.json.simple.JSONArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.tco.cnpt.service.CnptService;
+import kr.or.tco.cnpt.vo.CnptVO;
+import kr.or.tco.ArticlePage;
+import kr.or.tco.prchs.mapper.PrchsMapper;
+import kr.or.tco.prchs.service.PrchsService;
+import kr.or.tco.prchs.vo.PrchsVO;
+import kr.or.tco.prchsgds.vo.PrchsGdsVO;
+import kr.or.tco.prod.vo.ProdVO;
+
+//매입 컨트롤러
+@RequestMapping("/prchs")
+@Controller
+public class PrchsController {
+	
+	@Autowired
+	PrchsService prchsService;
+	
+	final static Logger logger = 
+			LoggerFactory.getLogger(PrchsController.class);
+	
+	//매입 발주서 화면
+	@GetMapping("/prchsOrder")
+	public String prchsOrder(Model model
+			, @RequestParam(defaultValue="1") int currentPage
+			, @RequestParam(required=false ,value = "keyWord") String keyWord
+			, @RequestParam(defaultValue="10",required=false) int size
+			, @RequestParam(required = false)String startDay
+			, @RequestParam(required = false)String endDay
+			, @RequestParam Map<String,Object> map) {
+		
+		logger.info("시작일 : " + startDay);
+		logger.info("시작일 : " + endDay);
+		logger.info("keyWord : " + keyWord);
+		
+		//맵에 저장
+		map.put("keyWord", keyWord);
+		map.put("currentPage", currentPage);
+		map.put("size", size);
+		map.put("startDay", startDay);
+		map.put("endDay", endDay);
+		map.put("prchsSe", "저장");
+		
+		//행의 수 리턴
+		int total = prchsService.selectCount(map);
+		
+		//매입발주서에 저장된 목록 가져오기
+		List<PrchsVO> prchsList = prchsService.getSvdPrchsOrdrList(map);
+		
+		//Model에 저장
+		model.addAttribute("list", new ArticlePage(total, currentPage, size, 5, prchsList));
+		model.addAttribute("prchsList", prchsList);
+		
+		return "prchs/prchsOrder";
+	}
+	
+	//검색어 자동완성
+//	@ResponseBody
+//	@GetMapping(value = "/searchCnpt")
+//	public List<CnptVO> searchCnpt(@RequestParam(value="keyWord") String keyWord) {
+//		logger.info("keyWord 넘어왔나??????????????????????? : " + keyWord);
+//		List<CnptVO> cnptList = prchsService.cnptSearchList(keyWord);
+//		logger.info(cnptList.toString());
+//		return cnptList;
+//	}
+	
+	//거래처 검색어 자동완성
+	@RequestMapping(value = "/searchCnpt", 
+            method= {RequestMethod.GET},
+            produces = "application/json; charset=utf8")
+	@ResponseBody
+	public void searchCnpt(Model model,HttpServletRequest request,
+	                   HttpServletResponse response) throws IOException {
+	                   
+		String searchValue = request.getParameter("searchValue"); 
+		JSONArray arrayObj = prchsService.autoSearch(searchValue);
+		
+		response.setCharacterEncoding("UTF-8");
+		PrintWriter pw = response.getWriter(); 
+		pw.print(arrayObj); 
+		pw.flush(); 
+		pw.close();
+	
+	}
+	
+	//거래처 아이디로 상품명가져오기
+	@GetMapping("/getProdInfoByCnptId")
+	public @ResponseBody List<ProdVO> getProdInfoByCnptId(@RequestParam("cnptId") String cnptId){
+		logger.info("cnptId 잘 드러완니 ? " + cnptId);
+		return prchsService.getProdInfoByCnptId(cnptId);
+	}
+	
+	
+	//매입아이디로 매입정보 가져오기
+	@GetMapping("/getPrchsDetail")
+	public @ResponseBody List<PrchsVO> getPrchsVODetail(@RequestParam("paramId") String prchsId) {
+//		logger.info("아이디 잘 들왓나보자 : " + prchsId);
+		List<PrchsVO> prchsList = prchsService.getPrchsVODetail(prchsId);
+		//찍어보기
+		logger.info(prchsList.toString());
+		return prchsList;
+	}
+	
+	//매입발주서 등록하기
+	@PostMapping("/insertPrchs")
+	public @ResponseBody int insertPrchs(@ModelAttribute PrchsVO prchsVO) {
+		logger.info("VO야 잘 드러완니,,,ㅠ" + prchsVO);
+		int result = prchsService.insertPrchs(prchsVO);
+		return result;
+	}
+	
+	//매입발주서 수정저장하기
+	@ResponseBody
+	@PostMapping("/updatePrchs")
+	public int updatePrchs(@ModelAttribute PrchsVO prchsVO) {
+		logger.info("VO야 잘 드러완니....? : " + prchsVO);
+		
+		logger.info("아이디 설정해준 후의 prchsVO : " + prchsVO);
+		String prchsId = prchsVO.getPrchsId();
+		
+		logger.info(prchsId);
+		
+		//수정하기
+		int result = prchsService.updatePrchs(prchsVO);
+		
+		return result;
+		
+		
+	}
+	
+	//매입발주서 전송하기(매입명세서로) 구분='매입'으로 변경
+	@PostMapping("/sendPrchs")
+	public @ResponseBody int sendPrchs(@RequestParam("prchsId") String prchsId) {
+		
+		logger.info("아이디야 잘드러완니? : " + prchsId);
+		//매입으로 업데이트 하기 
+		int result = prchsService.sendPrchs(prchsId);
+		
+		//업데이트 된 행 return 
+		return result;
+	}
+	
+	//매입발주서 삭제하기 
+	@GetMapping("/deletePrchs")
+	public @ResponseBody int deletePrchs(@RequestParam("prchsId") String prchsId) {
+		logger.info("삭제 아이디야 잘드러완니? : " + prchsId);
+		
+		//삭제하기 
+		int result = prchsService.deletePrchs(prchsId);
+		
+		return result;
+	}
+	
+	//매입 명세서 화면
+	@GetMapping("/prchsSpece")
+	public String prchsSpece(Model model
+			,@RequestParam(required = false)String startDay
+			,@RequestParam(required = false)String endDay) {
+		
+		logger.info("시작일 : " + startDay);
+		logger.info("시작일 : " + endDay);
+		
+		//맵 만들기
+		Map<String, String> dateMap = new HashMap<String, String>();
+		
+		//맵에 저장
+		dateMap.put("startDay", startDay);
+		dateMap.put("endDay", endDay);
+		
+		//매입명세서 목록 가져오기
+		List<PrchsVO> speceList = prchsService.getPrchsSpeceList(dateMap);
+		//model에 저장
+		model.addAttribute("speceList", speceList);
+		return "prchs/prchsSpece";
+	}
+	
+	//매입현황
+	@GetMapping("/prchsCondition")
+	public String prchsCondition(Model model
+			, @RequestParam(defaultValue="1") int currentPage
+			, @RequestParam(required=false ,value = "keyWord") String keyWord
+			, @RequestParam(defaultValue="10",required=false) int size
+			, @RequestParam(required = false)String startDay
+			, @RequestParam(required = false)String endDay
+			, @RequestParam Map<String,Object> map) {
+		
+		logger.info("시작일 : " + startDay);
+		logger.info("시작일 : " + endDay);
+		logger.info("keyWord : " + keyWord);
+		
+		//맵에 저장
+		map.put("keyWord", keyWord);
+		map.put("currentPage", currentPage);
+		map.put("size", size);
+		map.put("startDay", startDay);
+		map.put("endDay", endDay);
+		map.put("prchsSe", "매입");
+		
+		//행의 수 리턴
+		int total = prchsService.selectCount(map);
+		
+		//매입명세서 목록 가져오기
+		List<PrchsVO> speceList = prchsService.getPrchsCondition(map);
+		
+		//Model에 저장
+		model.addAttribute("list", new ArticlePage(total, currentPage, size, 5, speceList));
+		model.addAttribute("speceList", speceList);
+		
+		return "prchs/prchsCondition";
+	}
+	
+	//매입현황에서 입고버튼 클릭 시 
+	@PostMapping("/warehousingUpdate")
+	public @ResponseBody int warehousingUpdate(
+			@RequestParam("prchsId") String prchsId,
+			@RequestParam("prodInfoId") String prodInfoId,
+			@RequestParam("prchsQty") String prchsQty) {
+		
+		// int로 변경
+		int prchsGdsQty = Integer.parseInt(prchsQty);
+		
+		PrchsGdsVO prchsGdsVO = new PrchsGdsVO();
+		prchsGdsVO.setPrchsId(prchsId);
+		prchsGdsVO.setProdInfoId(prodInfoId);
+		prchsGdsVO.setPrchsGdsQty(prchsGdsQty);
+		
+		//prchsGdsVO 잘드러완나,,
+		logger.info("이것이다" + prchsGdsVO);
+		
+		//매입상품 Y 처리하기 
+		prchsService.updatePrchsYn(prchsGdsVO);
+		
+		//입고처리하기 
+		prchsService.strgwrhsInsert(prchsGdsVO);
+		
+		//창고재고 테이블에 수량추가
+		prchsService.addStrgStck(prchsGdsVO);
+		
+		return 1;
+	}
+	
+	//거래처별 매입현황
+	@GetMapping("/prchsCnpt")
+	public String prchsCnpt(Model model
+			, @RequestParam(required = false, value = "cnptNm")String keyWord // 거래처명 받아오기
+			,@RequestParam(required = false)String startDay
+			,@RequestParam(required = false)String endDay) { 
+		
+		//맵 만들기
+		Map<String, String> dateMap = new HashMap<String, String>();
+		
+		//맵에 저장
+		dateMap.put("startDay", startDay);
+		dateMap.put("endDay", endDay);
+		dateMap.put("keyWord", keyWord); //거래처 검색명
+		
+		//거래처 검색 
+		List<PrchsVO> prchsCnptList = prchsService.getPrchsByCnptNm(dateMap);
+		//model에 저장
+		model.addAttribute("prchsCnptList", prchsCnptList);
+		return "prchs/prchsCnpt";
+	}
+	
+	//거래처별 키워드, 날짜 검색했을 때 
+	@GetMapping("/prchsCnpt.do")
+	public @ResponseBody List<PrchsVO> prchsCnptSearch(Model model
+			, @RequestParam(required = false, value = "cnptNm")String keyWord // 거래처명 받아오기
+			,@RequestParam(required = false)String startDay
+			,@RequestParam(required = false)String endDay) { 
+		
+		logger.info("잘드러완니" + keyWord);
+		logger.info("잘드러완니" + startDay);
+		logger.info("잘드러완니" + endDay);
+		
+		//맵 만들기
+		Map<String, String> dateMap = new HashMap<String, String>();
+		
+		//맵에 저장
+		dateMap.put("startDay", startDay);
+		dateMap.put("endDay", endDay);
+		dateMap.put("keyWord", keyWord); //거래처 검색명
+		
+		//거래처 검색 
+		List<PrchsVO> prchsCnptList = prchsService.getPrchsByCnptNm(dateMap);
+		
+		return prchsCnptList;
+	}
+	
+	//품목별 매입현황
+	@GetMapping("/prchsProd")
+	public String prchsProd(Model model
+			, @RequestParam(required = false, value = "prodNm")String prodNm // 상품명 받아오기
+			,@RequestParam(required = false)String startDay
+			,@RequestParam(required = false)String endDay) { 
+		
+		//맵 만들기
+		Map<String, String> dateMap = new HashMap<String, String>();
+		
+		//매입명세서 목록 가져오기
+		List<PrchsVO> speceList = prchsService.getPrchsSpeceList(dateMap);
+		//model에 저장
+		model.addAttribute("speceList", speceList);
+		
+		return "prchs/prchsProd";
+	}
+	
+	//품목별 매입현황 - 검색 시 
+	@GetMapping("/prchsProd.do")
+	public @ResponseBody List<PrchsVO> prchsProdSearch(Model model
+			, @RequestParam(required = false, value = "cmncdNm1")String cmncdNm1 
+			, @RequestParam(required = false, value = "cmncdNm2")String cmncdNm2 
+			,@RequestParam(required = false)String startDay
+			,@RequestParam(required = false)String endDay) {
+		
+		//맵 만들기
+		Map<String, String> dateMap = new HashMap<String, String>();
+		
+		logger.info("이것이다 " + cmncdNm1 , cmncdNm2);
+		
+		//맵에 저장
+		dateMap.put("startDay", startDay);
+		dateMap.put("endDay", endDay);
+		dateMap.put("cmncdNm1", cmncdNm1);
+		dateMap.put("cmncdNm2", cmncdNm2);
+		
+		List<PrchsVO> prchsProdList = prchsService.getPrchsByProdNm(dateMap);
+		
+		return prchsProdList;
+	}
+	
+}

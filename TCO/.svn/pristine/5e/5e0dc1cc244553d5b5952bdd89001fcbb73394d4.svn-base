@@ -1,0 +1,54 @@
+package kr.or.tco.att.vo;
+
+import java.util.Date;
+
+public class WorksttsVO {
+
+	private String empId;
+	private Date worksttsDt;
+	private Date worksttsBgngTm;
+	private Date worksttsEndTm;
+	private String cmncdCd;
+	
+	// 근무시간 계산 변수 추가하실? 
+	
+	public String getEmpId() {
+		return empId;
+	}
+	public void setEmpId(String empId) {
+		this.empId = empId;
+	}
+	public Date getWorksttsDt() {
+		return worksttsDt;
+	}
+	public void setWorksttsDt(Date worksttsDt) {
+		this.worksttsDt = worksttsDt;
+	}
+	public Date getWorksttsBgngTm() {
+		return worksttsBgngTm;
+	}
+	public void setWorksttsBgngTm(Date worksttsBgngTm) {
+		this.worksttsBgngTm = worksttsBgngTm;
+	}
+	public Date getWorksttsEndTm() {
+		return worksttsEndTm;
+	}
+	public void setWorksttsEndTm(Date worksttsEndTm) {
+		this.worksttsEndTm = worksttsEndTm;
+	}
+	public String getCmncdCd() {
+		return cmncdCd;
+	}
+	public void setCmncdCd(String cmncdCd) {
+		this.cmncdCd = cmncdCd;
+	}
+	
+	@Override
+	public String toString() {
+		return "WorksttsVO [empId=" + empId + ", worksttsDt=" + worksttsDt + ", worksttsBgngTm=" + worksttsBgngTm
+				+ ", worksttsEndTm=" + worksttsEndTm + ", cmncdCd=" + cmncdCd + "]";
+	}
+	
+	
+	
+}

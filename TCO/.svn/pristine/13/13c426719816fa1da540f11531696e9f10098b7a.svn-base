@@ -1,0 +1,88 @@
+var calendar = null;
+var initialLocaleCode = 'ko';
+
+    $(document).ready(function(){
+    		$('.update').attr('readonly',true);
+            var calendarEl = document.getElementById('calendar');
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+//                     right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+                    right: 'dayGridMonth,listWeek'
+                },
+                locale:'ko',//한글언어
+//              timeZone:'Asia/seoul',//한국시간
+                navLinks: true,//날짜클릭시 day캘린더로
+                editable: false,//드래그수정가능
+                selectable: true,//선택가능
+                droppable: false,//드래그가능
+                allDaySlot: false,
+                nowIndicator:true,//현재날짜마크
+				eventClick: function(info,jsEvent,view){
+					//일정클릭시 이벤트
+					var title = info.event.title;
+					var id = info.event.id;
+					var description = info.event.extendedProps.description;
+					
+					var start = getFormatDate2(new Date(info.event._instance.range.start));
+					var end = getFormatDate2(new Date(info.event._instance.range.end));
+					
+					var eventcon = info.event.extendedProps.eventcon;
+					
+// 					console.log("클릭시 정보: ",id);
+//					console.log('중요도:',eventcon);
+					
+					$('#updatemodal').modal('show');
+					$('#calendarNo').attr('value',id);
+					$('#uptitle').attr('value',title);
+					$('#upcontent').attr('value',description);
+					$('#upstartday').attr('value',start);
+					$('#upendday').attr('value',end);
+					$('#upcategory option:selected').val(eventcon);
+				},
+              	//이벤트 조회
+                events: function(info, successCallback, failureCallback){
+                	$.ajax({
+                		type:'POST',
+                		url:'/calendar/main',
+                		dataType:'json',
+                		contentType:'application/x-www-form-urlencoded; charset=UTF-8',
+                		success: function(param){
+                			//console.log(param)
+                			var events=[];
+                			$.each(param,function(index,data){
+                				events.push({
+                					id:data.calendarno,
+                					title:data.title,
+                					description:data.description,
+                					start:data.startday,
+                					end:data.endday,
+                					className:data.category,
+                					eventcon:data.category
+                				});
+                			});
+                			successCallback(events);
+                		},
+                		error: function(request,status,error){
+                			alert(request.status+' 에러가 발생하였습니다. 다시 시도해주세요.')
+                		}
+                	});
+                }
+            });
+      	calendar.render();
+      	$('.nav-tabs li a').click(function(){
+        calendar.render();
+    });
+});
+	
+	  //조회할때의 dateformat형식
+    function getFormatDate2(date){
+        var year = date.getFullYear();              //yyyy
+        var month = (1 + date.getMonth());          //M
+        month = month >= 10 ? month : '0' + month;  //month 두자리로 저장
+        var day = date.getDate();                   //
+        day = day >= 10 ? day : '0' + day;          //day 두자리로 저장
+        return  year + '-' + month + '-' + day;
+    }

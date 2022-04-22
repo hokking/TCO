@@ -1,0 +1,12 @@
+package kr.or.tco.alam.service;
+
+import java.util.Map;
+
+public interface AlamService {
+
+	//알람 데이터 alam 테이블에 입력
+	int alamInsert(Map<String, Object> map);
+	//알람 읽음 표시 alam 테이블에 입력
+	int alamUpdate(Map<String, Object> map);
+
+}

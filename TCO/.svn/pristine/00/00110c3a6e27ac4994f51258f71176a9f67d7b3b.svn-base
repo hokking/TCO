@@ -1,0 +1,111 @@
+package kr.or.tco.att.controller;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.tco.att.service.impl.AttService;
+import kr.or.tco.att.vo.WorksttsVO;
+import kr.or.tco.cmncd.vo.CmncdVO;
+import kr.or.tco.emp.vo.EmpVO;
+import oracle.jdbc.proxy.annotation.Post;
+
+@RequestMapping("/att")
+@Controller
+public class AttController {
+
+	@Autowired AttService attService;
+	private static final Logger logger = 
+			LoggerFactory.getLogger(AttController.class);
+	
+	@GetMapping("/attlist")
+	public String attdetail() {
+		
+		return "att/attlist";
+	}
+	
+	@GetMapping("/attdetail")
+	public String attlist(Model model, HttpServletRequest request) {
+		HttpSession session = request.getSession(false);
+		// getAttribute의 리턴값은 object
+		String userId = String.valueOf(session.getAttribute("userID"));
+		logger.info("userid는:" + userId);
+		
+		
+		EmpVO empVO = attService.binfoselect(userId);
+		CmncdVO cmncdVO = attService.sdselect(empVO.getCmncdCd());
+		empVO.setOpt(cmncdVO.getCmncdGuNm());
+		empVO.setDptopt(cmncdVO.getCmncdNm1());
+		empVO.setLelopt(cmncdVO.getCmncdNm2());
+		
+		model.addAttribute("empVO", empVO);
+		
+		return "att/attdetail";
+	}
+	
+	DateTimeFormatter dayf = DateTimeFormatter.ofPattern("yy-MM-dd");
+	DateTimeFormatter timef = DateTimeFormatter.ofPattern("HH:mm:ss");
+	LocalDateTime now = LocalDateTime.now();
+
+	
+	// 출근
+	@ResponseBody
+	@PostMapping("/attin")
+	public int attin(HttpServletRequest request) throws ParseException {
+		HttpSession session = request.getSession(false);
+		String userId = String.valueOf(session.getAttribute("userID"));
+		
+		
+		String time = now.format(timef);
+		
+		logger.info("날것: "+ now);
+
+		logger.info("시간: "+time);
+		
+		WorksttsVO worksttsVO =  new WorksttsVO();
+		worksttsVO.setWorksttsBgngTm(time);
+		worksttsVO.setEmpId(userId);
+		
+		logger.info("vo: "+ worksttsVO);
+		int result = attService.inselect(worksttsVO);
+
+		return result;
+	}
+	
+	// 퇴근
+	@ResponseBody
+	@PostMapping("/attout")
+	public int attout(HttpServletRequest request) throws ParseException {
+		HttpSession session = request.getSession(false);
+		String userId = String.valueOf(session.getAttribute("userID"));
+		
+		String time = now.format(timef);
+		
+		WorksttsVO worksttsVO =  new WorksttsVO();
+		
+		worksttsVO.setWorksttsEndTm(time);
+		worksttsVO.setEmpId(userId);
+		logger.info("OUTvo: "+ worksttsVO);
+		
+		int result = attService.outselect(worksttsVO);
+		
+		return result;
+	}
+}

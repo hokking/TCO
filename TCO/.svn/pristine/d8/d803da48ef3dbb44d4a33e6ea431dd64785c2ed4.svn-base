@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.sttst.mapper.SttstMapper">
+
+<!--통계관련SQL:값만 얻어서 내보냄 -->
+
+
+<!-- 일일매출현황 -->
+<select id="getDailyIncome" resultType="slsVO">
+	SELECT TO_DATE(SLS_DT,'YY-MM-DD') SLS_DT,
+	       SUM(SLS_AMT) slsAmt
+	  FROM SLS
+  GROUP BY TO_DATE(SLS_DT,'YY-MM-DD')
+  ORDER BY SLS_DT
+</select>
+
+
+<!-- 일일매입현황 -->
+<select id="getDailyPurchase" resultType="">
+	  SELECT TO_DATE(PRCHS_DT,'YY-MM-DD') PRCHS_DT,
+	       SUM(PRCHS_AMT) slsAmt
+	  FROM PRCHS
+  	  GROUP BY TO_DATE(PRCHS_DT,'YY-MM-DD')
+      ORDER BY PRCHS_DT;
+</select>
+
+
+
+<!-- 월별매출현황 -->
+<select id="getMonthIncome" resultType="slsVO">
+	SELECT TO_DATE(SLS_DT,'YY-MM-DD') SLS_DT,
+	       SUM(SLS_AMT) slsAMT
+	  FROM SLS
+	 WHERE 1=1
+  GROUP BY TO_DATE(SLS_DT,'YY-MM-DD')
+  ORDER BY SLS_DT
+</select>
+
+
+<!-- 년도별매출현황 -->
+
+
+
+
+
+
+
+
+<select id="dailyPrc" resultType="strgWrhsVO" parameterType="String">
+ SELECT     SW.STRG_WRHS_ID,
+			SW.BRNCOFC_ID,
+            BC.BRNCOFC_NM,
+			SW.PROD_INFO_ID,
+			PI.PROD_INFO_NM,
+			SW.STRG_WRHS_QTY,
+			TO_DATE(SW.STRG_WRHS_DT,'YY-MM-DD') AS STRG_WRHS_DT,
+			PI.PROD_INFO_PRCHS_AMT,
+			PI.PROD_INFO_PLOR,
+            (SW.STRG_WRHS_QTY *PI.PROD_INFO_PRCHS_AMT) as STRG_WRHS_TOTAL
+	  FROM  STRG_WRHS SW
+	  LEFT JOIN PROD_INFO PI
+      ON(SW.PROD_INFO_ID = PI.PROD_INFO_ID)
+      LEFT JOIN BRNCOFC BC
+      ON(SW.BRNCOFC_ID = BC.BRNCOFC_ID)
+	 <if test="keyWord!=null and keyWord!=''">
+	   AND (
+		   STRG_WRHS_ID LIKE '%'||#{keyWord}||'%'
+		   OR BRNCOFC_ID LIKE '%'||#{keyWord}||'%'
+		   OR PROD_INFO_ID LIKE '%'||#{keyWord}||'%'
+		   OR STRG_WRHS_DT LIKE '%'||#{keyWord}||'%'
+	   )
+	   </if>
+</select>	
+
+
+<!-- 입고입출 -->
+<select id="dailyCustNts" resultType="custNtsVO" parameterType="String">
+		select  CN.CUST_NTSL_ID,   
+		        CN.BRNCOFC_ID,     
+		        CN.CUST_ID,        
+		        BC.BRNCOFC_NM,     
+		        CN.PROD_INFO_ID,  
+		        PI.PROD_INFO_NM,  
+		        CN.CUST_NTSL_DT,  
+		        CN.CUST_NTSL_AMT,   
+		        CN.CUST_NTSL_QTY,  
+		        (CN.CUST_NTSL_AMT * CN.CUST_NTSL_QTY) as CUST_NTSL_TOTAL 
+		from    CUST_NTSL CN
+		left join PROD_INFO PI
+		on (CN.PROD_INFO_ID = PI.PROD_INFO_ID)
+		left join BRNCOFC BC
+		on (CN.BRNCOFC_ID = BC.BRNCOFC_ID)
+	 <if test="keyWord!=null and keyWord!=''">
+	   AND (
+		   CUST_NTSL_ID LIKE '%'||#{keyWord}||'%'
+		   OR CUST_NTSL_DT LIKE '%'||#{keyWord}||'%'
+	   )
+	    </if>
+</select>
+
+
+
+
+</mapper>

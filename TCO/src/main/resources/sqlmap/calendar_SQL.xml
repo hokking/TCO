@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.tco.util.mapper.CalendarMapper">
+	<resultMap type="calendarVO" id="calendarMap">
+		<id property="calendarNo" column="CALENDAR_NO"></id>
+		<result property="title" column="TITLE"/>
+		<result property="content" column="CONTENT"/>
+		<result property="startday" column="STARTDAY"/>
+		<result property="endday" column="ENDDAY"/>
+		<result property="eventCon" column="EVENT_CON"/>
+		<result property="mainCalno" column="MAIN_CALNO"/>
+		<result property="mainCaltitle" column="MAIN_CALTITLE"/>
+		<result property="mainCalcon" column="MAIN_CALCON"/>
+		<result property="mainStart" column="MAIN_START"/>
+		<result property="mainEnd" column="MAIN_END"/>
+		<result property="mainCaluser" column="MAIN_CALUSER"/>
+		<result property="mainColor" column="MAIN_COLOR"/>
+	</resultMap>
+	
+<!-- 일정조회 -->	
+	<select id="schedulelist" resultMap="calendarMap" parameterType="String">
+		SELECT CALENDAR_NO,TITLE,CONTENT,STARTDAY,ENDDAY,CATEGORY FROM CALENDAR
+		WHERE USER_ID = #{userId}
+	</select>
+	
+<!-- 일정등록 -->
+	<insert id="insertschedule" parameterType="calendarVO">
+		<selectKey order="BEFORE" keyProperty="calendarNo" resultType="Integer">
+				SELECT NVL(MAX(CALENDAR_NO), 0) + 1 FROM CALENDAR
+		</selectKey>
+			INSERT INTO CALENDAR(CALENDAR_NO,TITLE,CONTENT,STARTDAY,ENDDAY,CATEGORY,USER_ID) 
+				   VALUES (#{calendarNo},#{title},#{content},#{startday},#{endday},#{category},#{userId})
+	</insert>
+	
+	
+<!-- 일정수정 -->
+	<update id="updateschedule" parameterType="calendarVO">
+		UPDATE CALENDAR
+   		   SET TITLE = #{title}, CONTENT = #{content}, STARTDAY = #{startday}, ENDDAY = #{endday}, CATEGORY = #{category}
+ 	     WHERE CALENDAR_NO = #{calendarNo}
+	</update>
+	
+	
+<!-- 일정삭제 -->
+	<delete id="deleteschedule" parameterType="int">
+		DELETE FROM CALENDAR
+ 		 WHERE CALENDAR_NO = #{calendarNo}
+	</delete>
+
+
+
+<!-- 전사캘린더조회 -->
+	<select id="mainschelist" resultType="calendarVO">
+		SELECT MAIN_CALNO,MAIN_CALTITLE,MAIN_CALCON,MAIN_START,MAIN_END,MAIN_CALUSER,MAIN_COLOR
+		  FROM MAINCALENDAR 
+	</select>
+
+	
+<!-- 일정등록 -->
+	<insert id="mainInsertSch" parameterType="calendarVO">
+		<selectKey order="BEFORE" keyProperty="mainCalno" resultType="Integer">
+			SELECT NVL(MAX(MAIN_CALNO), 0) + 1 FROM MAINCALENDAR
+		</selectKey>
+			INSERT INTO MAINCALENDAR(MAIN_CALNO,MAIN_CALTITLE,MAIN_CALCON,MAIN_START,MAIN_END,MAIN_CALUSER,MAIN_COLOR) 
+		           VALUES (#{mainCalno},#{mainCaltitle},#{mainCalcon},#{mainStart},#{mainEnd},#{mainCaluser},'빨강')
+	</insert>
+	
+	
+<!-- 일정수정 -->
+	<update id="mainUpdateSch" parameterType="calendarVO">
+		UPDATE MAINCALENDAR
+   		   SET MAIN_CALTITLE = #{mainCaltitle}, MAIN_CALCON = #{mainCalcon}, MAIN_START = #{mainStart}, MAIN_END = #{mainEnd} , MAIN_CALUSER = #{mainCaluser} 
+ 	     WHERE MAIN_CALNO = #{mainCalno}
+	</update>
+	
+	
+<!-- 일정삭제 -->
+	<delete id="mainDeleteSch" parameterType="int">
+		DELETE FROM MAINCALENDAR
+ 		 WHERE MAIN_CALNO = #{mainCalno}
+	</delete>
+	
+</mapper>

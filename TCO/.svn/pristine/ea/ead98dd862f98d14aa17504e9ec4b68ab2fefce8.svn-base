@@ -1,0 +1,19 @@
+package kr.or.tco.prchs.service;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.tco.cnpt.vo.CnptVO;
+import kr.or.tco.prchs.vo.PrchsVO;
+
+public interface PrchsService {
+
+	//매입 발주서 리스트 가져오기
+	public List<PrchsVO> getSvdPrchsOrdrList(Map<String, String> date);
+	
+	//매입 명세서 리스트 가져오기
+	public List<PrchsVO> getPrchsSpeceList(Map<String, String> date);
+	
+	//거래처명 검색
+	public List<CnptVO> cnptSearchList(String keyWord);
+}

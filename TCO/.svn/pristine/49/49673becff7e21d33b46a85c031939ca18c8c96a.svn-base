@@ -1,0 +1,33 @@
+package kr.or.tco.cust.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.tco.cust.vo.CustVO;
+
+public interface CustMapper {
+	
+	// 고객 등록
+	public int custInsert(CustVO custVO);
+	
+	// 고객 목록 - 일반
+	public List<CustVO> custSelect(Map<String, Object> map);
+
+	// 고객 목록 - 휴면
+	public List<CustVO> custSelectH(Map<String, Object> map);
+	
+	// 고객 목록 - 탈퇴
+	public List<CustVO> custSelectT(Map<String, Object> map);
+	
+	// 고객 전체 인원수
+	public int getCustTotal(Map<String, Object> map);
+	
+	// 고객 상세 정보
+	public CustVO custDetailSelect(String custId);
+	
+	// 고객 정보 수정
+	public int custDetailUpdate(CustVO custVO);
+	
+	// 고객 상태 수정 - 탈퇴
+	public int custDeleteUpdate(String custId);
+}

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.sls.mapper.SlsMapper">
+
+<select id="list" resultType="slsVO" parameterType="String">
+	SELECT SLS_ID,BRNCOFC_ID,
+		   SLS_DT,
+		   SLS_AMT
+	  FROM SLS
+	 WHERE 1 = 1
+	 <if test="keyWord!=null and keyWord!=''">
+	   AND (
+	   SLS_ID LIKE '%'||#{keyWord}||'%'
+	   OR BRNCOFC_ID LIKE '%'||#{keyWord}||'%'
+	   OR SLS_DT LIKE '%'||#{keyWord}||'%'
+	   OR SLS_AMT LIKE '%'||#{keyWord}||'%'
+	   )
+	 </if>
+  ORDER BY SLS_ID
+</select>	
+
+<select id="detail" resultType="slsVO" parameterType="slsVO">
+	SELECT DISTINCT
+		   B.SLS_ID,
+           B.BRNCOFC_ID,
+           B.SLS_DT,
+           B.SLS_AMT,
+           A.BRNCOFC_NM,
+           C.STRE_STCK_QTY,
+           C.STRE_STCK_SFTY_QTY
+      FROM SLS B
+INNER JOIN BRNCOFC A
+        ON A.BRNCOFC_ID = B.BRNCOFC_ID
+INNER JOIN STRE_STCK C
+        ON A.BRNCOFC_ID = C.BRNCOFC_ID   
+     WHERE B.SLS_ID = #{slsId}
+</select>
+
+</mapper>

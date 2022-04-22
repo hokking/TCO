@@ -1,0 +1,27 @@
+package kr.or.tco.cust.service;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.tco.cust.vo.CustVO;
+
+public interface CustService {
+
+	// 고객 등록
+	int custInsert(CustVO custVO);
+
+	// 고객 목록
+	public List<CustVO> custSelect(Map<String, Object> map);
+	
+	// 고객 전체 인원수
+	public int getCustTotal(Map<String, Object> map);
+	
+	// 고객 상세 정보
+	public CustVO custDetailSelect(String custId);
+	
+	// 고객 정보 수정
+	public int custDetailUpdate(CustVO custVO);
+	
+	// 고객 상태 수정 - 탈퇴
+	public int custDeleteUpdate(String custId);
+}

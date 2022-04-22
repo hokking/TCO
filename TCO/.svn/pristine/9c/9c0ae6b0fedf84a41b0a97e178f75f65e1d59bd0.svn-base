@@ -1,0 +1,388 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<script type="text/javascript" src="/resources/js/jstree/jstree.min.js"></script>
+<script type="text/javascript" src="/resources/js/jqgrid/grid.locale-kr.js"></script>
+<script type="text/javascript" src="/resources/js/jqgrid/jquery.jqGrid.min.js"></script>
+<script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/bootstrap/js/bootstrap.min.js"></script>
+<link href="/resources/js/jstree/style.min.css" rel="stylesheet" type="text/css" />
+<link href="/resources/css/ui.jqgrid.css" rel="stylesheet" type="text/css" />
+<link href="/resources/css/jquery-ui.min.css" rel="stylesheet" type="text/css"/>
+<link href="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
+<script>
+	$(function() {
+		$("#btncreate").on("click", function() {
+			$(location).attr("href", "/eatrz/eatrzinsert");
+		});
+	});
+</script>
+<script>
+
+let arr = new Array();
+
+//트리만들기
+function fn_click(){
+	$('#groupmodal').modal('show')
+}
+
+function gettree(){
+	$.ajax({
+		type:'post',
+		url:'/sttst/testformat',
+		dataType:'json',
+		success:function(data){
+			console.log('data:',data);
+			$.each(data,function(idx,item){
+				arr[idx]={id:item.childId, parent:item.parentId ? item.parentId:'#', text:item.groupNm}
+			});
+			console.log('ajax로 가져온데이터:',arr);
+			$('#jstree').jstree({
+				"core":{
+					'data': arr
+				},
+				"types":{
+					'default':{
+						'icon':'mdi mdi-account'
+					}
+				},
+				"themes":{
+					"theme":"classic","dots":true,"icons":true
+				},
+				'plugins':[
+					'dnd','wholerow','types','themes'
+				]
+			})
+			.bind('loaded.jstree',function(event,data){
+				//트리를 모두 열어놓음
+				$('#jstree').jstree('open_node',$('#base'));
+			})
+			.bind('select_node.jstree', function(event,data){
+				//노드선택 이벤트
+				console.log(data);
+				var childId = data.instance.get_node(data.selected).id;
+				console.log('id값:',childId);
+				reloadGrid(childId,'');
+			})
+		},
+		error:function(error){
+			alert("에러");
+		}
+	});
+};
+
+//그리드 만들기
+
+function getgrid(childId){
+	$('#gridlist').jqGrid({
+		url:"/sttst/emplist/"+childId,
+        loadtext: '로딩중입니다',
+        datatype:"json",
+        loadonce: true,
+        mtype : "POST",
+        multiselect:true,
+        autowidth: true,
+        height: 230,
+        colNames:[ "이름", "부서", "직급", "연락처"],
+        colModel:[
+                  {name:"personNm", index:"personNm", align:"center"},
+                  {name:"deptNm", index:"deptNm", align:"center"},
+                  {name:"rank", index:"rank", align:"left"},
+                  {name:"personTel", index:"personTel", align:"left"}
+                ],
+        caption: "회사조직도",
+        rownumbers : true,
+        viewrecords:true,
+        rowNum:10,
+        rowList: [10, 20],
+        onSelectRow:function(rowId,row,e){
+        	//리스트에서 클릭시 이벤트 처리
+        	console.log(rowId);
+        	if(!confirm("결재 상신자를 선택하시겠습니까?")) return false;
+        	f_reset();
+        	$('#jstree').jstree('close_all');
+        	reloadGrid("인천점", "");
+        	$('#groupmodal').modal('hide');
+        },
+        pager: '#pager'
+	});
+};
+
+// //그리드 리로드(조회시 재로딩해야함)
+// function reloadGrid2(id, name) {
+// 	alert("ggg");
+// 	$("#gridlist").jqGrid("GridUnload");
+	
+// }
+
+function reloadGrid(id, name) {
+	console.log("gbi");
+	$("#gridlist").jqGrid('setGridParam',{
+        url: "/sttst/emplist/"+id,
+        datatype: "json",
+        postData : {childId: id, personNm: name}
+    }).trigger('reloadGrid');
+}
+
+
+//트리 초기화
+function f_reset() {
+	$('#jstree').jstree("deselect_all");
+	childId = "";
+	reloadGrid(childId,"");
+}
+
+
+$('document').ready(function(){
+	gettree();
+	getgrid();
+});
+
+</script>
+
+
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0 font-size-18">전자결재</h4>
+
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">메인화면</a></li>
+                    <li class="breadcrumb-item active">전자결재</li>
+                </ol>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- end page title -->
+
+<div class="d-xl-flex">
+    <div class="w-100">
+        <div class="d-md-flex">
+            <div class="w-100">
+            <div class="card">
+                <div class="card-body">
+                <!---- 문서서식 ----->
+                	<div class="mt-4">
+                	<table class="__se_tbl" style="border-collapse: collapse !important; color: black; background: white; border: 0px solid black; font-size: 12px; font-family: malgun gothic,dotum,arial,tahoma;"><!-- Header --> 
+							<tbody>
+									<tr>
+										<td style="width:300px; padding: 3px !important; border: 0px solid black; height: 90px !important; font-size: 22px; font-weight: bold; text-align: center; vertical-align: middle;" colspan="2" class="dext_table_border_t dext_table_border_r dext_table_border_b dext_table_border_l">
+											연차신청서
+										</td>
+									</tr>
+									<tr>
+										<td style="width:300px; border: 0; padding: 0 !important" class="dext_table_border_t dext_table_border_r dext_table_border_b dext_table_border_l">
+											
+							<table class="__se_tbl" style="background: white; margin: 0px; border: 1px solid black; border-image: none; color: black; font-family: malgun gothic,dotum,arial,tahoma; font-size: 12px; border-collapse: collapse !important;"><!-- User --> 
+							     
+								<tbody>
+									<tr>
+										<td style="width: 100px; height: 22px; vertical-align: middle; border: 1px solid black; text-align: center; font-weight: bold; background: rgb(221, 221, 221); padding: 3px !important;">
+											기안자
+										</td>
+										<td style="width: 200px; height: 22px; vertical-align: middle; border: 1px solid black; text-align: left; padding: 3px !important;">
+											<span unselectable="on" contenteditable="false" class="comp_wrap" data-cid="0" data-dsl="{{label:draftUser}}" data-wrapper="" style="" data-value="" data-autotype="">
+											<span class="comp_item">기안자</span><button type="button" onclick="fn_click()">기안자 선택</button>
+											<span contenteditable="false" class="comp_active" style="display:none;"> <span class="Active_dot1"></span><span class="Active_dot2"></span> <span class="Active_dot3"></span><span class="Active_dot4"></span> </span> <span contenteditable="false" class="comp_hover" data-content-protect-cover="true" data-origin="0"> <a contenteditable="false" class="ic_prototype ic_prototype_trash" data-content-protect-cover="true" data-component-delete-button="true"></a> </span> </span> 
+										</td>
+									</tr>
+									<tr>
+										<td style="width:100px;padding: 3px !important; height: 22px; vertical-align: middle; border: 1px solid black; text-align: center; font-weight: bold; background: #ddd;">
+											기안부서
+										</td>
+										<td style="width:200px;padding: 3px !important; height: 22px; vertical-align: middle; border: 1px solid black; text-align: left;">
+											<span unselectable="on" contenteditable="false" class="comp_wrap" data-cid="1" data-dsl="{{label:draftDept}}" data-wrapper="" style="" data-value="" data-autotype=""><span class="comp_item">기안부서</span><span contenteditable="false" class="comp_active" style="display:none;"> <span class="Active_dot1"></span><span class="Active_dot2"></span> <span class="Active_dot3"></span><span class="Active_dot4"></span> </span> <span contenteditable="false" class="comp_hover" data-content-protect-cover="true" data-origin="1"> <a contenteditable="false" class="ic_prototype ic_prototype_trash" data-content-protect-cover="true" data-component-delete-button="true"></a> </span> </span> 
+										</td>
+									</tr>
+									<tr>
+										<td style="width:100px;padding: 3px !important; height: 22px; vertical-align: middle; border: 1px solid black; text-align: center; font-weight: bold; background: #ddd;">
+											기안일
+										</td>
+										<td style="width:200px;padding: 3px !important; height: 22px; vertical-align: middle; border: 1px solid black; text-align: left;">
+											<span unselectable="on" contenteditable="false" class="comp_wrap" data-cid="2" data-dsl="{{label:draftDate}}" data-wrapper="" style="" data-value="" data-autotype=""><span class="comp_item">기안일</span><span contenteditable="false" class="comp_active" style="display:none;"> <span class="Active_dot1"></span><span class="Active_dot2"></span> <span class="Active_dot3"></span><span class="Active_dot4"></span> </span> <span contenteditable="false" class="comp_hover" data-content-protect-cover="true" data-origin="2"> <a contenteditable="false" class="ic_prototype ic_prototype_trash" data-content-protect-cover="true" data-component-delete-button="true"></a> </span> </span> 
+										</td>
+									</tr>
+									<tr>
+										<td style="width:100px;padding: 3px !important; height: 22px; vertical-align: middle; border: 1px solid black; text-align: center; font-weight: bold; background: #ddd;">
+											문서번호
+										</td>
+										<td style="width:200px;padding: 3px !important; height: 22px; vertical-align: middle; border: 1px solid black; text-align: left;">
+											<span unselectable="on" contenteditable="false" class="comp_wrap" data-cid="3" data-dsl="{{label:docNo}}" data-wrapper="" style="" data-value="" data-autotype=""><span class="comp_item">문서번호</span><span contenteditable="false" class="comp_active" style="display:none;"> <span class="Active_dot1"></span><span class="Active_dot2"></span> <span class="Active_dot3"></span><span class="Active_dot4"></span> </span> <span contenteditable="false" class="comp_hover" data-content-protect-cover="true" data-origin="3"> <a contenteditable="false" class="ic_prototype ic_prototype_trash" data-content-protect-cover="true" data-component-delete-button="true"></a> </span> </span> 
+										</td>
+									</tr>
+								</tbody>
+							</table>
+										</td>
+										<td style="width: 500px; text-align: right; padding: 0px!important; border: 0!important; vertical-align: top !important" class="dext_table_border_t dext_table_border_r dext_table_border_b dext_table_border_l">
+											<!-- 결재선 기본값으로 신청 1명, 승인 7명으로 설정--> 
+							    <span unselectable="on" contenteditable="false" class="comp_wrap" data-wrapper=""><span class="sign_type1_inline" data-group-seq="0" data-group-name="신청" data-group-max-count="1" data-group-type="type1" data-is-reception=""><span class="sign_tit_wrap"><span class="sign_tit"><strong>신청</strong></span></span><span class="sign_member_wrap"><span class="sign_member"><span class="sign_rank_wrap"><span class="sign_rank">&nbsp;</span></span><span class="sign_wrap">&nbsp;</span><span class="sign_date_wrap"><span class="sign_date">&nbsp;</span></span></span></span></span><span contenteditable="false" class="comp_active" style="display:none;"> <span class="Active_dot1"></span><span class="Active_dot2"></span> <span class="Active_dot3"></span><span class="Active_dot4"></span> </span><span contenteditable="false" class="comp_hover" data-content-protect-cover="true"> <a contenteditable="false" class="ic_prototype ic_prototype_trash" data-content-protect-cover="true" data-component-delete-button="true"></a> </span></span>
+							 
+							    <span unselectable="on" contenteditable="false" class="comp_wrap" data-wrapper=""><span class="sign_type1_inline" data-group-seq="1" data-group-name="승인" data-group-max-count="7" data-group-type="type1" data-is-reception=""><span class="sign_tit_wrap"><span class="sign_tit"><strong>승인</strong></span></span><span class="sign_member_wrap"><span class="sign_member"><span class="sign_rank_wrap"><span class="sign_rank">&nbsp;</span></span><span class="sign_wrap">&nbsp;</span><span class="sign_date_wrap"><span class="sign_date">&nbsp;</span></span></span></span><span class="sign_member_wrap"><span class="sign_member"><span class="sign_rank_wrap"><span class="sign_rank">&nbsp;</span></span><span class="sign_wrap">&nbsp;</span><span class="sign_date_wrap"><span class="sign_date">&nbsp;</span></span></span></span><span class="sign_member_wrap"><span class="sign_member"><span class="sign_rank_wrap"><span class="sign_rank">&nbsp;</span></span><span class="sign_wrap">&nbsp;</span><span class="sign_date_wrap"><span class="sign_date">&nbsp;</span></span></span></span><span class="sign_member_wrap"><span class="sign_member"><span class="sign_rank_wrap"><span class="sign_rank">&nbsp;</span></span><span class="sign_wrap">&nbsp;</span><span class="sign_date_wrap"><span class="sign_date">&nbsp;</span></span></span></span><span class="sign_member_wrap"><span class="sign_member"><span class="sign_rank_wrap"><span class="sign_rank">&nbsp;</span></span><span class="sign_wrap">&nbsp;</span><span class="sign_date_wrap"><span class="sign_date">&nbsp;</span></span></span></span><span class="sign_member_wrap"><span class="sign_member"><span class="sign_rank_wrap"><span class="sign_rank">&nbsp;</span></span><span class="sign_wrap">&nbsp;</span><span class="sign_date_wrap"><span class="sign_date">&nbsp;</span></span></span></span><span class="sign_member_wrap"><span class="sign_member"><span class="sign_rank_wrap"><span class="sign_rank">&nbsp;</span></span><span class="sign_wrap">&nbsp;</span><span class="sign_date_wrap"><span class="sign_date">&nbsp;</span></span></span></span></span><span contenteditable="false" class="comp_active" style="display:none;"> <span class="Active_dot1"></span><span class="Active_dot2"></span> <span class="Active_dot3"></span><span class="Active_dot4"></span> </span><span contenteditable="false" class="comp_hover" data-content-protect-cover="true"> <a contenteditable="false" class="ic_prototype ic_prototype_trash" data-content-protect-cover="true" data-component-delete-button="true"></a> </span></span>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							 
+							<br>
+ 
+						<table class="__se_tbl" style="width: 800px; margin-top : 0px; border-collapse: collapse !important; color: black; background: white; border: 1px solid black; font-size: 12px; font-family: malgun gothic,dotum,arial,tahoma;">
+							<tbody>
+								<tr>
+									<td style="background: rgb(221, 221, 221); padding: 5px; border: 1px solid black; height: 25px; text-align: center; color: rgb(0, 0, 0); font-size: 14px; font-weight: bold; vertical-align: middle;">
+										휴가&nbsp;종류
+									</td>
+									<td style="background: rgb(255, 255, 255); padding: 5px; border: 1px solid black; height: 25px; text-align: left; color: rgb(0, 0, 0); font-size: 14px; font-weight: normal; vertical-align: middle;">
+										<span id="vacationTypeArea" name="select" style="font-family: malgun gothic, dotum, arial, tahoma; font-size: 11pt; line-height: normal; margin-top: 0px; margin-bottom: 0px;"></span> 
+									</td>
+								</tr>
+								<tr>
+									<td style="background: rgb(221, 221, 221); padding: 5px; border: 1px solid black; height: 25px; text-align: center; color: rgb(0, 0, 0); font-size: 14px; font-weight: bold; vertical-align: middle;">
+										기간&nbsp;및&nbsp;일시
+									</td>
+									<td style="padding: 3px; border: 1px solid black; width: 700px; height: 22px; text-align: left; color: rgb(0, 0, 0); font-size: 12px;  vertical-align: middle; background: rgb(255, 255, 255);">
+										<span unselectable="on" contenteditable="false" class="comp_wrap" data-cid="4" data-dsl="{{calendar:startDate}}" data-wrapper="" style="" data-value="" data-autotype=""><input class="ipt_editor ipt_editor_date" type="text"><span contenteditable="false" class="comp_active" style="display:none;"> <span class="Active_dot1"></span><span class="Active_dot2"></span> <span class="Active_dot3"></span><span class="Active_dot4"></span> </span> <span contenteditable="false" class="comp_hover" data-content-protect-cover="true" data-origin="4"> <a contenteditable="false" class="ic_prototype ic_prototype_trash" data-content-protect-cover="true" data-component-delete-button="true"></a> </span> </span>&nbsp;~&nbsp; <span unselectable="on" contenteditable="false" class="comp_wrap" data-cid="5" data-dsl="{{calendar:endDate}}" data-wrapper="" style="" data-value="" data-autotype=""><input class="ipt_editor ipt_editor_date" type="text"><span contenteditable="false" class="comp_active" style="display:none;"> <span class="Active_dot1"></span><span class="Active_dot2"></span> <span class="Active_dot3"></span><span class="Active_dot4"></span> </span> <span contenteditable="false" class="comp_hover" data-content-protect-cover="true" data-origin="5"> <a contenteditable="false" class="ic_prototype ic_prototype_trash" data-content-protect-cover="true" data-component-delete-button="true"></a> </span> </span> <span id="usingPointArea"></span> 
+									</td>
+								</tr>
+								<tr>
+									<td style="background: rgb(221, 221, 221); padding: 5px; border: 1px solid black; height: 25px; text-align: center; color: rgb(0, 0, 0); font-size: 14px; font-weight: bold; vertical-align: middle;">
+										반차&nbsp;여부
+									</td>
+									<td style="background: rgb(255, 255, 255); padding: 5px; border: 1px solid black; height: 25px; text-align: left; color: rgb(0, 0, 0); font-size: 14px; font-weight: normal; vertical-align: middle;">
+										<span id="vacationHalfArea" style="font-family: malgun gothic, dotum, arial, tahoma; font-size: 11pt; line-height: normal; margin-top: 0px; margin-bottom: 0px;"></span> 
+									</td>
+								</tr>
+								<tr>
+									<td style="background: rgb(221, 221, 221); padding: 5px; border: 1px solid black; height: 25px; text-align: center; color: rgb(0, 0, 0); font-size: 14px; font-weight: bold; vertical-align: middle;">
+										연차&nbsp;일수
+									</td>
+									<td style="padding: 3px; border: 1px solid black; width: 700px; height: 22px; text-align: left; color: rgb(0, 0, 0); font-size: 12px;  vertical-align: middle; background: rgb(255, 255, 255);">
+										<span id="restPointArea" style="font-family: malgun gothic, dotum, arial, tahoma; font-size: 9pt; line-height: normal; margin-top: 0px; margin-bottom: 0px;"></span><span id="applyPointArea" style="font-family: malgun gothic, dotum, arial, tahoma; font-size: 9pt; line-height: normal; margin-top: 0px; margin-bottom: 0px;"></span> 
+									</td>
+								</tr>
+								<tr>
+									<td style="background: rgb(221, 221, 221); padding: 5px; border: 1px solid black; height: 80px;wi text-align: center; color: rgb(0, 0, 0); font-size: 14px; font-weight: bold; vertical-align: middle;">
+										<b style="color: rgb(255, 0, 0);">*</b>&nbsp;휴가&nbsp;사유 
+									</td>
+									<td style="padding: 3px; border: 1px solid black; width: 700px; height: 100px; text-align: left; color: rgb(0, 0, 0); font-size: 12px;  vertical-align: top; background: rgb(255, 255, 255);">
+										<span unselectable="on" contenteditable="false" class="comp_wrap" data-cid="6" data-dsl="{{textarea:description}}" data-wrapper="" style="width: 100%;" data-value="" data-autotype="">
+										<textarea class="txta_editor"></textarea><span contenteditable="false" class="comp_active" style="display:none;"> <span class="Active_dot1"></span><span class="Active_dot2"></span> <span class="Active_dot3"></span><span class="Active_dot4"></span> </span> <span contenteditable="false" class="comp_hover" data-content-protect-cover="true" data-origin="6"> <a contenteditable="false" class="ic_prototype ic_prototype_trash" 
+										data-content-protect-cover="true" data-component-delete-button="true"></a> </span> </span> 
+									</td>
+								</tr>
+								<tr>
+									<td colspan="2" style="width:800px; padding: 20px !important; height: 22px; vertical-align: middle; border: 1px solid black; text-align: left; background: #ddd;">
+										 1. 연차의 사용은 근로기준법에 따라 전년도에 발생한 개인별 잔여 연차에 한하여 사용함을 원칙으로 한다. 단, 최초 입사시에는 근로 기준법에 따라 발생 예정된 연차를 차용하여 월 1회 사용 할 수 있다.<br> 2. 경조사 휴가는 행사일을 증명할 수 있는 가족 관계 증명서 또는 등본, 청첩장 등 제출<br> 3. 공가(예비군/민방위)는 사전에 통지서를, 사후에 참석증을 반드시 제출 
+									</td>
+								</tr>
+							</tbody>
+						</table>
+                	</div>
+                <!---- 문서서식 끝----->
+                </div>
+                </div>
+            </div>
+            <!-- end w-100 -->
+        </div>
+    </div>
+</div>
+<!-- end row -->
+                  
+
+<!-- modal -->         
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" >
+    <div class="modal-dialog">
+    
+        <div class="modal-content">
+            <div class="modal-header">
+              
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+               <div>
+	               <div class="card-body">
+	
+	                   <ul class="list-unstyled categories-list">
+	                       <li>
+	                           <div class="custom-accordion">
+	                               <a class="text-body fw-medium py-1 d-flex align-items-center" data-bs-toggle="collapse" href="#a-collapse" role="button" aria-expanded="true" aria-controls="categories-collapse">
+	                                   <i class="mdi mdi-file font-size-16 text-muted me-2"></i> 일반 <i class="mdi mdi-chevron-up accor-down-icon ms-auto"></i>
+	                               </a>
+	                               <div class="collapse show" id="a-collapse" style="">
+	                                   <div class="card border-0 shadow-none ps-2 mb-0">
+	                                       <ul class="list-unstyled mb-0">
+	                                           <li><a href="/eatrz/eatrzapr" class="d-flex align-items-center"><span class="me-auto">업무기안</span></a></li>
+	                                           <li><a href="javascript: void(0);" class="d-flex align-items-center"><span class="me-auto">업무협조</span></a></li>
+	                                           <li><a href="javascript: void(0);" class="d-flex align-items-center"><span class="me-auto">일반품의서</span></a></li>
+	                                           <li><a href="/eatrz/test2" class="d-flex align-items-center"><span class="me-auto">연차신청서</span></a></li>
+	                                       </ul>
+	                                   </div>
+	                               </div>
+	                           </div>
+	                       </li>
+	                       <li>
+	                           <div class="custom-accordion">
+	                               <a class="text-body fw-medium py-1 d-flex align-items-center" data-bs-toggle="collapse" href="#b-collapse" role="button" aria-expanded="true" aria-controls="receive-collapse">
+	                                   <i class="mdi mdi-file font-size-16 text-muted me-2"></i> 결재 수신함 <i class="mdi mdi-chevron-up accor-down-icon ms-auto"></i>
+	                               </a>
+	                               <div class="collapse show" id="b-collapse">
+	                                   <div class="card border-0 shadow-none ps-2 mb-0">
+	                                       <ul class="list-unstyled mb-0">
+	                                           <li><a href="javascript: void(0);" class="d-flex align-items-center"><span class="me-auto">결재요청</span></a></li>
+	                                           <li><a href="javascript: void(0);" class="d-flex align-items-center"><span class="me-auto">결재내역</span></a></li>
+	                                       </ul>
+	                                   </div>
+	                               </div>
+	                           </div>
+	                       </li>
+	                   </ul>
+	
+	               </div>
+	           </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                <button type="button" class="btn btn-primary">근무 등록하기</button>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- modal -->
+	<div class="modal fade" id="groupmodal" tabindex="-1">
+         <div class="modal-dialog modal-dialog-centered modal-xl">
+             <div class="modal-content">
+                 <div class="modal-header py-3 px-4 border-bottom-0">
+                     <h5 class="modal-title" id="modal-title">사원정보</h5>
+
+                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+
+                 </div>
+                 <div class="modal-body p-4">
+                     <form class="needs-validation" name="" id="" action="" method="">
+                         <div class="row">
+							<div class="col-4">
+								<div id="dept" style="overflow: scroll;height: 300px;">
+									<div id="jstree"></div>
+								</div>
+							</div>
+							<div class="col-8">
+								<div id="grid">
+									<table id="gridlist"></table>
+									<div id="pager"></div>
+								</div>
+							</div>
+						</div>
+                     </form>
+                 </div>
+             </div> <!-- end modal-content-->
+         </div> <!-- end modal dialog-->
+     </div>
+	
+<!-- modal끝 -->
+                  

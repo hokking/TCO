@@ -1,0 +1,43 @@
+package kr.or.tco.prod.controller;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.collections.map.HashedMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import kr.or.tco.prod.service.ProdService;
+import kr.or.tco.prod.vo.ProdVO;
+
+@RequestMapping("/prod")
+@Controller
+public class ProdController {
+	private static final Logger logger = LoggerFactory.getLogger(ProdController.class);
+	
+	@Autowired
+	ProdService prodService;
+	
+	//상품 목록
+	@GetMapping("/list")
+	public String prodList(Model model, @RequestParam(required=false) String keyWord) {
+		logger.info("keyWord : " + keyWord);
+		
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("keyWord", keyWord);
+		
+		List<ProdVO> prodList = this.prodService.prodList(map);
+		
+		model.addAttribute("prodList", prodList);
+		
+		//forwarding
+		return "prod/list";
+	}
+}

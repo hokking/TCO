@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.prod.mapper.ProdMapper">
+	<!-- * selectKey?
+	일련번호 처리
+	마이바티스는 쿼리 실행 시 파라미터를 치환해줌 
+	 -->
+	
+	<!-- 상품 조회 (전체 및 검색어도 걸리게) -->
+	<select id="prodList" parameterType="hashMap" resultType="prodVO">
+		SELECT P.RNUM
+			 , C.CMNCD_NM1
+			 , C.CMNCD_NM2
+			 , P.PROD_INFO_ID
+			 , P.PROD_INFO_NM
+			 , P.PROD_INFO_PRCHS_AMT
+		     , P.PROD_INFO_NTSL_AMT
+		     , P.PROD_INFO_LDT
+		     , P.PROD_INFO_PLOR
+		     , P.PROD_INFO_YN
+		     , P.CNPT_ID
+		     , P.CNPT_NM
+	      FROM
+				(SELECT ROW_NUMBER() OVER (ORDER BY PROD_INFO_ID) RNUM
+                      , PI.PROD_INFO_ID
+                      , PI.PROD_INFO_NM
+                      , PI.PROD_INFO_PRCHS_AMT
+                      , PI.PROD_INFO_NTSL_AMT
+                      , PI.PROD_INFO_LDT
+                      , PI.PROD_INFO_PLOR
+                      , PI.CMNCD_CD
+                      , PI.PROD_INFO_YN
+                      , PI.CNPT_ID
+                      , CN.CNPT_NM
+				   FROM PROD_INFO PI, CNPT CN
+				  WHERE PI.CNPT_ID=CN.CNPT_ID
+				  <if test="keyWord!=null and keyWord!=''">
+				    AND PROD_INFO_NM LIKE '%'||#{keyWord}||'%'
+				  </if>
+				 ) P, CMNCD C
+         WHERE P.CMNCD_CD=C.CMNCD_CD
+           AND P.PROD_INFO_YN='Y'
+         ORDER BY P.PROD_INFO_ID ASC
+	</select>
+	
+	<!-- 상품 상세 조회 -->
+	<select id="prodDetail" parameterType="String" resultType="prodVO">
+		SELECT P.PROD_INFO_ID
+			 , P.PROD_INFO_NM
+			 , P.PROD_INFO_PRCHS_AMT
+			 , P.PROD_INFO_NTSL_AMT
+			 , P.PROD_INFO_LDT
+			 , P.PROD_INFO_PLOR 
+			 , P.CMNCD_CD 
+			 , P.PROD_INFO_YN
+			 , P.CNPT_ID
+			 , C.CMNCD_NM1
+			 , C.CMNCD_NM2
+		  FROM PROD_INFO P, CMNCD C
+		 WHERE P.CMNCD_CD=C.CMNCD_CD
+		   AND P.PROD_INFO_ID=#{prodInfoId}	
+	</select>
+	
+	<!-- 상품아이디에 따른 중분류 뽑기 -->
+	<select id="cdnm2List" parameterType="String" resultType="cmncdVO">
+		SELECT CD.CMNCD_NM1, CD.CMNCD_NM2
+		  FROM ( SELECT C.CMNCD_NM1
+		  			  , C.CMNCD_NM2
+		           FROM PROD_INFO P, CMNCD C
+		          WHERE P.CMNCD_CD=C.CMNCD_CD
+		            AND P.PROD_INFO_ID=#{prodInfoId}
+		        ) A, CMNCD CD
+		 WHERE a.CMNCD_NM1=CD.CMNCD_NM1
+		   AND CD.CMNCD_NM1=A.CMNCD_NM1
+	</select>
+	
+	<!-- 공통코드 분류 뽑기 -->
+	<select id="commonSeList" parameterType="String" resultType="cmncdVO">
+		SELECT CMNCD_NM2
+		  FROM CMNCD
+		 WHERE CMNCD_NM1=#{cmncdNm1}
+	</select>
+	
+	<!-- 상품 정보 수정 -->
+	<update id="prodUpdate" parameterType="prodVO">
+		UPDATE PROD_INFO
+		   SET PROD_INFO_NM=#{prodInfoNm}
+		       , PROD_INFO_PRCHS_AMT=#{prodInfoPrchsAmt}
+		       , PROD_INFO_NTSL_AMT=#{prodInfoNtslAmt}
+		       , PROD_INFO_LDT=#{prodInfoLdt}
+		       , PROD_INFO_PLOR=#{prodInfoPlor}
+		       , CMNCD_CD=#{cmncdCd}
+		 WHERE PROD_INFO_ID=#{prodInfoId}
+	</update>
+	
+	<!-- 공통코드 찾기(상품등록) -->
+	<select id="cmncdFind" parameterType="String" resultType="String">
+		SELECT CMNCD_CD
+		  FROM CMNCD
+		 WHERE CMNCD_NM2=#{cmncdNm2}
+	</select>
+	
+	<!-- 상품 삭제(여부를 N으로) -->
+	<update id="prodDelete" parameterType="String">
+		UPDATE PROD_INFO
+		   SET PROD_INFO_YN='N'
+		 WHERE PROD_INFO_ID=#{prodInfoId}	
+	</update>
+	
+	<!-- 상품 등록 -->
+	<insert id="prodInsert" parameterType="prodVO">
+		<selectKey order="BEFORE" keyProperty="prodInfoId" resultType="String">
+		SELECT 'PROD' || LPAD(NVL(MAX(SUBSTR(PROD_INFO_ID,5)),0)+1,5,'0') FROM PROD_INFO
+		</selectKey>
+		INSERT INTO prod_info (
+		    prod_info_id
+		   ,prod_info_nm
+		   ,prod_info_prchs_amt
+		   ,prod_info_ntsl_amt
+		   ,prod_info_ldt
+		   ,prod_info_plor
+		   ,cmncd_cd
+		   ,prod_info_yn
+		   ,cnpt_id
+		) VALUES (
+		    #{prodInfoId}
+		   ,#{prodInfoNm}
+		   ,#{prodInfoPrchsAmt}
+		   ,#{prodInfoNtslAmt}
+		   ,#{prodInfoLdt}
+		   ,#{prodInfoPlor}
+		   ,#{cmncdCd}
+		   ,'Y'
+		   ,#{cnptId})
+	</insert>
+	
+	<!-- 상품아이디로 상품명 뽑기 -->
+	<select id="searchName" parameterType="String" resultType="String">
+		SELECT PROD_INFO_NM
+		  FROM PROD_INFO
+		 WHERE PROD_INFO_ID=#{prodInfoId}
+	</select>
+	
+	<!-- 거래처 목록(등록할 때 거래처 고르는 용도로 사용) cnpt_SQL.xml에서 가져다 쓰기로 함 -->
+	<!-- 거래처 이름으로 거래처 코드 찾기 -->
+	<select id="cnptCd" parameterType="String" resultType="String">
+		SELECT CNPT_ID
+		  FROM CNPT
+		 WHERE CNPT_NM=#{cnptNm}
+	</select>
+	
+	<!-- 거래처 코드로 거래처 이름 찾기 -->
+	<select id="cnptNm" parameterType="String" resultType="String">
+		SELECT CNPT_NM
+		  FROM CNPT
+		 WHERE CNPT_ID=#{cnptId}
+	</select>
+	
+	<!-- 본사를 제외한 모든 지점 아이디 가져오기 -->
+	<select id="brncList" resultType="brncVO">
+		SELECT BRNCOFC_ID
+			  ,BRNCOFC_NM
+		FROM   BRNCOFC
+		WHERE  BRNCOFC_ID != 'BRN00000'
+	</select>
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,74 @@
+package kr.or.tco.calculate.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@RequestMapping("/cal")
+@Controller
+public class CalController {
+
+	@GetMapping("/dailyPrcSettle")
+	public String dailyPrcSettle(){
+		//일일매입정산
+		return "dailyprcSettle";
+	}
+	@GetMapping("/dailySlsSettle")
+	public String dailySlsSettle(){
+		//일일판매정산
+		return "dailySlsSettle";
+	}
+	
+	
+	@GetMapping("/weeklyPrcSettle")
+	public String weeklyPrcSettle(){
+		//주간매입정산
+		return "weeklyPrcSettle";
+	}
+	@GetMapping("/weeklySlsSettle")
+	public String weeklySlsSettle(){
+		//주간판매정산
+		return "weeklySlsSettle";
+	}
+	
+	
+	@GetMapping("/yearlyPrcSettle")
+	public String yearlyPrcSettle(){
+		//연간매입정산
+		return "yearlyPrcSettle";
+	}
+	@GetMapping("/yearlySlsSettle")
+	public String yearlySlsSettle(){
+		//연간판매정산
+		return "yearlySlsSettle";
+	}
+	
+	
+	@GetMapping("/dailyNetIncome")
+	public String dailyNetIncome(){
+		//일일순이익
+		return "dailyNetIncome";
+	}
+	@GetMapping("/weeklyNetIncome")
+	public String weeklyNetIncome(){
+		//주간순이익
+		return "weeklyNetIncome";
+	}
+	@GetMapping("/yearlyNetIncome")
+	public String yearlyNetIncome(){
+		//연간순이익
+		return "yearlyNetIncome";
+	}
+
+	
+	
+	//정산자료 엑셀업로드
+	@GetMapping("/insertExcel")
+	public String insertexcel() {
+		return "calculate/insertexcel";
+	}
+	
+	
+	
+	
+}

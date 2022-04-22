@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.cal.mapper.CalMapper">
+ 	<!-- * selectKey? -->
+<!-- 	일련번호 처리 -->
+<!-- 	마이바티스는 쿼리 실행 시 파라미터를 치환해줌  -->
+
+ 	 <!-- 일일 정산 --> 
+<!-- 	<select id="dailyPrcSettle" resultType="CalVO" > -->
+ 	 <!-- 일일창고입고 = 일일매입 --> 
+<!-- 	SELECT -->
+<!-- 	    strg_wrhs_id, -->
+<!-- 	    brncofc_id, -->
+<!-- 	    prod_info_id, -->
+<!-- 	    strg_wrhs_qty, -->
+<!-- 	    strg_wrhs_dt -->
+<!-- 	FROM -->
+<!-- 	    strg_wrhs -->
+<!-- 	WHERE  -->
+<!-- 	   STRG_WRHS_DT = to_date(sysdate,'YYYY/MM/DD') -->
+<!-- 	</select> -->
+	
+<!-- 	<select id="dailySlsSettle" resultType="CalVO"> -->
+ 	 <!-- 일일고객판매테이블 = 일일판매 --> 
+<!-- 	SELECT -->
+<!-- 	    cust_ntsl_id, -->
+<!-- 	    brncofc_id, -->
+<!-- 	    cust_id, -->
+<!-- 	    prod_info_id, -->
+<!-- 	    cust_ntsl_dt, -->
+<!-- 	    cust_ntsl_amt -->
+<!-- 	FROM -->
+<!-- 	    cust_ntsl -->
+<!-- 	WHERE -->
+<!-- 	    CUST_NTSL_DT = to_date(sysdate,'YYYY/MM/DD') -->
+<!-- 	</select> -->
+ 	<!-- 일일정산 끝. --> 
+	
+ 	<!-- 주간정산 --> 
+<!-- 	<select id="weeklyPrcSettle" resultType="CalVO"> -->
+<!--주간창고입고 = 주간매입 --> 
+<!-- 	SELECT -->
+<!-- 	    strg_wrhs_id, -->
+<!-- 	    brncofc_id, -->
+<!-- 	    prod_info_id, -->
+<!-- 	    strg_wrhs_qty, -->
+<!-- 	    strg_wrhs_dt -->
+<!-- 	FROM -->
+<!-- 	    strg_wrhs -->
+<!-- 	WHERE  -->
+<!-- 	   STRG_WRHS_DT  BETWEEN (select TRUNC(sysdate , 'iw') from dual) AND SYSDATE  -->
+<!-- 	</select> -->
+	
+<!-- 	<select id="weeklySlsSettle" resultType="CalVO"> -->
+ 	 <!-- 일일고객판매테이블 = 일일판매 --> 
+<!-- 	SELECT -->
+<!-- 	    cust_ntsl_id, -->
+<!-- 	    brncofc_id, -->
+<!-- 	    cust_id, -->
+<!-- 	    prod_info_id, -->
+<!-- 	    cust_ntsl_dt, -->
+<!-- 	    cust_ntsl_amt -->
+<!-- 	FROM -->
+<!-- 	    cust_ntsl -->
+<!-- 	WHERE -->
+<!-- 	    CUST_NTSL_DT BETWEEN (select TRUNC(sysdate , 'iw') from dual) AND SYSDATE  -->
+<!-- 	</select> -->
+ 	<!-- 주간정산 끝 --> 
+	
+ 	<!-- 월간정산 시작 --> 
+<!-- 	<select id="monthlyPrcSettle" resultType="CalVO"> -->
+<!-- 	SELECT -->
+<!-- 	    strg_wrhs_id, -->
+<!-- 	    brncofc_id, -->
+<!-- 	    prod_info_id, -->
+<!-- 	    strg_wrhs_qty, -->
+<!-- 	    strg_wrhs_dt -->
+<!-- 	FROM -->
+<!-- 	    strg_wrhs -->
+<!-- 	WHERE  -->
+<!-- 	   STRG_WRHS_DT BETWEEN add_months(sysdate,-1) AND SYSDATE -->
+<!-- 	</select> -->
+	
+<!-- 	<select id="monthlySlsSettle" resultType="CalVO"> -->
+ 	 <!-- 일일고객판매테이블 = 일일판매 -->
+<!-- 	SELECT -->
+<!-- 	    cust_ntsl_id, -->
+<!-- 	    brncofc_id, -->
+<!-- 	    cust_id, -->
+<!-- 	    prod_info_id, -->
+<!-- 	    cust_ntsl_dt, -->
+<!-- 	    cust_ntsl_amt -->
+<!-- 	FROM -->
+<!-- 	    cust_ntsl -->
+<!-- 	WHERE -->
+<!-- 	    CUST_NTSL_DT BETWEEN add_months(sysdate,-1) AND SYSDATE -->
+<!-- 	</select> -->
+	
+	
+ 	<!-- 월간정산 끝 --> 
+	
+ 	<!-- 연간정산 시작 --> 
+<!-- 	<select id="yearlyPrcSettle" resultType="CalVO"> -->
+<!-- 	SELECT -->
+<!-- 	    strg_wrhs_id, -->
+<!-- 	    brncofc_id, -->
+<!-- 	    prod_info_id, -->
+<!-- 	    strg_wrhs_qty, -->
+<!-- 	    strg_wrhs_dt -->
+<!-- 	FROM -->
+<!-- 	    strg_wrhs -->
+<!-- 	WHERE  -->
+<!-- 	   STRG_WRHS_DT BETWEEN add_months(sysdate,-12) AND SYSDATE -->
+<!-- 	</select> -->
+	
+<!-- 	<select id="yearlySlsSettle" resultType="CalVO"> -->
+ 	 <!-- 일일고객판매테이블 = 일일판매 --> 
+<!-- 	SELECT -->
+<!-- 	    cust_ntsl_id, -->
+<!-- 	    brncofc_id, -->
+<!-- 	    cust_id, -->
+<!-- 	    prod_info_id, -->
+<!-- 	    cust_ntsl_dt, -->
+<!-- 	    cust_ntsl_amt -->
+<!-- 	FROM -->
+<!-- 	    cust_ntsl -->
+<!-- 	WHERE -->
+<!-- 	    CUST_NTSL_DT  BETWEEN add_months(sysdate,-12) AND SYSDATE -->
+<!-- 	</select> -->
+ 	<!-- 연간정산 끝 --> 
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+

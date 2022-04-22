@@ -1,0 +1,13 @@
+package kr.or.tco.prod.service;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.tco.prod.vo.ProdVO;
+
+public interface ProdService {
+
+	//상품 조회
+	public List<ProdVO> prodList(Map<String, String> map);
+
+}

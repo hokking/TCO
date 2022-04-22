@@ -1,0 +1,64 @@
+package kr.or.tco.prchs.vo;
+
+public class PrchsVO {
+	private String prchsId;	//매입아이디
+	private String prchsSe;	//매입 구분
+	private String prchsDt;	//매입일 (선택가능)
+	private int prchsAmt;	//매입총액
+	private String cnptId;	//매입 거래처
+	
+	private int prchsVat;	//매입세금
+	private int prchsSuAmt;	//매입 공급가액
+	
+	public String getPrchsId() {
+		return prchsId;
+	}
+	public void setPrchsId(String prchsId) {
+		this.prchsId = prchsId;
+	}
+	public String getPrchsSe() {
+		return prchsSe;
+	}
+	public void setPrchsSe(String prchsSe) {
+		this.prchsSe = prchsSe;
+	}
+	public String getPrchsDt() {
+		return prchsDt;
+	}
+	public void setPrchsDt(String prchsDt) {
+		this.prchsDt = prchsDt;
+	}
+	public int getPrchsAmt() {
+		return prchsAmt;
+	}
+	public void setPrchsAmt(int prchsAmt) {
+		this.prchsAmt = prchsAmt;
+	}
+	public String getCnptId() {
+		return cnptId;
+	}
+	public void setCnptId(String cnptId) {
+		this.cnptId = cnptId;
+	}
+	public int getPrchsVat() {
+		return prchsVat;
+	}
+	public void setPrchsVat(int prchsVat) {
+		this.prchsVat = prchsVat;
+	}
+	public int getPrchsSuAmt() {
+		return prchsSuAmt;
+	}
+	public void setPrchsSuAmt(int prchsSuAmt) {
+		this.prchsSuAmt = prchsSuAmt;
+	}
+	
+	@Override
+	public String toString() {
+		return "PrchsVO [prchsId=" + prchsId + ", prchsSe=" + prchsSe + ", prchsDt=" + prchsDt + ", prchsAmt="
+				+ prchsAmt + ", cnptId=" + cnptId + ", prchsVat=" + prchsVat + ", prchsSuAmt=" + prchsSuAmt + "]";
+	}
+	
+	
+	
+}

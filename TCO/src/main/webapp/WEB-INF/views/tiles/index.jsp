@@ -1,0 +1,378 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="tiles" uri="http://tiles.apache.org/tags-tiles" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+
+<!DOCTYPE html>
+<html>
+
+    <head>
+        
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
+        <meta content="Themesbrand" name="author" />
+        <meta http-equiv="X-Frame-Options" content="deny" />
+        
+        <title>TCO</title>
+
+        <!-- App favicon -->
+        <link rel="shortcut icon" href="/resources/images/TCO로고_글자X2.png">
+		<!-- Responsive Table css -->
+		<link href="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/admin-resources/rwd-table/rwd-table.min.css" rel="stylesheet" type="text/css">
+        <!-- Bootstrap Css -->
+        <link href="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
+        <!-- Icons Css -->
+        <link href="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+        <!-- App Css-->
+        <link href="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css" />
+		<!-- jquery-ui -->
+		<link href="/resources/css/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+		<!-- jqGrid -->
+		<link href="/resources/css/ui.jqgrid.css" rel="stylesheet" type="text/css" />
+		<!-- datepicker css -->
+        <link href="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet">
+		<!-- datatables css -->
+		<link href="/resources/css/dataTables/dataTables.dateTime.min.css" rel="stylesheet" type="text/css" />
+		<link href="/resources/css/dataTables/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
+		<!-- Sweet Alert-->
+        <link href="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
+
+        <!-- Chart.min.js -->
+        <script type="text/javascript" src="https://www.chartjs.org/dist/master/chart.min.js"></script>
+        <!-- Sweet Alert (템플릿 아니고 원래 사이트에서 제공하는 코드) -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.min.css"> 
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.all.min.js"></script>
+		<!-- DropZone 드래그이벤트 -->
+		<script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/dropzone/min/dropzone.min.js"></script>
+		<link href="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/dropzone/min/dropzone.min.css" rel="stylesheet" type="text/css" />
+		<!-- ION Slider -->
+        <link href="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/ion-rangeslider/css/ion.rangeSlider.min.css" rel="stylesheet" type="text/css"/>
+		<!-- select2 -->
+		<link href="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css">
+		<!-- tinymce -->
+		<link rel="stylesheet" type="text/css" id="u0" href="http://localhost/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/tinymce/skins/ui/oxide/skin.min.css">
+		
+		<!-- Jquery -->
+        <script src="/resources/js/jquery-3.6.0.min.js"></script>
+        <script src="/resources/js/jquery-ui.min.js"></script>
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+        
+        <!-- 소비자 자동 판매 -->
+<!--         <script src="/resources/js/autoNtsl.js"></script> -->
+        
+		<!-- daum 우편번호 -->
+		<script src="https://ssl.daumcdn.net/dmaps/map_js_init/postcode.v2.js"></script>
+
+		<script type="text/javascript"> 
+		
+			function expireSession() { 
+				window.location = "/emp/logout"; 
+			} 
+			
+			$(document).ready(function(){
+				
+				setTimeout(expireSession, <%= request.getSession().getMaxInactiveInterval() * 3600 %>); 
+// 				autoNtsl();
+			
+			});
+				
+		
+		</script>
+
+
+    </head>
+    
+    <body data-sidebar="dark">
+
+    <!-- <body data-layout="horizontal" data-topbar="dark"> -->
+
+        <!-- Begin page -->
+        <div id="layout-wrapper">
+
+            
+            <!-- header 시작 -->
+            <tiles:insertAttribute name="header" />
+            <!-- header 끝 -->
+
+            <!-- ========== Left Sidebar Start ========== -->
+            <tiles:insertAttribute name="aside" />
+            <!-- Left Sidebar End -->
+
+            
+
+            <!-- ============================================================== -->
+            <!-- Start right Content here -->
+            <!-- ============================================================== -->
+            <div class="main-content">
+
+                <div class="page-content">
+                    <div class="container-fluid">
+                      <tiles:insertAttribute name="body" />
+                    </div>
+                    <!-- container-fluid -->
+                </div>
+                <!-- End Page-content -->
+
+                <!-- Transaction Modal -->
+                <div class="modal fade transaction-detailModal" tabindex="-1" role="dialog" aria-labelledby="transaction-detailModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="transaction-detailModalLabel">Order Details</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="mb-2">Product id: <span class="text-primary">#SK2540</span></p>
+                                <p class="mb-4">Billing Name: <span class="text-primary">Neal Matthews</span></p>
+
+                                <div class="table-responsive">
+                                    <table class="table align-middle table-nowrap">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Product</th>
+                                                <th scope="col">Product Name</th>
+                                                <th scope="col">Price</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row">
+                                                    <div>
+                                                        <img src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/images/product/img-7.png" alt="" class="avatar-sm">
+                                                    </div>
+                                                </th>
+                                                <td>
+                                                    <div>
+                                                        <h5 class="text-truncate font-size-14">Wireless Headphone (Black)</h5>
+                                                        <p class="text-muted mb-0">$ 225 x 1</p>
+                                                    </div>
+                                                </td>
+                                                <td>$ 255</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">
+                                                    <div>
+                                                        <img src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/images/product/img-4.png" alt="" class="avatar-sm">
+                                                    </div>
+                                                </th>
+                                                <td>
+                                                    <div>
+                                                        <h5 class="text-truncate font-size-14">Phone patterned cases</h5>
+                                                        <p class="text-muted mb-0">$ 145 x 1</p>
+                                                    </div>
+                                                </td>
+                                                <td>$ 145</td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2">
+                                                    <h6 class="m-0 text-right">Sub Total:</h6>
+                                                </td>
+                                                <td>
+                                                    $ 400
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2">
+                                                    <h6 class="m-0 text-right">Shipping:</h6>
+                                                </td>
+                                                <td>
+                                                    Free
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2">
+                                                    <h6 class="m-0 text-right">Total:</h6>
+                                                </td>
+                                                <td>
+                                                    $ 400
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end modal -->
+
+                <!-- subscribeModal -->
+                <div class="modal fade" id="subscribeModal" tabindex="-1" aria-labelledby="subscribeModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header border-bottom-0">
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="text-center mb-4">
+                                    <div class="avatar-md mx-auto mb-4">
+                                        <div class="avatar-title bg-light rounded-circle text-primary h1">
+                                            <i class="mdi mdi-email-open"></i>
+                                        </div>
+                                    </div>
+
+                                    <div class="row justify-content-center">
+                                        <div class="col-xl-10">
+                                            <h4 class="text-primary">Subscribe !</h4>
+                                            <p class="text-muted font-size-14 mb-4">Subscribe our newletter and get notification to stay update.</p>
+
+                                            <div class="input-group bg-light rounded">
+                                                <input type="email" class="form-control bg-transparent border-0" placeholder="Enter Email address" aria-label="Recipient's username" aria-describedby="button-addon2">
+                                                
+                                                <button class="btn btn-primary" type="button" id="button-addon2">
+                                                    <i class="bx bxs-paper-plane"></i>
+                                                </button>
+                                                
+                                            </div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end modal -->
+
+                
+<!-- footer다 -->
+<tiles:insertAttribute name="footer" />
+<!-- footer끝 -->
+            </div>
+            <!-- end main content-->
+
+        </div>
+        <!-- END layout-wrapper -->
+
+        <!-- Right Sidebar -->
+        <div class="right-bar">
+            <div data-simplebar class="h-100">
+                <div class="rightbar-title d-flex align-items-center px-3 py-4">
+            
+                    <h5 class="m-0 me-2">화면 설정</h5>
+
+                    <a href="javascript:void(0);" class="right-bar-toggle ms-auto">
+                        <i class="mdi mdi-close noti-icon"></i>
+                    </a>
+                </div>
+
+                <!-- Settings -->
+                <hr class="mt-0" />
+<!--                 <h6 class="text-center mb-0">Choose Layouts</h6> -->
+
+                <div class="p-4">
+                    <div class="mb-2">
+                        <img src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/images/layouts/layout-1.jpg" class="img-thumbnail" alt="layout images">
+                    </div>
+
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input theme-choice" type="checkbox" id="light-mode-switch" checked>
+                        <label class="form-check-label" for="light-mode-switch">일반 모드</label>
+                    </div>
+    
+                    <div class="mb-2">
+                        <img src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/images/layouts/layout-2.jpg" class="img-thumbnail" alt="layout images">
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input theme-choice" type="checkbox" id="dark-mode-switch">
+                        <label class="form-check-label" for="dark-mode-switch">다크 모드</label>
+                    </div>
+    
+                    <div class="mb-2">
+                        <img src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/images/layouts/layout-3.jpg" class="img-thumbnail" alt="layout images">
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input theme-choice" type="checkbox" id="rtl-mode-switch">
+                        <label class="form-check-label" for="rtl-mode-switch">오른쪽 메뉴구성(일반)</label>
+                    </div>
+
+                    <div class="mb-2">
+                        <img src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/images/layouts/layout-4.jpg" class="img-thumbnail" alt="layout images">
+                    </div>
+                    <div class="form-check form-switch mb-5">
+                        <input class="form-check-input theme-choice" type="checkbox" id="dark-rtl-mode-switch">
+                        <label class="form-check-label" for="dark-rtl-mode-switch">오른쪽 메뉴구성(다크모드)</label>
+                    </div>
+
+            
+                </div>
+
+            </div> <!-- end slimscroll-menu-->
+        </div>
+        <!-- /Right-bar -->
+
+        <!-- Right bar overlay-->
+        <div class="rightbar-overlay"></div>
+        
+		<div class="tox tox-silver-sink tox-tinymce-aux" style="position: relative;"></div>
+		
+        <!-- JAVASCRIPT -->
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/metismenu/metisMenu.min.js"></script>
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/simplebar/simplebar.min.js"></script>
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/node-waves/waves.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+        
+        <!-- apexcharts -->
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/apexcharts/apexcharts.min.js"></script>
+
+		<!-- Responsive Table js -->
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/admin-resources/rwd-table/rwd-table.min.js"></script>
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/js/pages/table-responsive.init.js"></script>
+        <!-- App js -->
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/js/app.js"></script>
+        <!-- jqGrid js -->
+        <script type="text/javascript" src="/resources/js/jqgrid/grid.locale-kr.js"></script>
+		<script type="text/javascript" src="/resources/js/jqgrid/jquery.jqGrid.min.js"></script>
+        <!-- FileSaver -->
+        <script src="/resources/js/FileSaver.min.js"></script>
+        <!-- SheetJs -->
+        <script src="/resources/js/xlsx.full.min.js"></script>
+        <!-- file-manager js -->
+		<script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/js/pages/file-manager.init.js"></script>
+		<!-- bootstrap datepicker -->
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+        <!-- tinymce js -->
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/tinymce/tinymce.min.js"></script>
+        <!-- form repeater js -->
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/jquery.repeater/jquery.repeater.min.js"></script>
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/js/pages/task-create.init.js"></script>
+        <!-- Sweet Alerts js -->
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/sweetalert2/sweetalert2.min.js"></script>
+        <!-- Sweet alert init js-->
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/js/pages/sweet-alerts.init.js"></script>
+        <!-- Ion Range Slider-->
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/ion-rangeslider/js/ion.rangeSlider.min.js"></script>
+        <!-- init js -->
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/js/pages/product-filter-range.init.js"></script>
+        <!-- select2 -->
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/select2/js/select2.min.js"></script>
+        <!-- datatable.js 엑셀 pdf 관련-->
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js"></script>
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/jszip/jszip.min.js"></script>
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/pdfmake/build/pdfmake.min.js"></script>
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/pdfmake/build/vfs_fonts.js"></script>
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/datatables.net-buttons/js/buttons.html5.min.js"></script>
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/datatables.net-buttons/js/buttons.print.min.js"></script>
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/datatables.net-buttons/js/buttons.colVis.min.js"></script>
+		<script src="/resources/js/dataTables/dataTables.dateTime.min.js"></script>
+		<script src="/resources/js/dataTables/moment.min.js"></script>
+
+        <!-- Responsive examples -->
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
+        <!-- datatable.js 엑셀 pdf 관련 끝-->
+         
+        <!-- dashboard init -->
+        <script src="/resources/skote/Skote_v3.3.2/HTML/Admin/dist/assets/js/pages/dashboard.init.js"></script>
+		<!-- JAVASCRIPT끝 -->
+
+    </body>
+
+</html>

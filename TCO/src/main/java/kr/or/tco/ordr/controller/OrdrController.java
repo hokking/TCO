@@ -1,0 +1,265 @@
+package kr.or.tco.ordr.controller;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import kr.or.tco.ordr.service.OrdrService;
+import kr.or.tco.ordr.vo.OrdrVO;
+import kr.or.tco.prod.vo.ProdVO;
+import kr.or.tco.strgstck.service.StrgstckService;
+import kr.or.tco.strgstck.vo.StrgstckVO;
+
+@RequestMapping("/ordr")
+@Controller
+public class OrdrController {
+	private static final Logger logger = LoggerFactory.getLogger(OrdrController.class);
+	
+	@Autowired
+	OrdrService ordrService;
+	
+	@Autowired
+	StrgstckService strgstckService;
+	
+	//지점의 발주 메인페이지
+	@GetMapping("/order")
+	public String order(Model model) {
+		
+		//파라미터로 보낼 상품정보(prod) - 이후에 파라미터로 받아오깅
+		ProdVO prodVO = new ProdVO();
+		List<StrgstckVO> strgstckList = strgstckService.getHeadshipStock(prodVO);
+		
+		//model에 저장
+		model.addAttribute("strgstckList", strgstckList); // 본사의 창고재고 가져오기
+		
+		return "order/order";
+	}
+	
+	//발주 저장 시 
+	@RequestMapping(value = "/insertOrder", method = RequestMethod.GET)
+	public @ResponseBody int insertOrder(@RequestParam("orderList") String orderList) {
+		// String형태의 json을 다시 json배열로 바꾸기
+		JsonParser parser = new JsonParser();
+		JsonElement tradeElement = parser.parse(orderList);
+		JsonArray trade = tradeElement.getAsJsonArray();
+
+		//orderId가져오기 
+		int ordrId = ordrService.ordrMax();
+		
+		int result = 0;
+		//[{"ordrQty":"10","prodInfoId":"PROD00007","brncofcId":"","ordrSe":"저장"},
+		//{"ordrQty":"10","prodInfoId":"PROD00008","brncofcId":"","ordrSe":"저장"},
+		//{"ordrQty":"10","prodInfoId":"PROD00009","brncofcId":"","ordrSe":"저장"}]
+		for(int i = 0 ; i < trade.size() ; i++ ){
+
+			JsonObject Jsonfor = trade.get(i).getAsJsonObject(); //i에 해당하는 JsonArray를 다시 JsonObject로 변형
+			
+			OrdrVO vo = new OrdrVO();
+
+			//toString()으로도 뽑아낼수있지만 그럼 "가 붙어서 나오게 된다. 맞는 형식으로 뽑아주자 getAsString말고도 많다
+//			String recvName = Jsonfor.get("name").getAsString();
+			String ordrQty = Jsonfor.get("ordrQty").getAsString();
+			String prodInfoId = Jsonfor.get("prodInfoId").getAsString();
+			String brncofcId = Jsonfor.get("brncofcId").getAsString();
+			String ordrSe = Jsonfor.get("ordrSe").getAsString();
+			
+			vo.setOrdrId(ordrId);
+			vo.setOrdrQty(Integer.parseInt(ordrQty));
+			vo.setProdInfoId(prodInfoId);
+			vo.setBrncofcId(brncofcId);
+			vo.setOrdrSe(ordrSe);
+			
+			logger.info("이것이다" + vo);
+			
+			result += ordrService.ordrInsert(vo);
+			logger.info("insert 됨");
+		}
+
+		return result;
+	}
+	
+	//지점의 발주 현황
+	@GetMapping("/condition") // + 지점코드를 parameter로 ?brncofcId=${sessionScope.brncofcId}
+	public String orderCondition(Model model
+			, @RequestParam("brncofcId") String brncofcId) { // 해당 아이디의 지점의 목록
+		
+		//리스트 가져오기
+		List<OrdrVO> orderList = ordrService.getOrdrCondition(brncofcId);
+		
+		model.addAttribute("orderList", orderList);
+		//지점명
+		String branchNm = ordrService.brnofcNm(brncofcId);
+		model.addAttribute("branch", branchNm);
+		
+		return "order/orderCondition";
+	}
+	
+	//발주현황 상세
+	@GetMapping("/detail")
+	public @ResponseBody List<OrdrVO> orderDetail(@RequestParam("ordrId") String orderId){
+		//int로 바꿔주기
+		int ordrId = Integer.parseInt(orderId);
+		
+		//리스트 가져오기
+		List<OrdrVO> orderDetail = ordrService.ordrDetail(ordrId);
+		
+		return orderDetail;
+	}
+	
+	//발주현황 삭제
+	@GetMapping("/delete")
+	public @ResponseBody int orderDelete(@RequestParam("ordrId") String ordrId) {
+		int result = ordrService.orderDelete(Integer.parseInt(ordrId)); 
+		
+		return result;
+	}
+	
+	//발주 전송 update
+	@GetMapping("/send")
+	public @ResponseBody int sendOrder(@RequestParam("ordrId") String ordrId) {
+		int result = ordrService.saveUpdate(Integer.parseInt(ordrId));
+		
+		return result;
+	}
+	
+	//지점의 발주 내역
+	@GetMapping("/orderList") // + 지점코드를 parameter
+	public String orderList(Model model
+			, @RequestParam("brncofcId") String brncofcId) {
+		
+		//리스트 가져오기
+		List<OrdrVO> orderList = ordrService.getOrdrList(brncofcId);
+		
+		model.addAttribute("orderList", orderList);
+		//지점명
+		String branchNm = ordrService.brnofcNm(brncofcId);
+		model.addAttribute("branch", branchNm);
+		
+		return "order/orderList";
+	}
+	
+	//지점 발주내역 - 입고 완료됨
+	@GetMapping("/whsYList.do")
+	public @ResponseBody List<OrdrVO> whsYList(@RequestParam("brncofcId") String brncofcId){
+		List<OrdrVO> orderList = ordrService.getOrdrListAll(brncofcId); 
+		List<OrdrVO> whsYList = new ArrayList<OrdrVO>(); 
+		
+		for(OrdrVO vo : orderList) {
+			if(vo.getCondition().equals("입고완료")) {
+				whsYList.add(vo);
+			}
+		}
+		logger.info("이것이다" + whsYList.toString());
+		
+		return whsYList;
+	}
+	
+	//지점 발주내역 - 미입고
+	@GetMapping("/whsNList.do")
+	public @ResponseBody List<OrdrVO> whsNList(@RequestParam("brncofcId") String brncofcId){
+		List<OrdrVO> orderList = ordrService.getOrdrListAll(brncofcId); 
+		List<OrdrVO> whsNList = new ArrayList<OrdrVO>(); 
+		
+		for(OrdrVO vo : orderList) {
+			if(vo.getCondition().equals("미입고")) {
+				whsNList.add(vo);
+			}
+		}
+		logger.info("NNNNNNNNNNNNNNNNNNNNNNNNNN이것이다" + orderList.toString());
+		
+		return whsNList;
+	}
+	
+	//발주내역 상세
+	@GetMapping("/ordrDetail")
+	public String ordrDetail(Model model
+			,@RequestParam("ordrId") String ordrId) {
+		int orderId = Integer.parseInt(ordrId);
+		
+		List<OrdrVO> ordrVO = this.ordrService.ordrDetail(orderId);
+		logger.info("ordrVO : " + ordrVO);
+		
+		//발주지점 이름 가져오기
+		String name = this.ordrService.brnofcNm(ordrVO.get(0).getBrncofcId());
+		logger.info("발주지점 이름 : " + name);
+		
+		//주문의 가격 합계 뽑기
+		int sum = 0;
+		for(OrdrVO ordr : ordrVO) {
+			sum += ordr.getOrdrQty() * ordr.getProdInfoPrchsAmt();
+		}
+		logger.info("날짜 : " + ordrVO.get(0).getOrdrDt());
+		
+		//ordrId 에 들어갈 모든 내역
+		model.addAttribute("ordrVO", ordrVO);
+		//발주번호만 따로 넘기기
+		model.addAttribute("num", ordrId);
+		//발주지점 이름 넘기기
+		model.addAttribute("name", name);
+		//발주일 넘기기
+		model.addAttribute("date", ordrVO.get(0).getOrdrDt());
+		//금액 합계 넘기기
+		model.addAttribute("sum", sum); 
+		
+		return "order/orderDetail";
+	}
+	
+	@GetMapping("/updateWrhs")
+	public @ResponseBody int updateWrhs(@RequestParam("ordrId")String ordrId
+			, @RequestParam("prodId")String prodId
+			, @RequestParam("brncofcId")String brncofcId
+			, @RequestParam("ordrQty")String ordrQty) {
+		int result = 0;
+		
+		logger.info("ordrId가 요기잉네 " + ordrId);
+		logger.info("prodId 요기잉네 " + prodId);
+		logger.info("brncofcId 요기잉네 " + brncofcId);
+		logger.info("ordrQty 요기잉네 " + ordrQty);
+		
+		int orQty = Integer.parseInt(ordrQty);
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("prodId", prodId);
+		map.put("ordrId", ordrId);
+		map.put("brncofcId", brncofcId);
+		map.put("ordrQty", orQty);
+		
+		//창고입고테이블에 추가
+		ordrService.addStrgStck(map);
+		
+		//입고여부 Y로 변경
+		result = ordrService.updateWrhs(map);
+		
+		return result;
+	}
+
+}

@@ -1,0 +1,72 @@
+package kr.or.tco.sls.vo;
+
+import java.util.Date;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
+public class SlsVO {
+	
+	private String slsId;
+	private String brncofcId;
+	@DateTimeFormat(pattern="yyyy-MM-dd")
+	private Date slsDt;
+	private int slsAmt;
+	
+	//지점 이름
+	private String brncofcNm;
+	
+	
+	//------------------------------getter / setter ---------------------------------
+	public String getSlsId() {
+		return slsId;
+	}
+	public void setSlsId(String slsId) {
+		this.slsId = slsId;
+	}
+	public String getBrncofcId() {
+		return brncofcId;
+	}
+	public void setBrncofcId(String brncofcId) {
+		this.brncofcId = brncofcId;
+	}
+	public Date getSlsDt() {
+		return slsDt;
+	}
+	public void setSlsDt(Date slsDt) {
+		this.slsDt = slsDt;
+	}
+	public int getSlsAmt() {
+		return slsAmt;
+	}
+	public void setSlsAmt(int slsAmt) {
+		this.slsAmt = slsAmt;
+	}
+	
+	
+	
+	public String getBrncofcNm() {
+		return brncofcNm;
+	}
+	public void setBrncofcNm(String brncofcNm) {
+		this.brncofcNm = brncofcNm;
+	}
+	
+	
+	
+	
+	//------------------------------getter / setter 끝 ---------------------------------
+	@Override
+	public String toString() {
+		return "SlsVO [slsId=" + slsId + ", brncofcId=" + brncofcId + ", slsDt=" + slsDt + ", slsAmt=" + slsAmt
+				+ ", brncofcNm=" + brncofcNm + "]";
+	}
+	
+	
+	
+
+
+	
+	
+	
+	
+}

@@ -1,0 +1,149 @@
+package kr.or.tco.cnpt.controller;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.tco.cnpt.mapper.CnptMapper;
+import kr.or.tco.cnpt.service.CnptService;
+import kr.or.tco.cnpt.vo.CnptVO;
+
+//거래처 컨트롤러
+@RequestMapping("/cnpt")
+@Controller
+public class CnptController {
+	
+	@Autowired
+	CnptService cnptService;
+	
+	final static Logger logger = 
+			LoggerFactory.getLogger(CnptController.class);
+	
+	//거래처 조회
+	@RequestMapping("/list")
+	public String list(@RequestParam(required=false) String keyWord, Model model) {
+		//거래처 목록 불러오기
+		List<CnptVO> list = cnptService.list(keyWord);
+		//거래처 목록 Model에 저장
+		model.addAttribute("list", list);
+		
+		//거래중단된 거래처 목록 불러오기
+		List<CnptVO> stpList = cnptService.stpList(keyWord);
+		//목록 Model 저장
+		model.addAttribute("stpList", stpList);
+		
+		return "cnpt/list";
+	}
+	
+	//거래처 상세조회
+	@RequestMapping(value="/detail/{cnptId}")
+	public String detail(@PathVariable("cnptId") String cnptId,
+			Model model) {
+		CnptVO cnptVO = this.cnptService.detail(cnptId);
+		
+		model.addAttribute("cnptVO", cnptVO);
+		
+		return "cnpt/detail";
+	}
+	
+	
+	//거래처 등록페이지 
+	@RequestMapping("/insert")
+	public String insert() {
+		return "cnpt/insert";
+	}
+	
+	//거래처 등록하기
+	@PostMapping("/insert")
+	public String insertPost(@ModelAttribute CnptVO cnptVO) {
+		logger.info("insert에서 가져온 CnptVO : " + cnptVO.toString());
+		int result = this.cnptService.insert(cnptVO);
+		
+		//정상적으로 등록
+		if(result > 0) {
+			//forward
+			return "cnpt/insert";
+		}else { //등록 실패
+			
+			return "redirect:cnpt/insert";
+		}
+	}
+	
+	//거래처 수정 - 기본정보
+	@ResponseBody
+	@PostMapping("/updateBasic")
+	public int updateBasic(@ModelAttribute CnptVO cnptVO) {
+		logger.info("BASIC cnptVO!!!! : " + cnptVO.toString());
+		int result = cnptService.updateBasic(cnptVO);
+		
+		return result;
+		
+	}
+	
+	//거래처 수정 - 계좌정보
+	@ResponseBody
+	@PostMapping("/updateAct")
+	public int updateAct(@ModelAttribute CnptVO cnptVO) {
+		logger.info("ACT cnptVO!!!! : " + cnptVO.toString());
+		int result = cnptService.updateAct(cnptVO);
+		
+		return result;
+
+	}
+	
+	//거래처 수정 - 담당자 정보
+	@ResponseBody
+	@PostMapping("/updateCharger")
+	public int updateCharger(@ModelAttribute CnptVO cnptVO) {
+		logger.info("CHARGER cnptVO!!!! : " + cnptVO.toString());
+		int result = cnptService.updateCharger(cnptVO);
+		
+		return result;
+	}
+	
+	
+	//거래처 거래여부 'N'으로 변경
+	@RequestMapping("/cnptToN")
+	public String cnptToN(@RequestParam String cnptId) {
+		int result = this.cnptService.cnptToN(cnptId);
+		
+		if(result > 0) {
+			//거래처 목록 페이지로 돌아감
+			//forward
+			return "cnpt/list";
+		}else { //삭제 실패
+			return "redirect:cnpt/list";
+		}
+	}
+	
+	//거래처 거래여부 'Y'로 변경
+	@RequestMapping("/cnptToY")
+	public String cnptToY(@RequestParam String cnptId) {
+		int result = this.cnptService.cnptToY(cnptId);
+		
+		if(result > 0) {
+			//거래처 목록 페이지로 돌아감
+			//forward
+			return "cnpt/list";
+		}else { //삭제 실패
+			return "redirect:cnpt/list";
+		}
+	}
+	
+}
+
+
+
+
+
+

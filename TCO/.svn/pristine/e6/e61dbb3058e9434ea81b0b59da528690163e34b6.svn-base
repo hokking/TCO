@@ -1,0 +1,9 @@
+package kr.or.tco.sls.mapper;
+
+import java.util.List;
+import kr.or.tco.sls.vo.SlsVO;
+
+public interface SlsMapper {
+	
+	public List<SlsVO>list(String keyWord);
+}

@@ -1,0 +1,498 @@
+<%@page import="kr.or.tco.strgstck.vo.StrgstckVO"%>
+<%@page import="java.util.List"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<script src="/resources/js/jquery-3.6.0.min.js"></script>
+<script>
+var str = "";
+/* 매장 부족재고 현황 */
+
+//테이블 내용 지우기
+function resetStore(){
+	$(".tdStore").remove();
+}
+
+//안전재고수 밑으로 떨어진 상품만 뽑아내서 테이블 만들기
+function storeLack(e){
+	e = e.reduce((pre, cur) => {
+		if( (cur.streStckQty - cur.streStckSftyQty) < 0 ) pre.push(cur);
+		return pre;
+	}, []);
+	console.log("dkjdkfj");
+	console.log("e 안찍히지;; : " + e);
+	console.log(e);
+	str="";
+	for(var i = 0; i < e.length; i++){
+		str += '<tr class="tdStore"><td>';
+		str += '<div class="form-check font-size-16 form-check-info chk">';
+		str += '<input class="form-check-input" name="storeChk" type="checkbox" id="'+ e[i].prodInfoId +'" value="'+ e[i].prodInfoId +'">';
+		str += '<label class="form-check-label" for="orderidcheck02"></label></div></td>';
+		str += '<td>' + e[i].streSe + '</td>';
+		str += '<td>' + e[i].prodInfoNmDisplay + '</td>';
+		str += '<td style="text-align:right;">' + e[i].streStckQty + '</td>';
+		str += '<td style="text-align:right;">' + e[i].streStckSftyQty + '</td>';
+		str += '<td style="text-align:right;">' + (e[i].streStckQty - e[i].streStckSftyQty) + '</td></tr>';
+	}
+	$("#storeCont").append(str);
+}
+
+//매장 - 주기적으로 새로 테이블 내용을 뽑기
+function storeTable(){
+	$.ajax({
+		url : "/store/newLack.do",
+		data : {"id" : '${id}'},
+		type : 'post',
+		dataType : 'JSON',
+		success : function(res){
+			console.log("매장함수 안 success");
+			if($('#storeChkAll').is(':checked')){
+				$('#storeChkAll').prop('checked', false);
+			}			
+			resetStore();
+			storeLack(res);
+		}
+	})
+	console.log("매장함수 실행");
+	var v_timer = setTimeout(storeTable, 300000);
+}
+
+/* 창고 부족재고 현황 */
+
+//창고 - 테이블 내용 지우기
+function resetStrg(){
+	$(".tdStrg").remove();
+}
+
+//창고 - 안전재고수 밑으로 떨어진 상품만 뽑아내서 테이블 만들기
+function strgLack(e){
+	e = e.reduce((pre, cur) => {
+		if( (cur.strgStckQty - cur.strgStckSftyQty) < 0 ) pre.push(cur);
+		return pre;
+	}, []);
+	
+	e = e.reduce((pre, cur) => {
+		if( cur.strgStckOrdrYn == 'N' ) pre.push(cur);
+		return pre;
+	}, []);
+	
+	str="";
+	for(var i = 0; i < e.length; i++){
+		str += '<tr class="tdStrg"><td>';
+		str += '<div class="form-check font-size-16 form-check-info chk">';
+		str += '<input class="form-check-input" name="strgChk" type="checkbox" id="'+ e[i].prodInfoId +'" value="'+ e[i].prodInfoId +'">';
+		str += '<label class="form-check-label" for="orderidcheck02"></label></div></td>';
+		str += '<td>' + e[i].cmncdNm1 + '/' + e[i].cmncdNm2 + '</td>';
+		str += '<td>' + e[i].prodInfoNmDisplay + '</td>';
+		str += '<td style="text-align:right;">' + e[i].strgStckQty + '</td>';
+		str += '<td style="text-align:right;">' + e[i].strgStckSftyQty + '</td>';
+		str += '<td style="text-align:right;">' + (e[i].strgStckQty - e[i].strgStckSftyQty) + '</td></tr>';
+	}
+	$("#storageCont").append(str);
+}
+
+//창고 - 주기적으로 새로 테이블 내용을 뽑기
+function strgTable(){
+	$.ajax({
+		url : "/store/newLackStrg.do",
+		data : {"id" : '${id}' },
+		type : 'post',
+		dataType : 'JSON',
+		success : function(res){
+			if($('#strgChkAll').is(':checked')){
+				$('#strgChkAll').prop('checked', false);
+			}
+			resetStrg();
+			strgLack(res);
+		}
+	})
+	console.log("창고함수 실행");
+	var v_vtimer = setTimeout(strgTable, 300000);
+}
+
+
+$(function(){
+	storeTable();
+	strgTable();
+	
+	//매장 - 전체 체크
+	$('#storeChkAll').on('click', function() {
+		if ($('#storeChkAll').is(':checked')) {
+			$('input[name=storeChk]:checkbox').prop('checked', true);
+		} else {
+			$('input[name=storeChk]:checkbox').prop('checked', false);
+		}
+	})
+	//창고 - 전체 체크
+	$('#strgChkAll').on('click', function() {
+		if ($('#strgChkAll').is(':checked')) {
+			$('input[name=strgChk]:checkbox').prop('checked', true);
+		} else {
+			$('input[name=strgChk]:checkbox').prop('checked', false);
+		}
+	})
+	
+	//체크박스에 체크가 몇개 되어있는지 확인하는 변수
+	var count = 0;
+	//체크된 상품아이디 담는 배열
+	let idArray = [];
+	
+	//매장 - 재고보충 버튼을 눌렀을 때
+	$("#refill").on('click', function(){
+		idArray = [];
+		var chkBox = document.getElementsByName("storeChk");
+		count = 0;
+		for(var i=0; i < chkBox.length; i++){
+			if(chkBox[i].checked == true){
+				count+=1;
+				idArray.push(chkBox[i].value);
+			}
+		}
+		
+		//체크된 게 한개도 없다면
+		if(count == 0){
+			Swal.fire({
+		          icon:'error',
+		          title:'재고를 보충한 상품을 선택해주세요.',
+	       		})
+		}else{
+			$.ajax({
+				url : "/store/refillShop.do",
+				data : {"prodId" : JSON.stringify(idArray),
+						"brncId" : '${id}'},
+				type : 'get',
+				dataType : 'JSON',
+				success : function(res){
+					if(res == 1){
+						Swal.fire({
+					          icon:'success',
+					          title:'매장재고 보충에 성공했습니다.',
+				       		}).then(function(){
+				       			window.location.reload();
+				       		})
+					}else{
+						Swal.fire({
+					          icon:'error',
+					          title:'매장재고 보충에 실패했습니다.',
+				       		})
+					}
+				}
+			})
+		}
+	})
+	
+	//매장진열 직원에게 매장부족재고 들 알림으로 보내기 
+	$("#refillalam").on('click', function(){
+		idArray = [];
+		var chkBox = document.getElementsByName("storeChk");
+		count = 0;
+		for(var i=0; i < chkBox.length; i++){
+			if(chkBox[i].checked == true){
+				count+=1;
+				idArray.push(chkBox[i].value);
+			}
+		}
+		
+		//체크된 게 한개도 없다면
+		if(count == 0){
+			Swal.fire({
+		          icon:'error',
+		          title:'재고를 보충한 상품을 선택해주세요.',
+	       		})
+		}else{
+				var v_brncofcId = $("#brncofcId").val();
+				$.ajax({
+					type : 'post',
+					url : '/alam/findStoreWorker',
+					data :{  // 세션 데이터 담기 
+						"brncofcId" : v_brncofcId,
+					},
+					success : function(data){
+						var v_senderID = $("#userID").val();
+			  			var v_senderName = $("#userNM").val();
+						var v_brncofcnm = $("#brncofcNm").val();
+						var v_dptopt = $("#dptopt").val();
+						var v_lelopt = $("#lelopt").val();
+						
+						for( var i=0; i<data.length; i++){
+							a_receiverId = data[i].empId
+							a_receiverName = data[i].empNm
+							for( var j=0; j<idArray.length; j++){
+								a_shortstocknm = idArray[j]
+								$.ajax({
+									type : 'post',
+									url : '/alam/alamInsert',
+									data :{  // 세션 데이터 담기 
+										"title" : "stockAlam",
+										"senderId" : v_senderID,
+										"senderName" : v_senderName,
+										"receiverId":a_receiverId,
+										"receiverName":a_receiverName,
+										"brncofcnm" : v_brncofcnm,
+										"shortstocknm" :a_shortstocknm,
+										"dptopt" : v_dptopt,
+										"lelopt" :  v_lelopt,
+										"receptionStatus" :"X"
+									},
+									success : function(data){
+										if(socket){
+											let socketMsg = "stockAlam" 
+															+","+ v_senderID 
+															+","+ v_senderName 
+															+","+ a_receiverId
+															+","+ a_receiverName
+															+","+v_brncofcnm
+															+","+a_shortstocknm
+															+","+ v_dptopt
+															+","+ v_lelopt;
+											socket.send(socketMsg);
+											console.log("메!세!지!! : " + socketMsg);
+										}
+									},
+									error : function(err){
+										console.log("소켓 샌드 에러",err);
+									}
+								}); 
+							}
+						}
+					  //일일정산 상신알림 db 저장
+					  
+					  // 내 점포, 내 매장의 진열담당 직원 list 를 select 한 뒤, 
+					  //for 로 ajax 작업을 반복실행, list에 해당하는 인원들에게 보내기 
+						
+					},
+					error : function(err){
+						console.log("소켓 샌드 에러",err);
+					}
+				}); 
+			}
+	})
+	
+	//창고 - 발주 버튼을 눌렀을 때
+	$("#refillSt").on('click', function(){
+		idArray = [];
+		var chk_strg = document.getElementsByName("strgChk");
+		count = 0;
+		for(var i=0; i < chk_strg.length; i++){
+			if(chk_strg[i].checked == true){
+				count+=1;
+				idArray.push(chk_strg[i].value);
+			}
+		}
+		//체크된 게 한개도 없다면
+		if(count == 0){
+			Swal.fire({
+		          icon:'error',
+		          title:'발주할 상품을 선택해주세요.',
+	       		})
+		}else{
+			$.ajax({
+				url : "/store/strgOrder.do",
+				data : {"prodId" : JSON.stringify(idArray),
+						"brncId" : '${id}'},
+				type : 'get',
+				dataType : 'JSON',
+				success : function(res){
+					if(res == 1){
+						Swal.fire({
+					          icon:'success',
+					          title:'발주에 성공했습니다.',
+				       		}).then(function(){
+				       			window.location.reload();
+				       		})
+					}else{
+						Swal.fire({
+					          icon:'error',
+					          title:'발주에 실패했습니다.',
+				       		}).then(function(){
+				       			window.location.reload();
+				       		})
+					}
+				}
+			})
+		}
+	})
+	
+	
+	
+	//창고 직원들에게 창고부족재고 들 알림으로 보내기 
+	$("#refillStAlam").on('click', function(){
+		idArray = [];
+		var chkBox = document.getElementsByName("storeChk");
+		count = 0;
+		for(var i=0; i < chkBox.length; i++){
+			if(chkBox[i].checked == true){
+				count+=1;
+				idArray.push(chkBox[i].value);
+			}
+		}
+		//체크된 게 한개도 없다면
+		if(count == 0){
+			Swal.fire({
+		          icon:'error',
+		          title:'재고를 보충한 상품을 선택해주세요.',
+	       		})
+		}else{
+				var v_brncofcId = $("#brncofcId").val();
+				$.ajax({
+					type : 'post',
+					url : '/alam/findStrgWorker',
+					data :{  // 세션 데이터 담기 
+						"brncofcId" : v_brncofcId,
+					},
+					success : function(data){
+						var v_senderID = $("#userID").val();
+			  			var v_senderName = $("#userNM").val();
+						var v_brncofcnm = $("#brncofcNm").val();
+						var v_dptopt = $("#dptopt").val();
+						var v_lelopt = $("#lelopt").val();
+						
+						for( var i=0; i<data.length; i++){
+							a_receiverId = data[i].StoreWorker.empId
+							a_receiverName = data[i].StoreWorker.empNm
+							a_cmncdCd = data[i].StoreWorker.cmncdCd
+							for( var j=0; j<idArray.length; j++){
+								a_shortstocknm = idArray[j]
+								$.ajax({
+									type : 'post',
+									url : '/alam/alamInsert',
+									data :{  // 세션 데이터 담기 
+										"title" : "stockAlam",
+										"senderId" : v_senderID,
+										"senderName" : v_senderName,
+										"receiverId":a_receiverId,
+										"receiverName":a_receiverName,
+										"brncofcnm" : v_brncofcnm,
+										"shortstocknm" :a_shortstocknm,
+										"dptopt" : v_dptopt,
+										"lelopt" :  v_lelopt,
+										"receptionStatus" :"X"
+									},
+									success : function(data){
+										if(socket){
+											let socketMsg = "stockAlam" 
+															+","+ v_senderID 
+															+","+ v_senderName 
+															+","+ a_receiverId
+															+","+ a_receiverName
+															+","+v_brncofcnm
+															+","+a_shortstocknm
+															+","+ v_dptopt
+															+","+ v_lelopt;
+											socket.send(socketMsg);
+											console.log("메!세!지!! : " + socketMsg);
+										}
+									},
+									error : function(err){
+										console.log("소켓 샌드 에러",err);
+									}
+								}); 
+							}
+						}
+					  //일일정산 상신알림 db 저장
+					  // 내 점포, 내 매장의 진열담당 직원 list 를 select 한 뒤, 
+					  //for 로 ajax 작업을 반복실행, list에 해당하는 인원들에게 보내기 
+					},
+					error : function(err){
+						console.log("소켓 샌드 에러",err);
+					}
+				}); 
+			}
+	})
+})
+</script>
+<style>
+	#refill, #refillSt{
+		width : 78px;
+		float: right;
+		margin-right: 38px;
+	}
+	#storeh4{
+		margin:20px 0px 0px 38px;
+	}
+</style>
+<div class="container-fluid">
+
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0 font-size-18">${name}</h4>
+
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">${name} 부족재고현황</a></li>
+                    <li class="breadcrumb-item active">매장 및 창고</li>
+                </ol>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- end page title -->
+
+<!-- start row -->
+<div class="row">
+	<div class="col-xl-6">
+		<div class="card">
+		  <h4 class="card-title" id="storeh4" >매장 부족재고현황
+		  <a href="javascript: void(0);" class="btn btn-primary btn-rounded waves-effect waves-light notMod" id="refill">재고+</a>
+<!-- 		  <a href="javascript: void(0);" class="btn btn-primary btn-rounded waves-effect waves-light notMod"  id="refillalam" style="float: right; margin-right: 10px;">매장 부족재고 알림 발송</a> -->
+			</h4>
+			<div class="card-body">
+				<div class="tab-content p-3">
+					<div class="tab-pane active" id="cust" role="tabpanel">
+						<div class="table">
+							<table class="table align-middle table-nowrap table-check">
+								<thead class="table-light">
+									<tr>
+										<th style="width: 20px;" class="align-middle">
+										<div class="form-check font-size-16 form-check-info">
+										<input class="form-check-input" type="checkbox" id="storeChkAll" value="storeChkAll">
+										<label class="form-check-label" for="storeChkAll"></label>
+										</div>
+										</th>
+										<th >매장위치</th>
+										<th >상품명</th>
+										<th style="text-align:right;">현재고 수</th>
+										<th style="text-align:right;">안전재고 수</th>
+										<th style="text-align:right;">부족재고 수</th>
+									</tr>
+								</thead>
+								<tbody id="storeCont">
+								</tbody>
+							</table>
+						</div></div></div></div></div></div>
+						
+	<div class="col-xl-6">
+		<div class="card">
+		  <h4 class="card-title" style="margin:20px 0px 0px 38px;">창고 부족재고현황
+		  		  <a href="javascript: void(0);" class="btn btn-primary btn-rounded waves-effect waves-light notMod" id="refillSt">발주</a>
+<!-- 		  		  <a href="javascript: void(0);" class="btn btn-primary btn-rounded waves-effect waves-light notMod" style="float: right; margin-right: 10px;" id="refillStAlam">창고 부족재고 알림 발송</a></h4> -->
+		</h4>
+			<div class="card-body">
+				<div class="tab-content p-3">
+					<div class="tab-pane active" id="cust" role="tabpanel">
+						<div class="table">
+							<table class="table align-middle table-nowrap table-check">
+								<thead class="table-light">
+									<tr>
+										<th style="width: 20px;" class="align-middle">
+										<div class="form-check font-size-16 form-check-info">
+										<input class="form-check-input" type="checkbox" id="strgChkAll" value="strgChkAll">
+										<label class="form-check-label" for="strgChkAll"></label></div>
+										</th>
+										<th >분류</th>
+										<th >상품명</th>
+										<th style="text-align:right;">현재고 수</th>
+										<th style="text-align:right;">안전재고 수</th>
+										<th  style="text-align:right;">부족재고 수</th>
+									</tr>
+								</thead>
+								<tbody id="storageCont">
+								</tbody>
+							</table>
+						</div></div></div></div></div></div>
+</div>
+<!-- end row -->
+</div>

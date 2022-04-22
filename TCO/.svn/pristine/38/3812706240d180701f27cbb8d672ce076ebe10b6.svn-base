@@ -1,0 +1,66 @@
+package kr.or.tco.ordr.vo;
+
+import java.util.Date;
+
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class OrdrVO {
+	private int ordrId         ; //발주아이디
+	private String prodInfoId ; //상품아이디
+	private int ordrQty        ; //발주수량
+	@DateTimeFormat(pattern="yyyy-MM-dd")
+	private Date ordrDt      ; //발주일
+	private String brncofcId   ; //발주지점
+	private String ordrSe      ; //발주구분
+	private String ordrYn      ; //수주여부
+	
+	public int getOrdrId() {
+		return ordrId;
+	}
+	public void setOrdrId(int ordrId) {
+		this.ordrId = ordrId;
+	}
+	public String getProdInfoId() {
+		return prodInfoId;
+	}
+	public void setProdInfoId(String prodInfoId) {
+		this.prodInfoId = prodInfoId;
+	}
+	public int getOrdrQty() {
+		return ordrQty;
+	}
+	public void setOrdrQty(int ordrQty) {
+		this.ordrQty = ordrQty;
+	}
+	public Date getOrdrDt() {
+		return ordrDt;
+	}
+	public void setOrdrDt(Date ordrDt) {
+		this.ordrDt = ordrDt;
+	}
+	public String getBrncofcId() {
+		return brncofcId;
+	}
+	public void setBrncofcId(String brncofcId) {
+		this.brncofcId = brncofcId;
+	}
+	public String getOrdrSe() {
+		return ordrSe;
+	}
+	public void setOrdrSe(String ordrSe) {
+		this.ordrSe = ordrSe;
+	}
+	public String getOrdrYn() {
+		return ordrYn;
+	}
+	public void setOrdrYn(String ordrYn) {
+		this.ordrYn = ordrYn;
+	}
+	@Override
+	public String toString() {
+		return "OrdrVO [ordrId=" + ordrId + ", prodInfoId=" + prodInfoId + ", ordrQty=" + ordrQty + ", ordrDt=" + ordrDt
+				+ ", brncofcId=" + brncofcId + ", ordrSe=" + ordrSe + ", ordrYn=" + ordrYn + "]";
+	}
+}

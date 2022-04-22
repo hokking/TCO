@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.att.mapper.AttMapper">
+
+<select id="binfoselect" parameterType="String" resultType="empVO">
+	SELECT EMP_NM, EMP_IMG, CMNCD_CD
+	  FROM EMP
+	 WHERE EMP_ID = #{empId}
+</select>
+
+<select id="sdselect" parameterType="String" resultType="cmncdVO">
+	SELECT CMNCD_GU_NM, CMNCD_NM1, CMNCD_NM2
+	  FROM CMNCD
+	 WHERE CMNCD_CD = #{cmncdCd}
+</select>
+
+
+<!-- 출근/퇴근시간 확인용  -->
+<select id="checkIselect" parameterType="String" resultType="int">
+	SELECT COUNT(WORKSTTS_BGNG_TM)
+	  FROM WORKSTTS
+	 WHERE EMP_ID=#{empId} 
+	 AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</select>
+
+<select id="checkOselect" parameterType="String" resultType="int">
+	SELECT COUNT(WORKSTTS_END_TM)
+	  FROM WORKSTTS
+	 WHERE EMP_ID=#{empId} 
+	 AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</select>
+
+<!-- 출근  -->
+<insert id="inselect" parameterType="worksttsVO">
+	INSERT INTO WORKSTTS(EMP_ID, WORKSTTS_DT, WORKSTTS_BGNG_TM)
+		   VALUES (#{empId}, SYSDATE, #{worksttsBgngTm})
+</insert>
+
+<!-- 퇴근  -->
+<update id="outselect" parameterType="String">
+		UPDATE WORKSTTS 
+		SET WORKSTTS_END_TM=TO_CHAR(SYSDATE, 'HH24:MI:SS')
+		WHERE EMP_ID=#{empId} AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</update>
+
+<!--  근무시간 INSERT를 위한 과정-->
+<!-- 출퇴근 시간 계산  -->
+<select id="enbgselect" resultType="int" parameterType="String">
+	SELECT LTRIM(SUBSTR(WORKSTTS_END_TM, 0, 2),0) - LTRIM(SUBSTR(WORKSTTS_BGNG_TM, 0, 2),0)
+	 FROM WORKSTTS
+	WHERE EMP_ID=#{empId} AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</select>
+
+<!-- 
+점심시간 빼기위한,,,, 
+근무시간에 점심시간이 포함되면 근무시간 -1(출근시간 hour가 11이하고 퇴근시간 hour가 13이상이면) 아니면 그냥 ㅋ
+-->
+
+<!-- 출근시간  -->
+<select id="st" resultType="int" parameterType="String">
+	SELECT LTRIM(SUBSTR(WORKSTTS_BGNG_TM, 0, 2),0)
+	  FROM WORKSTTS
+	WHERE EMP_ID=#{empId} AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</select>
+
+<!-- 퇴근시간  -->
+<select id="end" resultType="int" parameterType="String">
+	SELECT LTRIM(SUBSTR(WORKSTTS_END_TM, 0, 2),0)
+	  FROM WORKSTTS
+	  WHERE EMP_ID=#{empId} AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</select>
+
+
+<!--  지정 근무시간 계산  -->
+<select id="CKenbgselect" resultType="int" parameterType="String">
+	SELECT LTRIM(SUBSTR(WORKSTTS_SC_TM, 11,2 ),0) - LTRIM(SUBSTR(WORKSTTS_SC_TM, 3,2 ),0) 
+	  FROM WORKSTTS
+	 WHERE EMP_ID=#{empId} AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</select>
+
+<!--  근무시간 UPDATE -->
+<update id="enbgupdate" parameterType="worksttsVO">
+	UPDATE WORKSTTS
+	   SET WORKSTTS_TM=#{worksttsTm}
+	 WHERE EMP_ID=#{empId} 
+	   AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</update>
+</mapper>

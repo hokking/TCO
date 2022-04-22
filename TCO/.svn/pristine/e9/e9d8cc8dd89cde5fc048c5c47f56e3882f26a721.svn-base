@@ -1,0 +1,25 @@
+package kr.or.tco.cal.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import kr.or.tco.cal.mapper.CalMapper;
+import kr.or.tco.cal.service.CalService;
+import kr.or.tco.cal.vo.CalVO;
+@Service
+public class CalServiceImpl implements CalService{
+
+	@Autowired CalMapper calMapper;
+	
+	@Override
+	public List<CalVO> dailyPrc(String keyWord ) {
+		return this.calMapper.dailyPrc(keyWord);
+	}
+
+	@Override
+	public List<CalVO> dailySls(String keyWord) {
+		return this.calMapper.dailySls(keyWord);
+	}
+
+}

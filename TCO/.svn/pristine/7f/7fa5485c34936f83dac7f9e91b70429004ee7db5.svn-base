@@ -1,0 +1,253 @@
+<%@page import="kr.or.tco.strgstck.vo.StrgstckVO"%>
+<%@page import="java.util.List"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<script src="/resources/js/jquery-3.6.0.min.js"></script>
+<script>
+var newArray 	= [];
+console.log("아아ㅓ아어");
+console.log(newArray);
+<c:forEach var="vo" items="${list}">
+	var jsonObj = new Object();
+	jsonObj.brncofcId = "${vo.brncofcId}";
+	jsonObj.prodInfoId = "${vo.prodInfoId}";
+	jsonObj.strgShmtQty = "${vo.strgShmtQty}";
+	jsonObj.strgShmtId = "${vo.strgShmtId}";
+	jsonObj.strgShmtDt = "${vo.strgShmtDt}";
+	jsonObj.prodInfoPrchsAmt = "${vo.prodInfoPrchsAmt}";
+	jsonObj.cmncdCd = "${vo.cmncdCd}";
+	jsonObj.cmncdNm1 = "${vo.cmncdNm1}";
+	jsonObj.cmncdNm2 = "${vo.cmncdNm2}";
+	jsonObj.brncofcNm = "${vo.brncofcNm}";
+	jsonObj.prodInfoNm = "${vo.prodInfoNm}";
+	
+	jsonObj = JSON.stringify(jsonObj);
+	console.log("JSON jsonObj : " + jsonObj);
+	//String 형태로 파싱한 객체를 다시 json으로 변환
+	newArray.push(JSON.parse(jsonObj));
+</c:forEach>
+	
+console.log("원본 배열 : " + newArray);
+
+var jsonArray = newArray;
+
+//초기화버튼 클릭시 원본 배열 가져오는 함수
+function resetBtn(){
+	var jsonArray = newArray;
+}
+
+//테이블에 추가할 내용 만드는 함수
+var str = "";
+function chgFilter(){
+	str = "";
+	console.log("chgFilter 안 jsonArray.length : " + jsonArray.length);
+	for(var i=0; i < jsonArray.length; i++){
+		str += '<tr class="arryTd"><td data-org-colspan="1" data-priority="1" data-columns="tech-companies-1-col-1">';
+		str += jsonArray[i].strgShmtId + "</td>";
+		str += '<td data-org-colspan="1" data-priority="3" data-columns="tech-companies-1-col-2">';
+		str += jsonArray[i].brncofcNm + "</td>";
+		str += '<td data-org-colspan="1" data-priority="1" data-columns="tech-companies-1-col-3">';
+		str += jsonArray[i].cmncdNm1 + "</td>";
+		str += '<td data-org-colspan="1" data-priority="3" data-columns="tech-companies-1-col-4">';
+		str += jsonArray[i].cmncdNm2 + "</td>";
+		str += '<td data-org-colspan="1" data-priority="3" data-columns="tech-companies-1-col-5">';
+		str += jsonArray[i].prodInfoNm + "</td>";
+		str += '<td data-org-colspan="1" data-priority="6" data-columns="tech-companies-1-col-6">';
+		str += jsonArray[i].strgShmtQty + "</td>";
+		str += '<td data-org-colspan="1" data-priority="6" data-columns="tech-companies-1-col-7">';
+		str += jsonArray[i].prodInfoPrchsAmt + "</td>";
+		str += '<td data-org-colspan="1" data-priority="6" data-columns="tech-companies-1-col-8">';
+		str += jsonArray[i].strgShmtQty * jsonArray[i].prodInfoPrchsAmt + '</td>';
+		str += '<td data-org-colspan="1" data-priority="6" data-columns="tech-companies-1-col-9">';
+		str += jsonArray[i].strgShmtDt + '</td></tr>';
+	}
+	$("#tbContent").append(str);
+}
+$(function(){
+	chgFilter();
+	
+	$(".test").on('click',function(){
+		$(".arryTd").remove();
+		jsonArray = jsonArray.reduce((pre, cur) => {
+				    if(cur.prodInfoId > 'PROD00004' ) pre.push(cur);
+				    return pre;
+		},[]);
+
+		chgFilter();
+	})
+})
+
+</script>
+<style>
+	th,td{
+		text-align: center;
+	}
+	.nnii{
+		float: right;
+		width:83%;
+	}
+	.miio{
+		width: 100%;
+	}
+</style>
+<div class="container-fluid">
+<!-- start page title -->
+<div class="row">
+     <div class="col-12">
+         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+             <h1 class="mb-sm-0 font-size-20"><i class="bx bx-buildings"></i>출고</h1>
+
+             <div class="page-title-right">
+                 <ol class="breadcrumb m-0">
+                     <li class="breadcrumb-item"><a href="javascript: void(0);">출고</a></li>
+                     <li class="breadcrumb-item active">출고 목록</li>
+                 </ol>
+             </div>
+         </div>
+     </div>
+ </div>
+<!-- end page title -->
+
+<div class="row">
+    <div class="col-lg-2">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-4">Filter</h4>
+
+                <div>
+                    <h5 class="font-size-14 mb-3">지점</h5>
+                    <ul class="list-unstyled product-list">
+                        <li><a href="javascript: void(0);"><i class="mdi mdi-chevron-right me-1"></i> T-shirts</a></li>
+                        <li><a href="javascript: void(0);"><i class="mdi mdi-chevron-right me-1"></i> Shirts</a></li>
+                        <li><a href="javascript: void(0);"><i class="mdi mdi-chevron-right me-1"></i> Jeans</a></li>
+                        <li><a href="javascript: void(0);"><i class="mdi mdi-chevron-right me-1"></i> Jackets</a></li>
+                    </ul>
+                </div>
+                
+                <div class="mt-4 pt-3">
+                    <h5 class="font-size-14 mb-3">분류</h5>
+                    <div class="form-check mt-2">
+                        <input class="form-check-input test" type="checkbox" id="productdiscountCheck1">
+                        <label class="form-check-label test" for="productdiscountCheck1">
+                            Less than 10%
+                        </label>
+                    </div>
+
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" id="productdiscountCheck2">
+                        <label class="form-check-label" for="productdiscountCheck2">
+                            10% or more
+                        </label>
+                    </div>
+
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" id="productdiscountCheck3">
+                        <label class="form-check-label" for="productdiscountCheck3">
+                            20% or more
+                        </label>
+                    </div>
+
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" id="productdiscountCheck4">
+                        <label class="form-check-label" for="productdiscountCheck4">
+                            30% or more
+                        </label>
+                    </div>
+
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" id="productdiscountCheck5">
+                        <label class="form-check-label" for="productdiscountCheck5">
+                            40% or more
+                        </label>
+                    </div>
+
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" id="productdiscountCheck6">
+                        <label class="form-check-label" for="productdiscountCheck6">
+                            50% or more
+                        </label>
+                    </div>
+
+                </div>
+
+                <div class="mt-4 pt-3">
+                    <h5 class="font-size-14 mb-3">Customer Rating</h5>
+                    <div>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" id="productratingCheck1">
+                            <label class="form-check-label" for="productratingCheck1">
+                                4 <i class="bx bxs-star text-warning"></i>  &amp; Above
+                            </label>
+                        </div>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" id="productratingCheck2">
+                            <label class="form-check-label" for="productratingCheck2">
+                                3 <i class="bx bxs-star text-warning"></i>  &amp; Above
+                            </label>
+                        </div>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" id="productratingCheck3">
+                            <label class="form-check-label" for="productratingCheck3">
+                                2 <i class="bx bxs-star text-warning"></i>  &amp; Above
+                            </label>
+                        </div>
+
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" id="productratingCheck4">
+                            <label class="form-check-label" for="productratingCheck4">
+                                1 <i class="bx bxs-star text-warning"></i>
+                            </label>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <!-- 출고리스트 -->
+    <div class="card nnii">
+    <div class="col-lg-9 miio">
+	    <div class="table-rep-plugin">
+		    <div class="table-wrapper">
+		      <div class="table-responsive mb-0 fixed-solution" data-pattern="priority-columns">
+		        <div class="sticky-table-header" style="height: 46px; visibility: hidden; top: -1px; width: auto;"></div>
+		        <table id="tech-companies-1" class="table table-striped">
+		            <thead>
+		            <tr>
+		                <th data-priority="1" id="tech-companies-1-col-1">출고번호</th>
+		                <th data-priority="3" id="tech-companies-1-col-2">지점명</th>
+		                <th data-priority="1" id="tech-companies-1-col-3">대분류</th>
+		                <th data-priority="3" id="tech-companies-1-col-4">중분류</th>
+		                <th data-priority="3" id="tech-companies-1-col-5">상품명</th>
+		                <th data-priority="6" id="tech-companies-1-col-6">출고수량</th>
+		                <th data-priority="6" id="tech-companies-1-col-7">개당가격</th>
+		                <th data-priority="6" id="tech-companies-1-col-8">총액</th>
+		                <th data-priority="6" id="tech-companies-1-col-9">출고일</th>
+		            </tr>
+		            </thead>
+		            <tbody id="tbContent">
+<%-- 		            <c:forEach var="vo" items="${list}">		            	 --%>
+<!-- 		            <tr> -->
+<%-- 		                  <td data-org-colspan="1" data-priority="1" data-columns="tech-companies-1-col-1">${vo.strgShmtId}</td> --%>
+<%-- 		                  <td data-org-colspan="1" data-priority="3" data-columns="tech-companies-1-col-2">${vo.brncofcNm}</td> --%>
+<%-- 		                  <td data-org-colspan="1" data-priority="1" data-columns="tech-companies-1-col-3">${vo.cmncdNm1}</td> --%>
+<%-- 		                  <td data-org-colspan="1" data-priority="3" data-columns="tech-companies-1-col-4">${vo.cmncdNm2}</td> --%>
+<%-- 		                  <td data-org-colspan="1" data-priority="3" data-columns="tech-companies-1-col-5">${vo.prodInfoNm}</td> --%>
+<%-- 		                  <td data-org-colspan="1" data-priority="6" data-columns="tech-companies-1-col-6">${vo.strgShmtQty}</td> --%>
+<%-- 		                  <td data-org-colspan="1" data-priority="6" data-columns="tech-companies-1-col-7">${vo.prodInfoPrchsAmt}</td> --%>
+<%-- 		                  <td data-org-colspan="1" data-priority="6" data-columns="tech-companies-1-col-8"><fmt:formatNumber type="number" maxFractionDigits="3" value="${vo.strgShmtQty * vo.prodInfoPrchsAmt}" /></td> --%>
+<%-- 						  <td data-org-colspan="1" data-priority="6" data-columns="tech-companies-1-col-9">${vo.strgShmtDt}</td> --%>
+<!-- 	                </tr> -->
+<%-- 	                </c:forEach> --%>
+		            </tbody>
+		        </table>
+		    </div></div>
+		</div>
+		</div>
+    </div>
+</div>
+<!-- end row -->
+
+</div>

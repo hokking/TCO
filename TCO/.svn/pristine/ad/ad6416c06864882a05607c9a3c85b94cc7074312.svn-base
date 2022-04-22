@@ -1,0 +1,85 @@
+package kr.or.tco.cal.vo;
+
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class CalVO {
+
+	// 창고 입고
+	private int strgWrhsId; // 창고 입고 아이디
+	private String brncofcId; // 지점아이디
+	private String prodInfoId; //상품아이디
+	private int strgWrhsQty; //창고 입고 수량
+	private String strgWrhsDt;// 창고 입고일
+	
+	//소비자 판매
+	private int custNtslId ; //판매아이디
+//	private String brncofcId;
+	private  String custId;  // 고객아이디
+//	private String prodInfoId;
+	private String custNtslDt; //소비자 판매일 
+	private int custNtslAmt;  //소비자 판매 가격
+	
+	
+	public int getStrgWrhsId() {
+		return strgWrhsId;
+	}
+	public void setStrgWrhsId(int strgWrhsId) {
+		this.strgWrhsId = strgWrhsId;
+	}
+	public String getBrncofcId() {
+		return brncofcId;
+	}
+	public void setBrncofcId(String brncofcId) {
+		this.brncofcId = brncofcId;
+	}
+	public String getProdInfoId() {
+		return prodInfoId;
+	}
+	public void setProdInfoId(String prodInfoId) {
+		this.prodInfoId = prodInfoId;
+	}
+	public int getStrgWrhsQty() {
+		return strgWrhsQty;
+	}
+	public void setStrgWrhsQty(int strgWrhsQty) {
+		this.strgWrhsQty = strgWrhsQty;
+	}
+	public String getStrgWrhsDt() {
+		return strgWrhsDt;
+	}
+	public void setStrgWrhsDt(String strgWrhsDt) {
+		this.strgWrhsDt = strgWrhsDt;
+	}
+	public int getCustNtslId() {
+		return custNtslId;
+	}
+	public void setCustNtslId(int custNtslId) {
+		this.custNtslId = custNtslId;
+	}
+	public String getCustId() {
+		return custId;
+	}
+	public void setCustId(String custId) {
+		this.custId = custId;
+	}
+	public String getCustNtslDt() {
+		return custNtslDt;
+	}
+	public void setCustNtslDt(String custNtslDt) {
+		this.custNtslDt = custNtslDt;
+	}
+	public int getCustNtslAmt() {
+		return custNtslAmt;
+	}
+	public void setCustNtslAmt(int custNtslAmt) {
+		this.custNtslAmt = custNtslAmt;
+	}
+	@Override
+	public String toString() {
+		return "CalVO [strgWrhsId=" + strgWrhsId + ", brncofcId=" + brncofcId + ", prodInfoId=" + prodInfoId
+				+ ", strgWrhsQty=" + strgWrhsQty + ", strgWrhsDt=" + strgWrhsDt + ", custNtslId=" + custNtslId
+				+ ", custId=" + custId + ", custNtslDt=" + custNtslDt + ", custNtslAmt=" + custNtslAmt + "]";
+	}
+
+}

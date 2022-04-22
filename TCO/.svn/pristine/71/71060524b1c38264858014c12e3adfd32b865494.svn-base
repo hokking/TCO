@@ -1,0 +1,69 @@
+package kr.or.tco.prchs.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.tco.cnpt.vo.CnptVO;
+import kr.or.tco.prchs.vo.PrchsVO;
+import kr.or.tco.prchsgds.vo.PrchsGdsVO;
+import kr.or.tco.prod.vo.ProdVO;
+
+public interface PrchsMapper {
+
+	//매입 발주서 리스트 가져오기
+	public List<PrchsVO> getSvdPrchsOrdrList(Map<String,Object> date);
+	
+	// 행의 수
+	public int selectCount(Map<String, Object> map);
+	
+	//매입 명세서 리스트 가져오기
+	public List<PrchsVO> getPrchsSpeceList(Map<String, String> date);
+	
+	//거래처명 검색
+	public List<CnptVO> cnptSearchList(String keyWord);
+	
+	//매입아이디로 매입정보 가져오기
+	public List<PrchsVO> getPrchsVODetail(String prchsId);
+	
+	//매입발주서 삭제
+	public int deletePrchs(String prchsId);
+	
+	//매입발주서 수정(매입상품도 삭제후 재등록)
+	public int updatePrchs(PrchsVO prchsVO);
+	
+	//매입발주서_매입상품 삭제(삭제후 insert)
+	public int deletePrchsGds(String prchsId);
+	
+	//매입발주서 전송(매입상태='매입')
+	public int sendPrchs(String prchsId);
+	
+	//매입발주서 작성(insert)(매입상품도 등록)
+	public int insertPrchs(PrchsVO prchsVO);
+	
+	//매입발주서_매입상품 작성(insert)
+	public int insertPrchsGds(PrchsGdsVO prchsGdsVO);
+	
+	//거래처 아이디로 상품정보 가져오기
+	public List<ProdVO> getProdInfoByCnptId(String cnptId);
+	
+	//거래처명 검색으로 거래처별 매입현황 리스트 가져오기
+	public List<PrchsVO> getPrchsByCnptNm(Map<String, String> date);
+	
+	//거래처명 검색으로 거래처별 매입현황 리스트 가져오기
+	public List<PrchsVO> getPrchsByProdNm(Map<String, String> date);
+	
+	//매입현황 리스트
+	public List<PrchsVO> getPrchsCondition(Map<String, Object> date);
+	
+	//매입현황_매입상품상태 Y로 바꾸기
+	public int updatePrchsYn(PrchsGdsVO prchsGdsVO);
+	
+	//창고입고 테이블에 insert 하기
+	public int strgwrhsInsert(PrchsGdsVO prchsGdsVO);
+	
+	//창고재고 테이블에 insert 하기
+	public int addStrgStck(PrchsGdsVO prchsGdsVO);
+	
+	//창고부족재고에서 발주 눌렀을때
+	public int orderLack(PrchsVO prchsVO);
+}

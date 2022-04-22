@@ -1,0 +1,38 @@
+package kr.or.tco.prchs.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.tco.cnpt.vo.CnptVO;
+import kr.or.tco.prchs.mapper.PrchsMapper;
+import kr.or.tco.prchs.service.PrchsService;
+import kr.or.tco.prchs.vo.PrchsVO;
+
+@Service
+public class PrchsServiceImpl implements PrchsService {
+	
+	@Autowired
+	PrchsMapper prchsMapper;
+	
+	//매입 발주서 리스트 가져오기
+	@Override
+	public List<PrchsVO> getSvdPrchsOrdrList(Map<String, String> date) {
+		return prchsMapper.getSvdPrchsOrdrList(date);
+	}
+	
+	//매입 명세서 리스트 가져오기
+	@Override
+	public List<PrchsVO> getPrchsSpeceList(Map<String, String> date) {
+		return prchsMapper.getPrchsSpeceList(date);
+	}
+
+	//거래처명 검색
+	@Override
+	public List<CnptVO> cnptSearchList(String keyWord) {
+		return prchsMapper.cnptSearchList(keyWord);
+	}
+
+}

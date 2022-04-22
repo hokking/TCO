@@ -1,0 +1,149 @@
+package kr.or.tco.alam.controller;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+
+import kr.or.tco.alam.service.AlamService;
+import kr.or.tco.alam.vo.AlamVO;
+import kr.or.tco.emp.vo.EmpVO;
+
+@RequestMapping("/alam")
+@Controller
+public class AlamController {
+	
+	private static final Logger logger =
+			LoggerFactory.getLogger(AlamController.class);
+
+	@Autowired 
+	AlamService AlamService;
+	
+	@ResponseBody
+	@RequestMapping(value = "/alamInsert", method= RequestMethod.POST)
+	public String alamInsert(Model model
+			, @RequestParam(required=false) String title 	
+			, @RequestParam(required=false) String senderName 	
+			, @RequestParam(required=false) String senderId 	
+			, @RequestParam(required=false) String receiverName 	
+			, @RequestParam(required=false) String receiverId 	
+			, @RequestParam(required=false) String brncofcnm 	
+			
+			, @RequestParam(required=false) String shortstocknm 	
+			, @RequestParam(required=false) String dptopt 	
+			, @RequestParam(required=false) String lelopt
+			, @RequestParam(required=false) String receptionStatus 	
+			) {
+	
+	 		//<key,value>
+			Map<String,Object> map = new HashMap<String, Object>();
+			map.put("title", title);
+			map.put("senderName", senderName);
+			map.put("senderId", senderId);
+			map.put("receiverName", receiverName);
+			map.put("receiverId", receiverId);
+			map.put("brncofcnm", brncofcnm);
+			
+			map.put("shortstocknm", shortstocknm);
+			map.put("lelopt", lelopt);
+			map.put("dptopt", dptopt);
+			map.put("receptionStatus", receptionStatus);
+			
+			logger.info("map : " + map);
+			int result = this.AlamService.alamInsert(map);
+			model.addAttribute("alamInsert",result);
+		
+			//정상적으로 등록
+			if(result > 0) {
+				//forward
+				return "success";
+			}else { //등록 실패
+				return "fail";
+			}
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/alamRead", method= RequestMethod.POST)
+	public String alamUpdate(Model model
+			, @RequestParam(required=false) String alamnum ) {
+		
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("alamnum", alamnum);
+		logger.info("map : " + map);
+		
+		int result = this.AlamService.alamRead(map);
+		logger.info("alamRead  "+map+"    !@#   result : " + result);
+		model.addAttribute("alamRead",result);
+	
+		//정상적으로 등록
+		if(result > 0) {
+			//forward
+			return "success";
+		}else { //등록 실패
+			return "fail";
+		}
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/alamTable", method= RequestMethod.POST)
+	public List<AlamVO> alamTable(Model model
+			, @RequestParam(required=false) String receiverId ) {
+		
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("receiverId", receiverId);
+		logger.info("alamTable 컨트롤러 receiverId : " + receiverId);
+		
+		List<AlamVO>unReadList = this.AlamService.alamTable(map);
+		logger.info("unReadList : " + unReadList);
+		model.addAttribute("unReadList",unReadList);
+		
+		return unReadList;
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/findStoreWorker", method= RequestMethod.POST)
+	public List<EmpVO> findStoreWorker(Model model
+			, @RequestParam(required=false) String brncofcId ) {
+		
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("brncofcId", brncofcId);
+		logger.info("findStoreWorker 컨트롤러 brncofcId : " + brncofcId);
+		
+		List<EmpVO> StoreWorker = this.AlamService.findStoreWorker(brncofcId);
+		logger.info("StoreWorker : " + StoreWorker);
+		model.addAttribute("StoreWorker",StoreWorker);
+		
+		return StoreWorker;
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/findStrgWorker", method= RequestMethod.POST)
+	public List<EmpVO> findStrgWorker(Model model
+			, @RequestParam(required=false) String brncofcId ) {
+		
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("brncofcId", brncofcId);
+		logger.info("findStrgWorker 컨트롤러 brncofcId : " + brncofcId);
+		
+		List<EmpVO> StrgWorker = this.AlamService.findStrgWorker(brncofcId);
+		logger.info("StrgWorker : " + StrgWorker);
+		model.addAttribute("StrgWorker",StrgWorker);
+		
+		return StrgWorker;
+	}
+	
+	
+}

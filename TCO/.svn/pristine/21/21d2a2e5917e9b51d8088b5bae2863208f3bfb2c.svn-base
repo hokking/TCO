@@ -1,0 +1,18 @@
+package kr.or.tco.notice.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.tco.notice.vo.BrdVO;
+
+public interface NoticeMapper {
+	
+	// 글목록
+	public List<BrdVO> noticelist(Map<String, Object> map);
+	
+	// 행의 수
+	public int selectCount(Map<String, Object> map);
+	
+	// 이름 찾기
+	public String selectname(String empId);
+}

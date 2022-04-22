@@ -1,0 +1,406 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+<style>
+/* 발주 높이고정, 스크롤 */
+.stockBody{
+	height: 700px;
+	overflow-y: auto;
+}
+.form-control{
+	width: 55px;
+}
+</style>
+
+<script type="text/javascript">
+//오 -> 왼 으로 옮기기
+function addOrder(){
+	//선택된 tr
+	let selectedTr = $("#headStck tbody .ck:checked").parent().parent().parent();
+	let orderList = $("#orderList");
+	
+	//테이블의 tbody중 선택된 요소의 부모(tr)을 append한다.
+	orderList.append(selectedTr);
+	
+	//tr중에 id가 qty인 것의 data-qty(attr) 숫자 기본값 1로 변경, +,- 버튼 생기게하기 
+	orderList.find("input[type=button]").attr("hidden", false);
+	selectedTr.find("#qty span").text(10);
+	
+	let v_amt = selectedTr.find("#amt");
+	//합계 보이게
+	v_amt.attr("hidden", false);
+	$.each(v_amt, function(i,v){
+		var amtPrice = parseInt($(v).attr("data-amt")) * 10;
+		//합계금액 변경
+		$(v).text(numberWithCommas(amtPrice) + "원");
+	});
+	
+	//체크 해제시키기
+	$("input[type=checkbox]").prop("checked", false);
+}
+
+//왼 -> 오른쪽으로 옮기기
+function minusOrder(){
+	//선택된 tr
+	let selectedTr = $("#orderTable tbody .ck:checked").parent().parent().parent();
+	let stckList = $("#stckList");
+
+	//tr중에 id가 qty인 것의 text를 data-qty(attr)로 변경, +,- 버튼 없애기 
+	//테이블의 tbody중 선택된 요소의 부모(tr)을 append한다.
+	stckList.append(selectedTr);
+	stckList.find("input[type=button]").attr("hidden", true);
+	//합계 숨기기
+	selectedTr.find("#amt").attr("hidden", true);
+	
+	
+	//각각에 해당하는 값을 넣기
+	$.each(selectedTr.find("#qty"), function(i,v){
+		//var span = v.getElementsByTagName("span")
+		$(v).find("span").text($(v).attr("data-qty"));
+// 		v.childNodes[2].nodeValue = 0;
+// 		v.childNodes[2].nodeValue = v.dataset.qty;
+		
+// 		console.log(v.childNodes[2].nodeValue);
+// 		console.log("이거당 " + v.dataset.qty);
+
+// 		span.innerHTML = v.dataset.qty; 
+// 			console.log(v.dataset.qty); childNodes[2]
+	})	
+	
+	//체크 해제시키기
+	$("input[type=checkbox]").prop("checked", false);
+}
+
+//창고 모든 재고 선택
+function checkAllStock(){
+	$("#checkAllStock").on("click", function(){
+		let headStck = $("#headStck");
+		if($("#checkAllStock").prop("checked")){
+			//모든 체크박스를 체크로
+			headStck.find("input[type=checkbox]").prop("checked", true);
+		}else{ 
+			//그 밑의 모든 체크박스를 해제 
+			headStck.find("input[type=checkbox]").prop("checked", false);
+		}
+	});
+}
+	
+//모든 발주 리스트 선택
+function checkAllOrder(){
+	$("#checkAllOrder").on("click", function(){
+		let orderTable = $("#orderTable")
+		if($("#checkAllOrder").prop("checked")){
+			//모든 체크박스를 체크로
+			orderTable.find("input[type=checkbox]").prop("checked", true);
+		}else{ 
+			//그 밑의 모든 체크박스를 해제
+			orderTable.find("input[type=checkbox]").prop("checked", false);
+		}
+	});
+}
+
+//플러스버튼 - parent의 숫자와 같아지면 더 눌리면 안됨
+function plusQty(el){
+	//this.parent는 qty가지고있는 id
+	let v_trQty = $(el).parent();
+	let v_tr = v_trQty.parent(); 
+	let v_limitQty = parseInt(v_trQty.attr("data-qty")); 
+	let v_plusQty = parseInt(v_trQty.find("span").text());
+	//
+	v_trQty.find("#amt").html("헤이");
+	if(v_plusQty+10 <= v_limitQty){
+		v_trQty.find("span").text(v_plusQty + 10);
+		
+		let v_amt = v_tr.find("#amt");
+		let amtPrice = parseInt(v_amt.attr("data-amt")) * parseInt(v_plusQty + 10);
+		
+		//합계금액 변경
+		v_amt.text(numberWithCommas(amtPrice) + "원");
+	}else{
+		return;
+	}
+	
+	
+}
+//마이너스버튼 - 10보다 작아질 수 없음
+function minusQty(el){
+	//this.parent는 qty가지고있는 id
+	let v_trQty = $(el).parent();
+	let v_tr = v_trQty.parent();
+	let v_minusQty = parseInt(v_trQty.find("span").text());
+	if(v_minusQty-10 >= 0){
+		v_trQty.find("span").text(v_minusQty - 10);
+		
+		let v_amt = v_tr.find("#amt");
+		let amtPrice = parseInt(v_amt.attr("data-amt")) * parseInt(v_minusQty - 10);
+		
+		//합계금액 변경
+		v_amt.text(numberWithCommas(amtPrice) + "원");
+	}else{
+		return;
+	}
+	
+}
+
+//저장 시
+function saveOrder(){
+	Swal.fire({ 
+		title: '발주서를 저장할까요?', 
+		icon: 'info', 
+		showCancelButton: true, // cancel버튼 보이기. 기본은 원래 없음 
+		confirmButtonColor: '#3085d6', // confrim 버튼 색깔 지정 
+		cancelButtonColor: '#d33', // cancel 버튼 색깔 지정 
+		confirmButtonText: '저장', // confirm 버튼 텍스트 지정 
+		cancelButtonText: '취소', // cancel 버튼 텍스트 지정 
+		reverseButtons: true, // 버튼 순서 거꾸로 
+	}).then(result => { // 만약 Promise리턴을 받으면, 
+		if (result.isConfirmed) { // 만약 모달창에서 confirm 버튼을 눌렀다면
+			//저장
+			insertOrder('현황');
+			//sweet alert
+	    	Swal.fire({
+		          icon:'success',
+		          title:'저장되었습니다.',
+	       		}).then(function(){
+	       			//새로고침
+	       			window.location.reload();
+	       		});
+		}
+	});
+}
+
+//발주 시 
+function sendOrder(){
+	Swal.fire({ 
+		title: '발주서를 전송할까요?', 
+		text : '전송 후에는 수정이 불가능합니다.',		
+		icon: 'warning', 
+		showCancelButton: true, // cancel버튼 보이기. 기본은 원래 없음 
+		confirmButtonColor: '#3085d6', // confrim 버튼 색깔 지정 
+		cancelButtonColor: '#d33', // cancel 버튼 색깔 지정 
+		confirmButtonText: '전송', // confirm 버튼 텍스트 지정 
+		cancelButtonText: '취소', // cancel 버튼 텍스트 지정 
+		reverseButtons: true, // 버튼 순서 거꾸로 
+	}).then(result => { // 만약 Promise리턴을 받으면, 
+		if (result.isConfirmed) { // 만약 모달창에서 confirm 버튼을 눌렀다면 
+			//전송
+			insertOrder('내역');
+			//sweet alert
+	    	Swal.fire({
+		          icon:'success',
+		          title:'전송되었습니다.',
+	       		}).then(function(){
+	       			//새로고침
+	       			window.location.reload();
+	       		});
+		}
+	});
+}
+
+//전송 or 저장
+function insertOrder(se){
+	//왼쪽에 있는 모든 리스트를 가져오기
+	//json 배열
+	let ordrJsonArray = new Array();
+	//지점코드 가져오기
+	let brncofcId = "<c:out value='${sessionScope.brncofcId}' />";
+	
+	//json 객체
+	$.each($("#orderList tr"), function(i,v){
+		var ordrJson = new Object();
+		//개수, 아이디, 지점코드 넣기
+		ordrJson.ordrQty = $(v).find("span").text();
+		ordrJson.prodInfoId = $(v).find("#prodId").attr("data-prodId");
+		ordrJson.brncofcId = brncofcId;
+		ordrJson.ordrSe = se;
+		
+		ordrJsonArray.push(ordrJson);
+	});
+	
+	//아무것도 선택되지 않았을 때 거르기
+	if(ordrJsonArray[0]==null){
+		return;
+	}
+	//string 형식으로 바꿔주기
+	var ordrVO = {
+		"orderList" : JSON.stringify(ordrJsonArray)
+	}
+	
+	//전송하기
+	$.ajax({
+		url :"/ordr/insertOrder",
+		type : "get",
+		contentType: "application/json; charset=utf-8",
+		data : { "orderList" : JSON.stringify(ordrJsonArray) },
+	    dataType : "json",
+	    success : function(data){
+	    	console.log(data + "만큼 insert 됨");
+	    },
+	    error : function(xhr){
+	    	alert(xhr.status);
+	    }
+	});
+}
+
+//숫자콤마형식으로 바꿔주는 거
+function numberWithCommas(x) { 
+	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); 
+}
+
+$(function(){
+	//재고 체크할 때 - 전체체크
+	checkAllStock();
+	
+	//발주 리스트 체크할 때 - 전체체크
+	checkAllOrder();
+});
+
+</script>
+<body>
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0 font-size-18">발주</h4>
+
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">order</a></li>
+                    <li class="breadcrumb-item active">order</li>
+                </ol>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- end page title -->
+
+<div class="row">
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-body stockBody">
+                <div class="dropdown float-end">
+                    <a href="javascript: saveOrder();" class="btn btn-outline-info waves-effect waves-light">저장</a>
+                    <a href="javascript: sendOrder();" class="btn btn-info waves-effect waves-light">발주</a>
+                </div> <!-- end dropdown -->
+
+                <h4 class="card-title mb-4">발주</h4>
+                <div id="task-1">
+                    <div id="upcoming-task" class="pb-1 task-list">
+	               <!-- Tab panes -->
+						<div class="table">
+	                     <table class="table align-middle table-nowrap table-check" id="orderTable">
+	                         <thead class="table-light">
+	                             <tr>
+	                                 <th style="width: 20px;" class="align-middle">
+	                                     <div class="form-check font-size-16">
+	                                         <input class="form-check-input ck" type="checkbox" id="checkAllOrder">
+	                                         <label class="form-check-label" for="checkAllOrder"></label>
+	                                     </div>
+	                                 </th>
+	                                 <th class="align-middle text-center">상품명</th>
+	                                 <th class="align-middle text-center">수량</th>
+	                                 <th class="align-middle text-center" >단가</th>
+	                                 <th class="align-middle text-center" >합계</th>
+	                             </tr>
+	                         </thead>
+	                         <tbody id="orderList">
+	                         </tbody>
+	                     </table>
+	                 </div>
+	                 <!-- table end -->
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end col -->
+    
+    <!-- start col -->
+<div class="col-lg-2">
+        <div class="card">
+            <div class="card-body">
+            
+                <div id="task-1">
+                    <div id="upcoming-task" class="pb-1 task-list">
+
+                    </div>
+
+                    <div class="text-center d-grid">
+                        <a href="javascript: void(0);" class="btn btn-info waves-effect waves-light" onclick="addOrder()">
+                        	<i class="mdi mdi-arrow-left-bold mdi-36px"></i>
+                        </a>
+                        <a href="javascript: void(0);" class="btn btn-secondary waves-effect waves-light" onclick="minusOrder()">
+                        	<i class="mdi mdi-arrow-right-bold mdi-36px"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end col -->
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-body stockBody">
+
+                <h4 class="card-title mb-4">본사 재고</h4>
+                <div id="task-2">
+                    <div id="inprogress-task" class="pb-1 task-list">
+			               <!-- Tab panes -->
+								<div class="table">
+			                     <table class="table align-middle table-nowrap table-check" id="headStck">
+			                         <thead class="table-light">
+			                             <tr>
+			                                 <th style="width: 20px;" class="align-middle">
+			                                     <div class="form-check font-size-16">
+			                                         <input class="form-check-input" type="checkbox" id="checkAllStock">
+			                                         <label class="form-check-label" for="checkAllStock"></label>
+			                                     </div>
+			                                 </th>
+			                                 <th class="align-middle text-center">상품명</th>
+			                                 <th class="align-middle text-center">수량</th>
+			                                 <th class="align-middle text-center" >단가</th>
+			                             </tr>
+			                         </thead>
+			                         <tbody id="stckList">
+			                         	<c:forEach var="stockVO" items="${strgstckList}">
+			                         	<c:if test="${stockVO.strgStckQty > 0}">
+			                             <tr class="toDetail">
+			                                 <td class="exceptClick">
+			                                     <div class="form-check font-size-16">
+			                                         <input class="form-check-input ck" type="checkbox" id="orderidcheck01">
+			                                         <label class="form-check-label" for="orderidcheck01"></label>
+			                                     </div>
+			                                 </td>
+			                                 <td id="prodId" data-prodId="${stockVO.prodInfoId}">${stockVO.prodInfoNmDisplay}</td>
+			                                 <td class="text-center" id="qty" data-qty="${stockVO.strgStckQty}">
+			                                 	<input type="button" onclick="minusQty(this)" class="btn btn-outline-light" value="-" hidden="true"/>
+			                                 	<span>${stockVO.strgStckQty}</span>
+			                                 	<input type="button" onclick="plusQty(this)" class="btn btn-outline-light" value="+" hidden="true"/>
+			                                 </td>
+			                                 <td class="text-end" >
+			                                     ${stockVO.prodInfoPrchsAmtDisplay}
+			                                 </td>
+			                                 <td class="text-end" data-amt="${stockVO.prodInfoPrchsAmt}" id="amt" hidden="true">
+			                                 </td>
+			                             </tr>
+			                         	</c:if>
+			                         	</c:forEach>
+			                         </tbody>
+			                     </table>
+			                 </div>
+			                 <!-- table end -->
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end col -->
+
+</div>
+<!-- end row -->
+</body>

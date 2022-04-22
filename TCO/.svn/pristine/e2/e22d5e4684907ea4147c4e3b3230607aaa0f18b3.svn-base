@@ -1,0 +1,11 @@
+package kr.or.tco.cnpt.service.impl;
+
+import org.springframework.stereotype.Service;
+
+import kr.or.tco.cnpt.service.CnptService;
+
+//거래처 서비스
+@Service
+public class CnptServiceImpl implements CnptService {
+
+}

@@ -1,0 +1,1066 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<style>
+.modalOpen{
+	cursor: pointer;
+}
+
+/* 콤보박스 자동완성 style */
+.custom-combobox {
+
+  position: relative;
+
+
+}
+
+.custom-combobox-toggle {
+
+	width : 100%;
+/*   position: absolute; */
+
+  top: 0;
+
+  bottom: 0;
+
+  margin-left: -1px;
+
+  padding: 0;
+
+}
+
+.custom-combobox-input {
+
+  margin: 0;
+
+  padding: 5px 10px;
+
+}
+/* 콤보박스 자동완성 style 끝*/
+
+</style>
+<script type="text/javascript">
+// 추가하는 메서드
+function makeAddSend(addSend){
+	return addSend.clone().attr("id", "addSend" + addCloneCount++)
+}
+
+//오늘날짜를 yyyy-MM-dd 형식으로 구하는 함수
+function getTodayType(){
+	let date = new Date();
+	return date.getFullYear() + "-" + ("0" + (date.getMonth()+1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2);
+}
+
+//발주서 상세 modal 열기
+function openDetailModal(){
+	//모달 열기
+	$("#modalPrchsOrderDetail").modal("show");
+	
+	//readonly 속성으로 
+	$("#sendModalBody").find(".form-control").attr("readonly", true);
+	//플러스버튼 안보이게
+	$("#addSendLineBtn").attr("hidden", true);
+	//마이너스 버튼 안보이게
+	$("#deductSendLineBtn").attr("hidden", true);
+	//저장버튼 안보이게
+	$("#savePrchsBtn").attr("hidden", true);
+	//수정버튼 보이게
+	$("#updatePrchsBtn").attr("hidden", false);
+	//전송버튼 보이게
+	$("#sendPrchsBtn").attr("hidden", false);
+
+}
+
+//발주서 상세 수정버튼 클릭 시 
+function reviseDetail(){
+	//저장버튼 보이게
+	$("#savePrchsBtn").attr("hidden", false);
+	//readonly 속성 풀어주기
+	$("#sendModalBody").find(".form-control").attr("readonly", false);
+	$("#prchsIdS").attr("readonly", true);
+	//플러스버튼 보이게
+	$("#addSendLineBtn").attr("hidden", false);
+	//마이너스버튼 보이게
+	$("#deductSendLineBtn").attr("hidden", false);
+	//수정버튼 안보이게
+	$("#updatePrchsBtn").attr("hidden", true);
+	//전송버튼 안보이게
+	$("#sendPrchsBtn").attr("hidden", true);
+	
+	
+}
+
+//매입발주서 상세 정보 출력
+function printDetail(el){
+	
+	let paramId = $(el).find("td:eq(2)").text();
+	
+	//데이터 보내기
+	$.ajax({
+		url :"/prchs/getPrchsDetail",
+		type : "get",
+		data : {paramId : paramId},
+	    dataType : "json",
+	    success : function(data){
+	    	//여기서 VO List를 받아와야 하느니라
+//		    	console.log(data);
+	    	//여기서 받아온 VO를 modal에 넣어야 하느니라
+	    	$.each(data, function(i,v){
+		    	$("#prchsIdS").val(paramId);
+		    	$("#prchsDt").val(v.prchsDt);
+		    	$("#cnptId").val(v.cnptId);
+		    	$("#cnptNm").val(v.cnptNm);
+		    	$("#cnptCharger").val(v.cnptCharger);
+		    	$("#cnptMail").val(v.cnptMail);
+		    	
+		    	
+		    	//prchsGdsVO를 돌리기
+		    	$.each(v.prchsGdsVO, function(i,k){
+			    	
+			    	//총 i+1개의 요소가 있어야함
+			    	if(i==0){ //i가 0일 때 - 그냥 있는 곳에 때려넣기
+			    		
+			    		$("#prodNm").val(k.prodInfoNmDisplay);
+			    		$("#prchsGdsAmt").val(k.prchsGdsAmt);
+                    	$("#prchsGdsQty").val(k.prchsGdsQty);
+                    	$("#prchsGdsSuAmt").val(numberWithCommas((k.prchsGdsAmt * k.prchsGdsQty) - (k.prchsGdsAmt * k.prchsGdsQty) * 0.1));
+                    	$("#prchsGdsVat").val(numberWithCommas((k.prchsGdsAmt * k.prchsGdsQty) * 0.1));
+                    	$("#prchsGdsSum").val(numberWithCommas(k.prchsGdsAmt * k.prchsGdsQty));
+                    	$("#prodInfoId").val(k.prodInfoId);
+                    	
+			    	}else{ //i가 0이 아닐 때 - 복제해서 추가하기
+			    		let addSend = $("#addSend");
+			    		var addSendClone = makeAddSend(addSend);
+			    		
+			    		//var addSendCloneChildren = addSendClone[0].children;
+			    		
+			    		addSendClone.find("#prodNm").val(k.prodInfoNmDisplay);
+			    		addSendClone.find("#prchsGdsAmt").val(k.prchsGdsAmt);
+			    		addSendClone.find("#prchsGdsQty").val(k.prchsGdsQty);
+			    		addSendClone.find("#prchsGdsSuAmt").val(numberWithCommas((k.prchsGdsAmt * k.prchsGdsQty) - (k.prchsGdsAmt * k.prchsGdsQty) * 0.1));
+			    		addSendClone.find("#prchsGdsVat").val(numberWithCommas((k.prchsGdsAmt * k.prchsGdsQty) * 0.1));
+			    		addSendClone.find("#prchsGdsSum").val(numberWithCommas(k.prchsGdsAmt * k.prchsGdsQty));
+			    		addSendClone.find("#prodInfoId").val(k.prodInfoId);
+			    		
+			    		/*
+			    		$.each(addSendCloneChildren, function(i,v){
+			    			console.log(v.children[0].("#prodNm"));
+			    		});
+			    		*/
+			    		
+			    		//붙이기
+			    		$("#addSendLine").before(
+		    				addSendClone
+			    		);
+			    		
+			    	}
+		    	}); //prchsGdsVO 끝
+		    	
+	    	});// for each 끝
+	    	
+	    },//success 끝
+	    error : function(xhr){
+	        //Ajax 실패시
+	    	Swal.fire({
+		          icon:'error',
+		          title:xhr.status,
+	       		}).then(function(){
+	       			//새로고침
+	       			window.location.reload();
+	       		});
+	       			
+	    }
+		
+	}); // ajax 끝
+}
+
+//플러스버튼 클릭시
+function addSendLine(){
+	let addSend = $("#addSend");
+	
+	//복제해온 것
+	let addSendClone = addSend.clone().attr("id", "addSend" + addCloneCount++);
+	addSendClone.find(".form-control").val("");
+	//붙이기
+	$("#addSendLine").before(
+		addSendClone
+	);
+}
+
+//마이너스버튼 클릭시
+function subtractLine(el){
+	//여기서부터 시작하깅ㅎ - 버튼의 부모의 전이 addInput이나 addSend일 때
+	let minusId = $(el).parent().prev().attr("id");
+	
+	//하나만 남은게 아닐 때
+	if(minusId != 'addInput' && minusId != 'addSend'){
+		//지우기
+		$(el).parent().prev().remove();
+	}
+}
+
+//자동 값 입력
+function fillAmt(){
+	//가격 계산하기
+	$(document).on("focus", "#insertSuAmt", function(){
+		
+		let parents = $(this).parent().parent();
+		
+		let prchsGdsAmt = parents.find("#insertPrchsGdsAmt").val();
+		let prchsGdsQty = parents.find("#insertPrchsGdsQty").val();
+		
+		let prchsSum = prchsGdsAmt * prchsGdsQty;  
+		let prchsVat = prchsSum * 0.1;
+		let prchsSup = prchsSum - prchsVat;
+		//공급액 입력
+		$(this).val(prchsSup);
+		//합계 입력
+		parents.find("#insertPrchsSum").val(prchsSum);
+		//세액입력
+		parents.find("#insertPrchsVat").val(prchsVat);
+		//합계입력
+		
+	});
+}
+
+//insert하기
+function insertPrchs(){
+	let prchsSums = $("#insertModalBody").find("[name=prchsGdsSum]");
+	
+	//배열에 담긴 값 서로 더하기
+	let prchsSum = 0;
+	
+	$.each(prchsSums, function(i,v){
+		prchsSum += parseInt(v.value);
+	});
+	//매입합계구하기
+	$("#insertPrchsAmt").val(prchsSum);
+	
+	// PRCHS_GDS에 들어갈것 - PROD_INFO_ID, PRCHS_GDS_QTY, PRCHS_GDS_AMT
+	//name값 바꿔주기 - id에 addSend가 들어가는 것 찾아서 
+	let prchsGdsAmts = $("#insertModalBody").find("input[name=prchsGdsAmt]");
+	let prchsGdsQtys = $("#insertModalBody").find("input[name=prchsGdsQty]");
+	let prodInfoIds = $("#insertModalBody").find("input[name=prodInfoId]");
+	
+	//아이디 너허어주기~~~~~~~~
+	$.each(prchsGdsAmts, function(i,v){
+		v.name = "prchsGdsVO[" + i + "].prchsGdsAmt"
+	});
+	$.each(prchsGdsQtys, function(i,v){
+		v.name = "prchsGdsVO[" + i + "].prchsGdsQty"
+	});
+	$.each(prodInfoIds, function(i,v){
+		v.name = "prchsGdsVO[" + i + "].prodInfoId"
+	});
+	
+	
+	//폼으로 묶기
+	let prchsVO = $("#insertPrchsFrm").serialize();
+	
+	//잘 들어왔나 확인 ㅎ
+	console.log(prchsVO);
+	
+	//등록
+	$.ajax({
+		url : "/prchs/insertPrchs",
+		method : "POST",
+		data : prchsVO,
+		dataType : "json",
+		success : function(data){
+			let result = parseInt(data);
+			//data가 1이상일 때 
+			if(result > 0){
+		    	Swal.fire({
+			          icon:'success',
+			          title:'저장되었습니다.',
+		       		}).then(function(){
+		       			//새로고침
+		       			window.location.reload();
+		       		});
+			}
+		},
+		error : function(xhr){
+			alert(xhr.status);
+		}
+	});
+}
+
+//발주서 전송하기
+function sendPrchs(el){
+	Swal.fire({ 
+		title: '발주서를 전송할까요?', 
+		icon: 'warning', 
+		showCancelButton: true, // cancel버튼 보이기. 기본은 원래 없음 
+		confirmButtonColor: '#3085d6', // confrim 버튼 색깔 지정 
+		cancelButtonColor: '#d33', // cancel 버튼 색깔 지정 
+		confirmButtonText: '전송', // confirm 버튼 텍스트 지정 
+		cancelButtonText: '취소', // cancel 버튼 텍스트 지정 
+		reverseButtons: true, // 버튼 순서 거꾸로 
+	}).then(result => { // 만약 Promise리턴을 받으면, 
+		if (result.isConfirmed) { // 만약 모달창에서 confirm 버튼을 눌렀다면 
+			
+			//아이디 받아오기 
+			let prchsId = $(el).parent().prev().find("#prchsId").val();
+
+			$.ajax({
+				url : "/prchs/sendPrchs",
+				method : "POST",
+				data : {prchsId : prchsId},
+				dataType : "json",
+				success : function(data){
+					console.log(data);
+			    	Swal.fire({
+				          icon:'success',
+				          title:'전송되었습니다.',
+			       		}).then(function(){
+			       			//새로고침
+			       			window.location.reload();
+			       		});
+				},
+				error : function(xhr){
+					alert(xhr.status);
+				}
+			});
+
+		} 
+	});// sweetAlert 끝
+}
+
+//발주서 저장하기
+function savePrchs(){
+	//전송할 것 가져오기
+	let prchsSums = $("#sendModalBody").find("[name=prchsGdsSum]");
+	
+	//배열에 담긴 값 서로 더하기
+	let prchsSum = 0;
+	
+	$.each(prchsSums, function(i,v){
+		prchsSum += parseInt(v.value.replace(/,/g, ''));
+	});
+	
+	//매입합계구하기
+	$("#sendPrchsAmt").val(prchsSum);
+	
+	//PRCHS_ID, PROD_INFO_ID, PRCHS_GDS_QTY, PRCHS_GDS_AMT, PRCHS_GDS_YN
+	//name값 바꿔주기 - id에 addSend가 들어가는 것 찾아서 
+	let prchsGdsAmts = $("#sendModalBody").find("input[name=prchsGdsAmt]");
+	let prchsGdsQtys = $("#sendModalBody").find("input[name=prchsGdsQty]");
+	let prodInfoIds = $("#sendModalBody").find("input[name=prodInfoId]");
+	
+	//아이디 너허어주기~~~~~~~~
+	$.each(prchsGdsAmts, function(i,v){
+		v.name = "prchsGdsVO[" + i + "].prchsGdsAmt"
+		console.log(v.name);
+	});
+	$.each(prchsGdsQtys, function(i,v){
+		v.name = "prchsGdsVO[" + i + "].prchsGdsQty"
+		console.log(v.name);
+	});
+	$.each(prodInfoIds, function(i,v){
+		v.name = "prchsGdsVO[" + i + "].prodInfoId"
+		console.log(v.name);
+	});
+	
+	//VO로 합치기~~~~~~~
+	var prchsVO = $("#sendPrchsFrm").serialize();
+	
+	console.log(prchsVO);
+	
+// 		//드디어 수정
+		$.ajax({
+			url : "/prchs/updatePrchs",
+			method : "POST",
+			data : prchsVO,
+			dataType : "json",
+			success : function(data){
+				//전송완료 시
+		    	Swal.fire({
+			          icon:'success',
+			          title:'수정되었습니다.',
+		       		}).then(function(){
+		       			//새로고침
+		       			window.location.reload();
+		       		});
+				console.log(data);
+			},
+			error : function(xhr){
+				alert(xhr.status);
+			}
+		});
+}
+
+//아디 숫자 선언
+var addCloneCount = 1;
+
+function trModalOpen(){
+	//테이블의 tr 클릭 시 
+	let tds = $(".modalOpen td").not(".exceptClick")
+	tds.on("click", function(){
+		let tr = $(this).parent();
+		
+		//모달열기
+		openDetailModal();
+		
+		//모달에 데이터 출력
+		printDetail(tr);
+			
+	}); // tr선택 끝
+}
+
+//,넣어주기
+function numberWithCommas(x) { 
+	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); 
+}
+
+//여러개 전송하기
+function sendAll(){
+	let checked = $(".checkedEl:checked");
+	if(checked.length != 0){
+		
+		Swal.fire({ 
+			title: '발주서를 전송할까요?', 
+			icon: 'warning', 
+			showCancelButton: true, // cancel버튼 보이기. 기본은 원래 없음 
+			confirmButtonColor: '#3085d6', // confrim 버튼 색깔 지정 
+			cancelButtonColor: '#d33', // cancel 버튼 색깔 지정 
+			confirmButtonText: '전송', // confirm 버튼 텍스트 지정 
+			cancelButtonText: '취소', // cancel 버튼 텍스트 지정 
+			reverseButtons: true, // 버튼 순서 거꾸로 
+		}).then(result => { // 만약 Promise리턴을 받으면, 
+			if (result.isConfirmed) { // 만약 모달창에서 confirm 버튼을 눌렀다면 
+				
+				//체크된 요소 가져오기
+				$.each(checked , function(i,v){
+					var prchsId = $(v).parent().parent().parent().find("#prchsId").text();
+					sendAjax(prchsId);
+				});
+				//전송완료 시
+		    	Swal.fire({
+			          icon:'success',
+			          title:'전송되었습니다.',
+		       		}).then(function(){
+		       			//새로고침
+		       			window.location.reload();
+		       		});
+			} 
+		});// sweetAlert 끝
+	}
+}
+//전송하는 ajax
+function sendAjax(prchsId){
+	
+	//전송
+	$.ajax({
+		url : "/prchs/sendPrchs",
+		method : "POST",
+		data :{ prchsId : prchsId},
+		dataType : "json",
+		success : function(data){
+			console.log(data);
+		},
+		error : function(xhr){
+			alert(xhr.status);
+		}
+	});
+}
+
+//삭제
+function deleteAll(){
+	//체크된 요소 가져오기
+	let checked = $(".checkedEl:checked");
+	
+	if(checked.length != 0){
+			
+		Swal.fire({ 
+			title: '발주서를 삭제할까요?', 
+			icon: 'warning', 
+			showCancelButton: true, // cancel버튼 보이기. 기본은 원래 없음 
+			confirmButtonColor: '#3085d6', // confrim 버튼 색깔 지정 
+			cancelButtonColor: '#d33', // cancel 버튼 색깔 지정 
+			confirmButtonText: '삭제', // confirm 버튼 텍스트 지정 
+			cancelButtonText: '취소', // cancel 버튼 텍스트 지정 
+			reverseButtons: true, // 버튼 순서 거꾸로 
+		}).then(result => { // 만약 Promise리턴을 받으면, 
+			if (result.isConfirmed) { // 만약 모달창에서 confirm 버튼을 눌렀다면 
+				
+				$.each(checked , function(i,v){
+					var prchsId = $(v).parent().parent().parent().find("#prchsId").text();
+					deleteAjax(prchsId);
+				});
+				
+				//삭제완료 시
+		    	Swal.fire({
+			          icon:'success',
+			          title:'삭제되었습니다.',
+		       		}).then(function(){
+		       			//새로고침
+		       			window.location.reload();
+		       		});
+				
+	
+			} 
+		});// sweetAlert 끝
+	}
+}
+
+//삭제하는 ajax
+function deleteAjax(prchsId){
+	//드디어 수정
+	$.ajax({
+		url : "/prchs/deletePrchs",
+		method : "get",
+		data :{ prchsId : prchsId},
+		dataType : "json",
+		success : function(data){
+			console.log(data);
+		},
+		error : function(xhr){
+			alert(xhr.status);
+		}
+	});
+	
+}
+
+//전송
+function fn_submit(){
+    var frm = $("#Frm");
+    console.log(frm);
+    console.log("frm.keyWord : " + frm[0].keyWord.value);
+	$("#Frm").submit();
+}
+
+$(function(){
+	//버튼 클릭시의 숫자
+	var cloneCount = 1;
+	
+	//버튼 클릭 시
+	$("#addLineBtn").on("click",function(){
+		//addInput 불러오기
+		var addInput = $("#addInput");
+		//addInput 복제해서 아이디에 숫자 넣기
+		var addInputClone = addInput.clone().attr("id", "addInput" + cloneCount++);
+		//복제한 거 val 없애주기
+		addInputClone.find(".form-control").val("");
+		//버튼있는 div앞에 추가
+		$("#addLine").before(addInputClone);
+	});
+
+    //modal 닫힐 때 clear
+	$('#modalPrchsOrderDetail').on('hide.bs.modal', function (e) {
+		//없애기
+		var num = 1;
+		while($("#addSend" + num).length > 0){
+			$("#addSend" + num++).remove();
+		}
+		addCloneCount = 1;
+	});
+	
+	// 공급가액에 focus시 값 채우기
+	fillAmt();
+	
+	//tr클릭 시 
+	trModalOpen();
+	
+
+});
+</script>
+<body>
+ <!-- start page title -->
+ <div class="row">
+     <div class="col-12">
+         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+             <h1 class="mb-sm-0 font-size-20"><i class="bx bx-buildings"></i>매입발주서</h1>
+
+             <div class="page-title-right">
+                 <ol class="breadcrumb m-0">
+                     <li class="breadcrumb-item"><a href="javascript: void(0);">매입</a></li>
+                     <li class="breadcrumb-item active">매입발주서</li>
+                 </ol>
+             </div>
+
+         </div>
+     </div>
+ </div>
+ <!-- end page title -->
+
+ <div class="row">
+     <div class="col-12">
+         <div class="card">
+             <div class="card-body">
+             
+             	<!-- 날짜 검색 버튼 -->
+		<form action="/prchs/prchsOrder" method="get" name="Frm" id="Frm">	
+		<div class="row">
+			<div class="col-sm-2">
+				<div class="mb-3">
+				<label>시작일</label>
+					<input type="date" name="startDay" 
+					id="startDay" autocomplete="off" class="form-control">
+				</div>
+			</div>
+			<div class="col-sm-2">
+				<div class="mb-3">
+				<label>종료일</label>
+					<input type="date" name="endDay" 
+					id="endDay" autocomplete="off" class="form-control">
+				</div>
+			</div>
+            <div class="col-sm-2">
+                <div class="search-box me-2 mb-3 d-inline-block">
+                <label>검색어</label>
+                    <div class="position-relative">
+                        <input id="KeyWord" name="keyWord" type="text" class="form-control" placeholder="검색어 입력" style="width:100%;">
+                        <i class="bx bx-search-alt search-icon"></i>
+                    </div>
+                </div>
+            </div>
+			<div class="col-sm-2">
+				<div class="mb-3">
+				<label>검색</label>
+					<button type="button" class="btn btn-secondary btn-secondary" style="display: block;" 
+					onclick="fn_submit()"><i class="bx bx-search-alt"></i></button>
+				</div>
+			</div>
+            <div class="col-sm-4 float-right text-sm-end">
+            <div class="mb-3">
+                <a href="javascript:sendAll();" class="btn btn-primary btn-rounded waves-effect waves-light mb-2 me-2" ><i class="mdi mdi-book-arrow-right font-size-18"></i>전송</a>
+                <a href="javascript:deleteAll();" class="btn btn-danger btn-rounded waves-effect waves-light mb-2 me-2" ><i class="mdi mdi-delete font-size-18"></i>삭제</a>
+                <a href="#" class="btn btn-info btn-rounded waves-effect waves-light mb-2 me-2" data-bs-toggle="modal" data-bs-target="#modalPrchsOrder"><i class="mdi mdi-plus font-size-18"></i>발주서 작성</a>
+            </div>
+            </div>
+		</div>
+		</form>
+	<!--날짜검색버튼끝-->
+<!--                  <div class="row mb-2"> -->
+<!--                      <div class="col-sm-12"> -->
+<!--                      	<div class="float-start"> -->
+<!--                      		<a href="#" class="btn btn-primary btn-rounded waves-effect waves-light mb-2 me-2" >다중 전송</a> -->
+<!--                      	</div> -->
+
+<!--                      </div>end col -->
+<!--                  </div> -->
+                
+
+               <!-- Tab panes -->
+					<div class="table">
+                     <table class="table align-middle table-nowrap table-check cnpt">
+                         <thead class="table-light">
+                             <tr>
+                                 <th style="width: 20px;" class="align-middle">
+                                     <div class="form-check font-size-16">
+                                         <input class="form-check-input" type="checkbox" id="checkAll">
+                                         <label class="form-check-label" for="checkAll"></label>
+                                     </div>
+                                 </th>
+                                 <th class="align-middle text-center">일자</th>
+                                 <th class="align-middle text-center">전표번호</th>
+                                 <th class="align-middle text-center">거래처명</th>
+                                 <th class="align-middle text-center">거래처 연락처</th>
+                                 <th class="align-middle text-end">공급가액</th>
+                                 <th class="align-middle text-end">부가세액</th>
+                                 <th class="align-middle text-end">합계</th>
+                                 <th class="align-middle text-center">상태</th>
+                             </tr>
+                         </thead>
+                         <tbody>
+                         	<c:forEach var="prchsVO" items="${prchsList}">
+                             <tr class="modalOpen">
+                                 <td class="exceptClick">
+                                     <div class="form-check font-size-16">
+                                         <input class="form-check-input checkedEl" type="checkbox" id="orderidcheck01">
+                                         <label class="form-check-label" for="orderidcheck01"></label>
+                                     </div>
+                                 </td>
+                                 <!-- 순번 -->
+                                 <td class="text-center">${prchsVO.prchsDt}</td>
+                                 <td class="text-center"><a href="#" class="text-body fw-bold" id="prchsId">${prchsVO.prchsId}</a></td>
+                                 <td>
+                                     ${prchsVO.cnptNm}
+                                 </td>
+                                 <td class="text-center">
+                                 	${prchsVO.cnptTel}
+                                 </td>
+                                 <td class="text-end">
+                                     ${prchsVO.prchsSuAmtDisplay}원 
+                                 </td>
+                                 <td class="text-end">
+                                 	${prchsVO.prchsVatDisplay}원 
+<!--                                      <span class="badge badge-pill badge-soft-success font-size-12">Paid</span> -->
+                                 </td>
+                                 <td class="text-end">
+                                 	${prchsVO.prchsAmtDisplay}원
+<!--                                      Button trigger modal -->
+<%--                                      <a href="/cnpt/detail/${cnptVO.cnptId}" class="btn btn-primary btn-sm btn-rounded">상세보기</a> --%>
+                                 </td>
+                                 <td class="text-center">
+                                     <span class="badge bg-primary">${prchsVO.prchsSe}</span>
+                                 </td>
+                             </tr>
+                         	</c:forEach>
+                         </tbody>
+                     </table>
+                 </div>
+                 <ul class="pagination pagination-rounded justify-content-end mb-2">
+                     <li class="page-item disabled <c:if test='${list.startPage<6}'>disabled</c:if>" > <!-- 페이지가 6이 넘으면 disabled 지워야댐 -->
+                         <a class="page-link" href="/prchs/prchsOrder?currentPage=${list.startPage-5}" aria-label="Previous">
+                             <i class="mdi mdi-chevron-left"></i>
+                         </a>
+                     </li>
+                     
+                     <c:forEach var="pNo" begin="${list.startPage}" end="${list.endPage}" step="1">
+	                     <li class="page-item <c:if test='${list.currentPage eq pNo}'>active</c:if>">
+	                     	<a class="page-link" href="/prchs/prchsOrder?currentPage=${pNo}">${pNo}</a>
+	                   	</li>
+                   	</c:forEach>
+                     <li class="page-item <c:if test='${list.endPage>=list.totalPages}'>disabled</c:if> ">
+                         <a class="page-link" href="/prchs/prchsOrder?currentPage=${list.startPage+5}" aria-label="Next">
+                             <i class="mdi mdi-chevron-right"></i>
+                         </a>
+                     </li>
+                 </ul>
+             </div>
+         </div>
+         <!-- end card -->
+     </div>
+ </div>
+ <!-- end row -->
+ 
+ <!-- 작성 Modal 시작 -->
+ <div>
+    <div class="modal fade" id="modalPrchsOrder" tabindex="-1" aria-labelledby="modalActLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <form action="/prchs/insertPrchs" method="post" id="insertPrchsFrm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalActLabel">매입발주서 작성</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="insertModalBody">
+                        <div class="mb-2 row">
+<!--                         	<div class="col-md-2"> -->
+<!-- 	                            <label for="cnptId" class="col-form-label">거래처아이디</label> -->
+<!--                         	</div> -->
+<!--                         	<div class="col-md-4"> -->
+<!--                         		<input class="form-control" type="text"> -->
+<!--                         	</div> -->
+                        	<div class="col-md-2">
+	                            <label for="cnptId" class="col-form-label">거래일자</label>
+                        	</div>
+                        	<div class="col-md-4">
+                        		<input class="form-control" type="date" name="prchsDt" required>
+                        	</div>
+                        </div>
+                        <div class="mb-2 row">
+                        	<div class="col-md-2">
+	                            <label for="cnptNm" class="col-form-label">거래처명</label>
+                        	</div>
+                        	<div class="col-md-4">
+                        		<input class="form-control" type="text" name="cnptNm" id="insertCnptNm" required>
+                        	</div>
+                        	<div class="col-md-2">
+	                            <label for="cnptId" class="col-form-label">거래처코드</label>
+                        	</div>
+                        	<div class="col-md-4">
+                        		<input class="form-control" type="text" name="cnptId" id="insertCnptId" required>
+                        	</div>
+                        </div>
+                        <div class="mb-2 row">
+                        	<div class="col-md-2">
+	                            <label for="cnptCharger" class="col-form-label">담당자</label>
+                        	</div>
+                        	<div class="col-md-4">
+                        		<input class="form-control" type="text" name="cnptCharger" id="insertCnptCharger" required>
+                        	</div>
+                        	<div class="col-md-2">
+	                            <label for="cnptMail" class="col-form-label">담당자 이메일</label>
+                        	</div>
+                        	<div class="col-md-4">
+                        		<input class="form-control" type="text" name="cnptMail" id="insertCnptMail" required>
+                        	</div>
+                        </div>
+                        <hr>
+                        <div class="mb-2 row">
+                            <label class="form-label">품목</label>
+                        </div>
+                        <div class="mb-2 row">
+                        	<div class="col-md-2">
+                        		<label class="form-label">품목명</label>
+                        	</div>	
+                        	<div class="col-md-2">
+                        		<label class="form-label">단가</label>
+                        	</div>	
+                        	<div class="col-md-2">
+                        		<label class="form-label">수량</label>
+                        	</div>
+	                        		
+                        	<div class="col-md-2">
+                        		<label class="form-label">공급액</label>
+                        	</div>
+                        	<div class="col-md-2">
+                        		<label class="form-label">세액</label>
+                        	</div>
+                        	<div class="col-md-2">
+                        		<label class="form-label">금액</label>
+                        	</div>
+                        </div>     
+                        <div class="mb-2 row" id="addInput">
+                        	<div class="col-md-2">
+                        		<select class="form-select" name="prodNm" id="insertProdNm">
+                        			<option>선택해주세요</option>
+                        		</select>
+<!--                         		<input type="text" class="form-control" name="prodNm" id="insertProdNm"> -->
+                        	</div>	
+                        	<div class="col-md-2" hidden=true>
+                        		<input type="text" class="form-control" name="prodInfoId" id="insertProdInfoId" required>
+                        	</div>		
+                        	<div class="col-md-2">
+                        		<input type="text" class="form-control" name="prchsGdsAmt" id="insertPrchsGdsAmt" required>
+                        	</div>	
+                        	<div class="col-md-2">
+                        		<input type="text" class="form-control" name="prchsGdsQty" id="insertPrchsGdsQty" required>
+                        	</div>	
+                        	<div class="col-md-2">
+                        		<input type="text" class="form-control" name="prchsGdsSuAmt" id="insertSuAmt" required> 
+                        	</div>	
+                        	<div class="col-md-2">
+                        		<input type="text" class="form-control" name="prchsGdsVat" id="insertPrchsVat" required>
+                        	</div>	
+                        	<div class="col-md-2">
+                        		<input type="text" class="form-control" name="prchsGdsSum" id="insertPrchsSum" required>
+                        	</div>
+                        </div>     
+                        <div class="mb-2 row" id="addLine">
+                        	<input type="text" name="prchsAmt" id="insertPrchsAmt" hidden=true>
+                        	<button type="button" id="deductLineBtn"  onclick="subtractLine(this)" class="btn btn-danger" style="width:50%"><i class="mdi mdi-minus me-1"></i></button>
+                        	<button type="button" id="addLineBtn" class="btn btn-primary" style="width:50%"><i class="mdi mdi-plus me-1"></i></button>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                    <button type="button" class="btn btn-primary" onclick="insertPrchs()" id="insertPrchsBtn">등록</button>
+                </div>
+               </form>
+            </div>
+        </div>
+    </div>
+</div> 
+ <!-- 전송 Modal 시작 -->
+ <div>
+    <div class="modal fade" id="modalPrchsOrderDetail" tabindex="-1" aria-labelledby="modalActLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <form action="" method="post" id="sendPrchsFrm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalActLabel">매입발주서 전송</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="sendModalBody">
+                        <div class="mb-2 row">
+                        	<div class="col-md-2">
+	                            <label for="prchsDt" class="col-form-label">거래일자</label>
+                        	</div>
+                        	<div class="col-md-4">
+                        		<input class="form-control" type="date" name="prchsDt" id="prchsDt" required>
+                        	</div>
+                        	<div class="col-md-2">
+	                            <label for="prchsId" class="col-form-label">전표번호</label>
+                        	</div>
+                        	<div class="col-md-4">
+                        		<input class="form-control" type="text" name="prchsId" id="prchsIdS" required>
+                        	</div>
+                        </div>
+                        
+                        <div class="mb-2 row">
+                        	<div class="col-md-2">
+	                            <label for="cnptNm" class="col-form-label">거래처명</label>
+                        	</div>
+                        	<div class="col-md-4">
+                        		<input class="form-control" type="text" name="cnptNm" id="cnptNm" required>
+                        	</div>
+                        	<div class="col-md-2">
+	                            <label for="cnptId" class="col-form-label">거래처코드</label>
+                        	</div>
+                        	<div class="col-md-4">
+                        		<input class="form-control" type="text" name="cnptId" id="cnptId" required>
+                        	</div>
+                        </div>
+                        <div class="mb-2 row">
+                        	<div class="col-md-2">
+	                            <label for="cnptCharger" class="col-form-label">담당자</label>
+                        	</div>
+                        	<div class="col-md-4">
+                        		<input class="form-control" type="text" name="cnptCharger" id="cnptCharger" required>
+                        	</div>
+                        	<div class="col-md-2">
+	                            <label for="cnptMail" class="col-form-label">담당자 이메일</label>
+                        	</div>
+                        	<div class="col-md-4">
+                        		<input class="form-control" type="text" name="cnptMail" id="cnptMail" required>
+                        	</div>
+                        </div>
+                        <hr>
+                        <div class="mb-2 row">
+                        	<div class="col-md-2 text-center">
+                        		<label class="form-label">품목명</label>
+                        	</div>	
+                        	<div class="col-md-2 text-center">
+                        		<label class="form-label ">단가</label>
+                        	</div>	
+                        	<div class="col-md-2 text-center">
+                        		<label class="form-label ">수량</label>
+                        	</div>
+	                        		
+                        	<div class="col-md-2 text-center">
+                        		<label class="form-label">공급액</label>
+                        	</div>
+                        	<div class="col-md-2 text-center">
+                        		<label class="form-label ">세액</label>
+                        	</div>
+                        	<div class="col-md-2 text-center">
+                        		<label class="form-label ">금액</label>
+                        	</div>
+                        </div>     
+                        <div class="mb-2 row" id="addSend">
+                        	<div class="col-md-2">
+                        		<input type="text" class="form-control text-center" id="prodNm" name="prodNm" required>
+                        	</div>	 
+                        	<div class="col-md-2" hidden=true>
+                        		<input type="text" class="form-control" id="prodInfoId" name="prodInfoId">
+                        	</div>	 
+                        	<div class="col-md-2">
+                        		<input type="text" class="form-control text-end" id="prchsGdsAmt" name="prchsGdsAmt" required>
+                        	</div>	
+                        	<div class="col-md-2">
+                        		<input type="text" class="form-control text-end" id="prchsGdsQty" name="prchsGdsQty" required>
+                        	</div>	
+                        	<div class="col-md-2">
+                        		<input type="text" class="form-control text-end" id="prchsGdsSuAmt" name="prchsGdsSuAmt" required> 
+                        	</div>	
+                        	<div class="col-md-2">
+                        		<input type="text" class="form-control text-end" id="prchsGdsVat" name="prchsGdsVat" required>
+                        	</div>	
+                        	<div class="col-md-2">
+                        		<input type="text" class="form-control text-end" id="prchsGdsSum" name="prchsGdsSum" required>
+                        	</div>	
+                        </div>     
+                        <div class="mb-2 row" id="addSendLine">
+                        	<input type="text" name="prchsAmt" id="sendPrchsAmt" hidden=true> 
+                        	<button type="button" id="deductSendLineBtn" onclick="subtractLine(this)" class="btn btn-danger" style="width:50%"><i class="mdi mdi-minus me-1"></i></button>
+                        	<button type="button" id="addSendLineBtn" onclick="addSendLine()"class="btn btn-primary" style="width:50%"><i class="mdi mdi-plus me-1"></i></button>
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                    <button type="button" class="btn btn-info" onclick="reviseDetail()" id="updatePrchsBtn">수정</button>
+                    <button type="button" class="btn btn-primary" onclick="savePrchs()" id="savePrchsBtn" hidden=true>저장</button>
+                    <button type="button" class="btn btn-primary" onclick="sendPrchs(this)" id="sendPrchsBtn">전송</button>
+                </div>
+               </form>
+            </div>
+        </div>
+    </div>
+</div> 
+<script type="text/javascript">
+$(document).ready(function() {
+	// modal이 열릴 때 다시 영역 한정 (appendTo 옵션)
+	$("#modalPrchsOrder").on("shown.bs.modal", function() { 
+		$("#insertCnptNm").autocomplete("option", "appendTo", "#modalPrchsOrder") 
+	});
+
+	//자동완성
+    $( "#insertCnptNm" ).autocomplete({
+        source : function( request, response ) {
+            $.ajax({
+                url: "/prchs/searchCnpt",
+                dataType: "json",
+                data: {
+                  searchValue: request.term
+                },
+                success: function( result ) {
+                    response( 
+                        $.map( result, function( item ) {
+ 
+                                return {
+                                      label: item.cnptNm,
+                                      value: item.cnptNm,
+                                      charger : item.cnptCharger,
+                                      email : item.cnptEmail,
+                                      id : item.cnptId
+                                }
+                          })
+                      );
+                }
+              });
+        },
+        select: function( event, ui ) {
+        	console.log(ui.item.value);
+        	$("#insertCnptCharger").val(ui.item.charger);
+        	$("#insertCnptMail").val(ui.item.email);
+        	$("#insertCnptId").val(ui.item.id);
+        	
+        	// 거래처 아이디를 얻었을 때 - 상품 가져오기 
+        	$.ajax({
+        		url: "/prchs/getProdInfoByCnptId",
+                dataType: "json",
+                data: {
+                  cnptId : ui.item.id
+                },
+                success: function(data){
+                	makeOption(data);
+                	//자동완성 만들기 함수
+//                 	makeProdAuto();
+                },
+                error : function(xhr){
+                	alert(xhr.status);
+                }
+        	});
+        },
+        minLength: 1
+    });
+    
+    //modal 닫힐 때 clear
+	$('#modalPrchsOrder').on('hide.bs.modal', function (e) {
+		//비우기
+		$("#insertCnptNm").val("");
+    	$("#insertCnptCharger").val("");
+    	$("#insertCnptMail").val("");
+    	$("#insertCnptId").val("");
+    	
+    	
+	});
+
+	
+	//옵션이 바뀌었을 때 
+	$(document).on("change","#insertProdNm", function(){
+		let prodId = $('option:selected',this).attr("data-id");
+		let prchsAmt = $('option:selected',this).attr("data-amt");
+// 		console.log(this);
+
+		//값 넣기
+		$(this).parent().next().find("#insertProdInfoId").val(prodId);
+		$(this).parent().next().next().find("#insertPrchsGdsAmt").val(prchsAmt);
+	});
+
+}); //$(function(){}) 끝
+
+//자동완성을 위한 옵션 만들기
+function makeOption(prodList){
+	//for문
+	$.each(prodList, function(i,v){
+		var option = "<option data-id='" + v.prodInfoId + "' data-amt='"+ v.prodInfoPrchsAmt +"'>" + v.prodInfoNmDisplay + "</option>";
+		$("#insertProdNm").append(option);
+	});
+	//option 추가하기
+	
+}
+
+</script>
+</body>
+<script src="assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+<script src="assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="assets/js/pages/datatables.init.js"></script>
+<script src="assets/js/app.js"></script>
+</html>

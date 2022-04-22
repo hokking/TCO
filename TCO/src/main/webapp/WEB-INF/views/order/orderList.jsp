@@ -1,0 +1,182 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<script>
+//입고된 리스트
+function getYList(){
+	//지점코드 가져오기
+	let brncofcId = "<c:out value='${sessionScope.brncofcId}' />";
+	
+	$.ajax({
+		url : "/ordr/whsYList.do",
+		data : {brncofcId : brncofcId},
+		dataType : "json",
+		success : function(data){
+			//데이터 뿌리기
+			printYList(data);
+		},
+		error : function(xhr){
+			alert(xhr.status);
+		}
+	});
+}
+
+//미입고된 리스트
+function getNList(){
+	//지점코드 가져오기
+	let brncofcId = "<c:out value='${sessionScope.brncofcId}' />";
+	$.ajax({
+		url : "/ordr/whsNList.do",
+		method : "get",
+		data : {brncofcId : brncofcId},
+		dataType : "json",
+		success : function(data){
+			//데이터 뿌리기
+			printNList(data);
+		},
+		error : function(xhr){
+			alert(xhr.status);
+		}
+	});
+}
+//입고된 리스트 가져오기
+function printYList(list){
+	let str = '';
+	$.each(list, function(i,v){
+        str += '<tr>';
+        str += '<td class="align-middle text-center">'+(i+1) +'</td>';
+        str += '<td class="align-middle text-center">'+ v.ordrId +'</td>';
+        str += '<td class="align-middle text-center">'+ v.ordrDtDisplay +'</td>';
+        str += '<td class="align-middle text-center"><span class="badge bg-primary">입고완료</span></td>';
+        str += '<td class="align-middle text-center"><a href="/ordr/ordrDetail?ordrId='+v.ordrId+'" class="btn btn-primary btn-sm btn-rounded">상세보기</a></td>';
+        str += '</tr>';
+	});
+	$("#yCont").html(str);
+}
+//미입고된 리스트 가져오기
+function printNList(list){
+	let str = '';
+	$.each(list, function(i,v){
+        str += '<tr>';
+        str += '<td class="align-middle text-center">'+(i+1) +'</td>';
+        str += '<td class="align-middle text-center">'+ v.ordrId +'</td>';
+        str += '<td class="align-middle text-center">'+ v.ordrDtDisplay +'</td>';
+        str += '<td class="align-middle text-center"><span class="badge badge-soft-dark">미입고</span></td>';
+        str += '<td class="align-middle text-center"><a href="/ordr/ordrDetail?ordrId='+v.ordrId+'" class="btn btn-primary btn-sm btn-rounded">상세보기</a></td>';
+        str += '</tr>';
+	});
+	$("#nCont").html(str);
+}
+
+$(function(){
+	getYList();	
+	getNList();
+});
+</script>
+<body>
+ <!-- start page title -->
+ <div class="row">
+     <div class="col-12">
+         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+             <h1 class="mb-sm-0 font-size-20">📜발주 내역</h1>
+
+             <div class="page-title-right">
+                 <ol class="breadcrumb m-0">
+                     <li class="breadcrumb-item"><a href="javascript: void(0);">발주</a></li>
+                     <li class="breadcrumb-item active">발주 내역</li>
+                 </ol>
+             </div>
+         </div>
+     </div>
+ </div>
+ <!-- end page title -->
+
+ <div class="row">
+     <div class="col-12">
+         <div class="card">
+             <div class="card-body">
+             <div class="row filt" data-select2-id="13">
+	        <div class="col-xl col-sm-6 semmi">
+	            <div class="mb-3" style="padding-left:10px;">
+	                <h5 class="font-size-14 mb-3">${branch}</h5>
+	            </div>
+	        </div>
+	
+	    </div>
+                 <div class="row mb-2">
+                     <div class="col-sm-4">
+                         <div class="search-box me-2 mb-2 d-inline-block">
+                             <div class="position-relative">
+                             </div>
+                         </div>
+                     </div>
+                     <div class="col-sm-8">
+                         <div class="text-sm-end">
+                         </div>
+                     </div><!-- end col-->
+                 </div>
+               <!-- Nav tabs -->
+               <!-- 미입고된 발주 -->
+               <ul class="nav nav-tabs nav-tabs-custom" role="tablist">
+                   <li class="nav-item">
+                       <a class="nav-link active" data-bs-toggle="tab" href="#brnOrdr" role="tab">
+                           <span class="d-none d-sm-block">미입고 발주</span> 
+                       </a>
+                   </li>
+                   <!-- 입고된 발주 -->
+                   <li class="nav-item">
+                       <a class="nav-link" data-bs-toggle="tab" href="#brnOrdrN" role="tab">
+                           <span class="d-none d-sm-block">입고된 발주</span> 
+                       </a>
+                   </li>
+               </ul>
+
+               <!-- Tab panes -->
+               <!-- 미입고된 발주 -->
+               <div class="tab-content p-3">
+                   <div class="tab-pane active" id="brnOrdr" role="tabpanel">
+					<div class="table">
+					<table id="tech-companies-1" class="table">
+						<thead class="table-light">
+		                        <tr>
+		                            <th class="align-middle text-center">순번</th>
+		                            <th class="align-middle text-center">발주번호</th>
+		                            <th class="align-middle text-center">발주일</th>
+		                            <th class="align-middle text-center">입고여부</th>
+		                            <th class="align-middle text-center">상세보기</th>
+		                        </tr>
+	                    </thead>
+	                    <tbody id="nCont">
+	                    </tbody>
+					</table>
+                 </div>
+                   </div>
+                   <!-- 입고된 발주 -->
+                   <div class="tab-pane" id="brnOrdrN" role="tabpanel">
+					  <div class="table">
+						<table id="tech-companies-1" class="table">
+							<thead class="table-light">
+	                             <tr>
+	                                 <th class="align-middle text-center">순번</th>
+	                                 <th class="align-middle text-center">발주번호</th>
+	                                 <th class="align-middle text-center">발주일</th>
+	                                 <th class="align-middle text-center">입고여부</th>
+	                                 <th class="align-middle text-center">상세보기</th>
+	                             </tr>
+	                         </thead>
+	                         <tbody id="yCont">
+	                         </tbody>
+						</table>
+                 </div>
+               </div>
+             </div>
+         </div>
+         <!-- end card -->
+     </div>
+ </div>
+ </div>
+ <!-- end row -->
+</body>

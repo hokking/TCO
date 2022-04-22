@@ -1,0 +1,37 @@
+package kr.or.tco.emp.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.tco.cmncd.vo.CmncdVO;
+import kr.or.tco.emp.vo.AttachFilesVO;
+
+import kr.or.tco.emp.vo.EmpVO;
+
+
+public interface EmpMapper {
+
+	// 아놔
+	public int empinsert(EmpVO empVO);
+	
+	public int insertAttachFiles(AttachFilesVO attachFilesVO);
+		
+	public String cdselect(EmpVO empVO);
+	
+	// 고객목록
+	public List<EmpVO> emplist(Map<String, Object> map);
+		
+		
+	//  행의 수
+	public int selectCount(Map<String,Object> map) ;
+	
+	// 직원 상세조회
+	public EmpVO empdetail(EmpVO empVO);
+	
+	// 소속 부서 직급
+	public CmncdVO sdselect(String cmncdCd);
+	
+	// 직원 정보수정
+	public boolean empupdate(EmpVO empVO);
+	
+}

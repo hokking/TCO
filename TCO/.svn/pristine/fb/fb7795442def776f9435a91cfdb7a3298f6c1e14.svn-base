@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.att.mapper.AttMapper">
+
+<select id="binfoselect" parameterType="String" resultType="empVO">
+	SELECT EMP_NM, EMP_IMG, CMNCD_CD
+	  FROM EMP
+	 WHERE EMP_ID = #{empId}
+</select>
+
+<select id="sdselect" parameterType="String" resultType="cmncdVO">
+	SELECT CMNCD_GU_NM, CMNCD_NM1, CMNCD_NM2
+	  FROM CMNCD
+	 WHERE CMNCD_CD = #{cmncdCd}
+</select>
+
+
+<!-- 출근/퇴근시간 확인용  -->
+<select id="checkIselect" parameterType="String" resultType="int">
+	SELECT COUNT(WORKSTTS_BGNG_TM)
+	  FROM WORKSTTS
+	 WHERE EMP_ID=#{empId} 
+	 AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</select>
+
+<select id="checkOselect" parameterType="String" resultType="int">
+	SELECT COUNT(WORKSTTS_END_TM)
+	  FROM WORKSTTS
+	 WHERE EMP_ID=#{empId} 
+	 AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</select>
+
+<!-- 출근  -->
+<update id="ininsert" parameterType="worksttsVO">
+	UPDATE WORKSTTS
+   SET WORKSTTS_BGNG_TM = #{worksttsBgngTm}
+   WHERE EMP_ID=#{empId} 
+   AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</update>
+
+<!-- 출퇴근시 업무상태 UPDATE -->
+<update id="workck" parameterType="worksttsVO">
+	UPDATE WORKSTTS
+	   SET WORKSTTS_CK = #{worksttsCk}
+	WHERE EMP_ID=#{empId} 
+   AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</update>
+<!-- 퇴근  -->
+<update id="outinsert" parameterType="String">
+		UPDATE WORKSTTS 
+		SET WORKSTTS_END_TM=TO_CHAR(SYSDATE, 'HH24:MI:SS')
+		WHERE EMP_ID=#{empId} AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</update>
+
+<!--  근무시간 INSERT를 위한 과정-->
+<!-- 출퇴근 시간 계산  -->
+<select id="enbgselect" resultType="int" parameterType="String">
+	SELECT LTRIM(SUBSTR(WORKSTTS_END_TM, 0, 2),0) - LTRIM(SUBSTR(WORKSTTS_BGNG_TM, 0, 2),0)
+	 FROM WORKSTTS
+	WHERE EMP_ID=#{empId} AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</select>
+
+<!-- 
+점심시간 빼기위한,,,, 
+근무시간에 점심시간이 포함되면 근무시간 -1(출근시간 hour가 11이하고 퇴근시간 hour가 13이상이면) 아니면 그냥 ㅋ
+-->
+
+<!-- 출근시간  -->
+<select id="st" resultType="int" parameterType="String">
+	SELECT LTRIM(SUBSTR(WORKSTTS_BGNG_TM, 0, 2),0)
+	  FROM WORKSTTS
+	WHERE EMP_ID=#{empId} AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</select>
+
+<!-- 출근시간 분  -->
+<select id="stm" resultType="int" parameterType="String">
+	SELECT LTRIM(SUBSTR(WORKSTTS_BGNG_TM, 4, 2),0)
+	  FROM WORKSTTS
+	WHERE EMP_ID=#{empId} AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</select>
+
+<!-- 퇴근시간  -->
+<select id="end" resultType="int" parameterType="String">
+	SELECT LTRIM(SUBSTR(WORKSTTS_END_TM, 0, 2),0)
+	  FROM WORKSTTS
+	  WHERE EMP_ID=#{empId} AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</select>
+
+<!-- 지정 출근시간  -->
+<select id="stck" resultType="int" parameterType="String">
+	SELECT LTRIM(SUBSTR(WORKSTTS_SC_TM, 3,2 ),0) 
+	  FROM WORKSTTS
+	 WHERE EMP_ID=#{empId} AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</select>
+
+
+
+<!-- 지정 퇴근시간  -->
+<select id="endck" resultType="int" parameterType="String">
+	SELECT LTRIM(SUBSTR(WORKSTTS_SC_TM, 11,2 ),0) 
+	  FROM WORKSTTS
+	 WHERE EMP_ID=#{empId} AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</select>
+
+<!--  지정 근무시간 계산  -->
+<select id="CKenbgselect" resultType="int" parameterType="String">
+	SELECT LTRIM(SUBSTR(WORKSTTS_SC_TM, 11,2 ),0) - LTRIM(SUBSTR(WORKSTTS_SC_TM, 3,2 ),0) - 1
+	  FROM WORKSTTS
+	 WHERE EMP_ID=#{empId} AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</select>
+
+<!--  근무시간 UPDATE -->
+<update id="enbgupdate" parameterType="worksttsVO">
+	UPDATE WORKSTTS
+	   SET WORKSTTS_TM=#{worksttsTm}
+	 WHERE EMP_ID=#{empId} 
+	   AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</update>
+
+<!-- 근태 상태 UPDATE  -->
+<update id="cdupdate" parameterType="worksttsVO">
+	UPDATE WORKSTTS
+	   SET CMNCD_CD=#{cmncdCd}
+	 WHERE EMP_ID=#{empId} 
+	   AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</update>
+
+<!-- 제발되기를 비나이다 아멘  -->
+
+
+<!-- 임시테이블에 일주일 날짜 INSERT  -->
+<insert id="teminsert">
+	INSERT INTO ttable
+	SELECT to_date(sunday + LEVEL -1, 'yyyymmdd') as dates 
+	FROM ( SELECT TO_CHAR(SYSDATE, 'yyyymmdd')as sunday FROM dual ) 
+	CONNECT BY LEVEL  <![CDATA[ <= ]]>  5
+</insert>
+
+<!-- CROSS 조인값 WORKSTTS에 INSERT -->
+<insert id="reinsert">
+	INSERT INTO WORKSTTS(EMP_ID, WORKSTTS_DT)
+	SELECT A.EMP_ID, B.WORKSTTS_DT
+	FROM EMP A, ttable B
+</insert>
+
+<!-- 근무시간 update  -->
+<update id="reupdate">
+	UPDATE WORKSTTS
+	   SET WORKSTTS_SC_TM = '오전09:00~오후18:00',  WORKSTTS_TM = 0, WORKSTTS_CK = '업무전'
+	 WHERE WORKSTTS_SC_TM IS NULL
+</update>
+
+<!-- 이번달 근무시간  list-->
+<select id="sumtm" parameterType="hashMap" resultType="int">
+	   SELECT SUM(WORKSTTS_TM)
+       FROM WORKSTTS
+      WHERE TO_CHAR(WORKSTTS_DT, 'MM')=TO_CHAR(SYSDATE+(#{num}), 'MM')
+        AND EMP_ID = #{empId}
+</select>
+
+<!-- 이번달 근무시간 detail  -->
+<select id="sumtm2" parameterType="String" resultType="int">
+	   SELECT SUM(WORKSTTS_TM)
+       FROM WORKSTTS
+      WHERE TO_CHAR(WORKSTTS_DT, 'MM')=TO_CHAR(SYSDATE, 'MM')
+        AND EMP_ID = #{empId}
+</select>
+
+
+<!-- 출근시간  -->
+<select id="gotime" resultType="String" parameterType="String">
+  SELECT WORKSTTS_BGNG_TM
+	FROM WORKSTTS
+	WHERE EMP_ID=#{empId} AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</select>
+
+<!-- 퇴근시간 -->
+<select id="outtime" resultType="String" parameterType="String">
+  SELECT WORKSTTS_END_TM
+	FROM WORKSTTS
+	WHERE EMP_ID=#{empId} AND TO_CHAR(WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+</select>
+
+<!-- 내 이번주 구하기  -->
+<select id="thisweek" resultType="worksttsVO" parameterType="String">
+	SELECT EMP_ID, WORKSTTS_DT, WORKSTTS_SC_TM, WORKSTTS_TM
+  	  FROM WORKSTTS
+     WHERE WORKSTTS_DT BETWEEN TRUNC(SYSDATE,'iw') AND TRUNC(SYSDATE,'iw')+4
+      AND EMP_ID=#{empId}
+</select>
+
+<!-- 모든 이번주 구하기  -->
+<select id="thisweekall" resultType="worksttsVO" parameterType="int">
+	SELECT A.EMP_NM, B.* FROM EMP A LEFT OUTER JOIN (   
+        SELECT EMP_ID, WORKSTTS_BGNG_TM,WORKSTTS_END_TM, WORKSTTS_DT, WORKSTTS_SC_TM, WORKSTTS_TM, CMNCD_CD
+      FROM WORKSTTS 
+     WHERE WORKSTTS_DT BETWEEN TRUNC(SYSDATE+(#{cal}),'iw') AND TRUNC(SYSDATE+(#{cal}),'iw')+4 ) b
+     ON A.EMP_ID = B.EMP_ID
+ 	ORDER BY A.EMP_ID ,  B.WORKSTTS_DT 
+
+<!-- 	SELECT EMP_ID, WORKSTTS_BGNG_TM,WORKSTTS_END_TM, WORKSTTS_DT, WORKSTTS_SC_TM, WORKSTTS_TM, CMNCD_CD -->
+<!--       FROM WORKSTTS -->
+<!--      WHERE WORKSTTS_DT BETWEEN TRUNC(sysdate+(#{cal}),'iw') AND TRUNC(sysdate+(#{cal}),'iw')+4 -->
+</select>
+
+<!-- 전직원 기본 정보  -->
+<select id="attchecklist" resultType="empVO">
+	SELECT E.EMP_NM, E.EMP_IMG, E.CMNCD_CD, W.WORKSTTS_CK
+	  FROM EMP E, WORKSTTS W
+	WHERE E.EMP_SE ='정규직'
+	  AND TO_CHAR(W.WORKSTTS_DT, 'YYYY/MM/DD')=TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+	  AND E.EMP_ID = W.EMP_ID
+</select>
+
+
+
+
+</mapper>

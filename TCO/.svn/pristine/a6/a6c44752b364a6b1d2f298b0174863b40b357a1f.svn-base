@@ -1,0 +1,26 @@
+package kr.or.tco.cust.service.impl;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.tco.cust.mapper.CustMapper;
+import kr.or.tco.cust.service.CustService;
+import kr.or.tco.cust.vo.CustVO;
+
+@Service
+public class CustServiceImpl implements CustService {
+	
+	@Autowired CustMapper custMapper;
+	
+	private static final Logger logger = 
+			LoggerFactory.getLogger(CustServiceImpl.class);
+	
+	// 고객 등록
+	@Override
+	public int custInsert(CustVO custVO) {
+		
+			return custMapper.custInsert(custVO);
+	}
+}

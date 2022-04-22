@@ -1,0 +1,56 @@
+package kr.or.tco.eatrz.controller;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+
+@RequestMapping("/eatrz")
+@Controller
+public class EatrzController {
+//	@Autowired
+//	EatrzService eatrzService;
+	
+	private static final Logger logger = 
+			LoggerFactory.getLogger(EatrzController.class);
+	
+	
+	@GetMapping("/eatrzmain")
+	public String getEatrzMain(Model model) {
+	
+		return "eatrz/eatrzmain";
+	}
+	
+	@GetMapping("/main")
+	public String getMain() {
+		return "eatrz/eatrz/main";
+	}
+	
+	
+	@GetMapping("/test")
+	public String gettest(Model model) {
+		
+		return "eatrz/test";
+	}
+	
+	@GetMapping("/test2")
+	public String gettest2(Model model) {
+		
+		return "eatrz/test2";
+	}
+
+	@GetMapping("/eatrzinsert")
+	public String getEatrzInsert(Model model) {
+		
+		return "eatrz/eatrzinsert";
+	}
+	
+	@GetMapping("/eatrzapr")
+	public String getEatrzApr(Model model) {
+		
+		return "eatrz/eatrzapr";
+	}
+}

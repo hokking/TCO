@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.notice.mapper.NoticeMapper">
+
+<!-- 메인화면 공지사항 -->
+	<select id="mainnotice" resultType="brdVO">
+	SELECT T.RNUM, T.BRD_TTL, T.EMP_ID, T.BRD_DT, T.BRD_VI, T.BRD_ID, T.BRD_SE
+		FROM (
+		    SELECT ROW_NUMBER() OVER (ORDER BY BRD_DT DESC) RNUM, BRD_TTL, EMP_ID, BRD_DT, BRD_VI, BRD_ID, BRD_SE
+		    FROM   BRD 
+	        WHERE  BRD_SE = '공지')T
+	</select>
+
+
+
+<!-- 리스트 출력  -->
+	<select id="noticelist" resultType="brdVO">
+		SELECT T.RNUM, T.BRD_TTL, T.EMP_ID, T.BRD_DT, T.BRD_VI, T.BRD_ID, T.BRD_SE
+		FROM (
+		    SELECT ROW_NUMBER() OVER (ORDER BY BRD_DT DESC) RNUM, BRD_TTL, EMP_ID, BRD_DT, BRD_VI, BRD_ID, BRD_SE
+		    FROM   BRD 
+	        WHERE  BRD_SE = '공지'
+		   <if test="keyWord!=null and keyWord!=''">
+			    AND    (BRD_TTL LIKE '%'||#{keyWord}||'%')
+			    
+		  </if>
+		) T
+	
+		WHERE T.RNUM BETWEEN #{currentPage}*#{size}-#{size}+1 AND #{currentPage}*#{size}
+	</select>
+
+	<select id="selectCount" parameterType="hashMap" resultType="int">
+		SELECT COUNT(*)
+		FROM   BRD
+		WHERE  1 = 1
+	   <if test="keyWord!=null and keyWord!=''">
+		AND    (BRD_TTL LIKE '%'||#{keyWord}||'%')	    
+	   </if>
+	   AND BRD_SE = '공지'
+	</select>
+	
+	<!-- 이름 찾기 -->
+	<select id="selectname" parameterType="String" resultType="string">
+	SELECT EMP_NM
+	  FROM EMP
+	  WHERE EMP_ID = #{empId}
+	</select>
+	
+	<!-- 공지사항 상세보기  -->
+	<select id="noticedetail" resultType="brdVO" parameterType="int">
+	 SELECT BRD_TTL,EMP_ID, BRD_CN, BRD_DT, BRD_VI, BRD_IMG, BRD_ID
+        FROM BRD
+       WHERE BRD_SE = '공지'
+         AND BRD_ID =#{brdId}
+	</select>
+	
+	<!-- 공지사항 상세보기 클릭시 조회수 올려~  -->
+	<update id="noticevi" parameterType="int">
+		 UPDATE BRD 
+		 SET BRD_VI = BRD_VI+1 
+		 WHERE BRD_ID=#{brdId}
+	</update>
+	
+	<insert id="noticeinsert" parameterType="brdVO">
+			<selectKey order="BEFORE" keyProperty="brdId" resultType="brdVO">
+				 SELECT NVL(MAX(BRD_ID),0)+1 AS brdId
+					FROM BRD
+			</selectKey>
+			
+			INSERT INTO BRD(BRD_ID, BRD_SE,  BRD_TTL, BRD_CN, EMP_ID,
+	      					 BRD_DT,  BRD_VI)
+			VALUES(#{brdId},'공지',#{brdTtl},#{brdCn}, #{empId}, SYSDATE , 0)
+	</insert>
+	
+	
+		<!-- attach_files 테이블로 첨부파일 insert -->
+	<insert id="insertAttachFiles" parameterType="attachFilesVO">
+		<selectKey order="BEFORE" keyProperty="atchfileId" resultType="Integer">
+			SELECT NVL(MAX(ATCHFILE_ID),0)+1 FROM ATCHFILE
+		</selectKey>			
+		
+		INSERT INTO ATCHFILE (ATCHFILE_ID, ATCHFILE_NM, ATCHFILE_SZ, ATCHFILE_DT ) 
+		VALUES (#{atchfileId}, #{atchfileNm}, #{atchfileSz}, SYSDATE)		
+	</insert>
+	
+	
+	<!-- 글 내용 수정  -->
+	<update id="noticeupdate" parameterType="brdVO">
+		UPDATE BRD 
+		   SET BRD_TTL = #{brdTtl},
+		       BRD_CN = #{brdCn}
+		 WHERE BRD_ID = #{brdId}
+	</update>
+	
+	<!-- 글 삭제  -->
+	<delete id="noticedelete" parameterType="String">
+		DELETE FROM BRD
+		WHERE BRD_ID = #{brdId}
+	</delete>
+</mapper>

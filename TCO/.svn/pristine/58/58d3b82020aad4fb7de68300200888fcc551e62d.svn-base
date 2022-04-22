@@ -1,0 +1,203 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<script>
+var myVar;
+window.onload = function myFunction() {
+	//로딩창 시간설정
+  myVar = setTimeout(showPage, 0);
+}
+
+function showPage() {
+  document.getElementById("loader").style.display = "none";
+  document.getElementById("myDiv").style.display = "block";
+}
+</script>
+
+<!-- 로딩창출력 -->
+<div id="loader"></div>
+
+<!-- myDiv안에 로딩후 출력창 넣기 -->
+<div style="display:none;" id="myDiv">
+
+<div class="card">
+	<div class="card-body">
+		<h4 class="card-title mb-4">품목별 매출현황</h4>
+
+<div class="row">
+
+	<!--
+	날짜 검색 버튼 datepicker 사용됨
+	loader.css의 마지막 부분에서 js문 실행
+	-->
+	<div class="col-sm-2">
+		<div class="mb-3">
+		<label>시작일</label>
+			<input type="date" name="startDay" id="startDay" autocomplete="off" class="form-control">
+		</div>
+	</div>
+	<div class="col-sm-2">
+		<div class="mb-3">
+		<label>종료일</label>
+			<input type="date" name="endDay" id="endDay" autocomplete="off" class="form-control">
+		</div>
+	</div>
+	<!--날짜검색버튼끝-->
+	
+	
+	<div class="col-sm-2">
+		<div class="mb-3">
+		<label>검색</label>
+			<div class="input-group mb-3">
+              <input type="text" class="form-control" >
+              <button class="btn btn-success" type="button" >찾기</button>
+            </div>
+		</div>
+	</div>
+	
+	
+</div>
+		
+
+		<div class="table-responsive">
+	<table class="table align-middle table-nowrap">
+		<thead>
+			<tr style="background:#F3F3F9;">
+				<th>품목</th>
+				<th>매출번호</th>
+				<th>지점명</th>
+				<th>지점코드</th>
+				<th>매출금액</th>
+				<th>매출일</th>
+				<th>Action</th>
+			</tr>
+		</thead>
+		<tbody>
+		
+		<!--foreach문으로 출력-->
+			<tr>
+				<td>
+					품목 카테고리 명
+				</td>
+				
+				<td>매출번호출력</td>
+				
+				<td>
+					<p class="mb-1">지점명</p>
+				</td>
+
+				<td><span class="badge bg-success font-size-12">지점코드</span></td>
+				<td>매출금액</td>
+				<td>매출날짜</td>
+				<td>
+					<div class="dropdown">
+						<a href="#" class="dropdown-toggle card-drop"
+							data-bs-toggle="dropdown" aria-expanded="false"> <i
+							class="mdi mdi-dots-horizontal font-size-18"></i>
+						</a>
+						<ul class="dropdown-menu dropdown-menu-end">
+							<li><a href="#" class="dropdown-item"><i
+									class="mdi mdi-pencil font-size-16 text-success me-1"></i> Edit</a></li>
+							<li><a href="#" class="dropdown-item"><i
+									class="mdi mdi-trash-can font-size-16 text-danger me-1"></i>
+									Delete</a></li>
+						</ul>
+					</div>
+				</td>
+			</tr>
+		<!--foreach문으로 출력-->	
+			<tr>
+				<td>
+					품목 카테고리 명
+				</td>
+				
+				<td>매출번호출력</td>
+				<td>
+					<p class="mb-1">지점명</p>
+				</td>
+
+				<td><span class="badge bg-success font-size-12">지점코드</span></td>
+				<td>매출금액</td>
+				<td>매출날짜</td>
+				<td>
+					<div class="dropdown">
+						<a href="#" class="dropdown-toggle card-drop"
+							data-bs-toggle="dropdown" aria-expanded="false"> <i
+							class="mdi mdi-dots-horizontal font-size-18"></i>
+						</a>
+						<ul class="dropdown-menu dropdown-menu-end">
+							<li><a href="#" class="dropdown-item"><i
+									class="mdi mdi-pencil font-size-16 text-success me-1"></i> Edit</a></li>
+							<li><a href="#" class="dropdown-item"><i
+									class="mdi mdi-trash-can font-size-16 text-danger me-1"></i>
+									Delete</a></li>
+						</ul>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					품목 카테고리 명
+				</td>
+				
+				<td>매출번호출력</td>
+				<td>
+					<p class="mb-1">지점명</p>
+				</td>
+
+				<td><span class="badge bg-success font-size-12">지점코드</span></td>
+				<td>매출금액</td>
+				<td>매출날짜</td>
+				<td>
+					<div class="dropdown">
+						<a href="#" class="dropdown-toggle card-drop"
+							data-bs-toggle="dropdown" aria-expanded="false"> <i
+							class="mdi mdi-dots-horizontal font-size-18"></i>
+						</a>
+						<ul class="dropdown-menu dropdown-menu-end">
+							<li><a href="#" class="dropdown-item"><i
+									class="mdi mdi-pencil font-size-16 text-success me-1"></i> Edit</a></li>
+							<li><a href="#" class="dropdown-item"><i
+									class="mdi mdi-trash-can font-size-16 text-danger me-1"></i>
+									Delete</a></li>
+						</ul>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					품목 카테고리 명
+				</td>
+				
+				<td>매출번호출력</td>
+				<td>
+					<p class="mb-1">지점명</p>
+				</td>
+
+				<td><span class="badge bg-success font-size-12">지점코드</span></td>
+				<td>매출금액</td>
+				<td>매출날짜</td>
+				<td>
+					<div class="dropdown">
+						<a href="#" class="dropdown-toggle card-drop"
+							data-bs-toggle="dropdown" aria-expanded="false"> <i
+							class="mdi mdi-dots-horizontal font-size-18"></i>
+						</a>
+						<ul class="dropdown-menu dropdown-menu-end">
+							<li><a href="#" class="dropdown-item"><i
+									class="mdi mdi-pencil font-size-16 text-success me-1"></i> Edit</a></li>
+							<li><a href="#" class="dropdown-item"><i
+									class="mdi mdi-trash-can font-size-16 text-danger me-1"></i>
+									Delete</a></li>
+						</ul>
+					</div>
+				</td>
+			</tr>
+			
+			
+		</tbody>
+	</table>
+</div>
+</div>
+</div>
+</div>

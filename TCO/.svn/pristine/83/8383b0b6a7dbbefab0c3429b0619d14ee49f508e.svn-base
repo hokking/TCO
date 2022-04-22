@@ -1,0 +1,16 @@
+package kr.or.tco.cnpt.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+//거래처 컨트롤러
+@RequestMapping("/cnpt")
+@Controller
+public class CnptController {
+	
+	@RequestMapping("/list")
+	public String list() {
+		return "cnpt/list";
+	}
+	
+}

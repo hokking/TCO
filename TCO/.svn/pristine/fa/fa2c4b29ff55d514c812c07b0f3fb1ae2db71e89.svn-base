@@ -1,0 +1,56 @@
+package kr.or.tco.emp.vo;
+
+import java.util.Date;
+
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class AttachFilesVO {
+
+	private String atchfileId;
+	private String atchfileNm;
+	private String atchfileSz;
+	private Date atchfileDt;
+	private String cmncdCd;
+	
+	public String getAtchfileId() {
+		return atchfileId;
+	}
+	public void setAtchfileId(String atchfileId) {
+		this.atchfileId = atchfileId;
+	}
+	public String getAtchfileNm() {
+		return atchfileNm;
+	}
+	public void setAtchfileNm(String atchfileNm) {
+		this.atchfileNm = atchfileNm;
+	}
+	public String getAtchfileSz() {
+		return atchfileSz;
+	}
+	public void setAtchfileSz(String atchfileSz) {
+		this.atchfileSz = atchfileSz;
+	}
+	public Date getAtchfileDt() {
+		return atchfileDt;
+	}
+	public void setAtchfileDt(Date atchfileDt) {
+		this.atchfileDt = atchfileDt;
+	}
+	public String getCmncdCd() {
+		return cmncdCd;
+	}
+	public void setCmncdCd(String cmncdCd) {
+		this.cmncdCd = cmncdCd;
+	}
+	
+	@Override
+	public String toString() {
+		return "AttachFilesVO [atchfileId=" + atchfileId + ", atchfileNm=" + atchfileNm + ", atchfileSz=" + atchfileSz
+				+ ", atchfileDt=" + atchfileDt + ", cmncdCd=" + cmncdCd + "]";
+	}
+	
+	
+	
+	
+}

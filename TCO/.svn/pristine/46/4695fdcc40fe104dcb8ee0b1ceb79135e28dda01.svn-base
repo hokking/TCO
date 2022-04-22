@@ -1,0 +1,318 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+.card-title{
+	font-size: 20px;
+}
+.col-form-label{
+	font-size: 15px;
+}
+// Classes
+.pull-left {
+  float: left !important;
+}
+.pull-right {
+  float: right !important;
+}
+// Class
+.center-block {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+</style>
+<script src="/resources/js/jquery-3.6.0.min.js"></script>
+<script type="text/javascript">
+//다음 우편번호 검색
+function openHomeSearch(){
+	new daum.Postcode({
+		oncomplete:function(data){
+			$('[name=cnptZip]').val(data.zonecode);
+			$('[name=cnptAddr]').val(data.address);
+			$('[name=cnptDaddr]').val(data.buildingName);
+		}
+	}).open();
+}
+
+$(function(){
+	//등록버튼 클릭 시 
+	$("#btnSub").on("click", function(){
+// 		$("#insertFrm").submit();
+		$.ajax({
+		    type: "POST",
+		    url : "/cnpt/insert",
+		    data : $("#insertFrm").serialize(),
+		    contentType : "application/x-www-form-urlencoded; charset=utf-8",
+		    dataType : "json",
+		    success : function(data){
+		    	console.log("data뭐노?" + data);
+		    	var res = parseInt(data);
+		    	
+		        if(res > 0){
+		        // Sweet Alert
+		          Swal.fire({
+			          icon:'success',
+			          title:'수정완료',
+		       		}).then(function(){
+		       			window.location.reload();
+		       		})
+		        }else{
+		        	alert("업데이트가 실패했습니다.");
+		        }
+				
+		        
+		    },
+		    error : function(){
+		        //Ajax 실패시
+		    	Swal.fire({
+			          icon:'error',
+			          title:'에러',
+		       		}, function(){
+		       			//새로고침
+		       			window.location.reload();
+		       			});
+		    }
+		});
+	});
+});
+</script>
+<title>거래처 등록</title>
+</head>
+<body>
+<!-- start page title -->
+ <div class="row">
+     <div class="col-12">
+         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+             <h1 class="mb-sm-0 font-size-20">🏢거래처 등록</h1>
+
+             <div class="page-title-right">
+                 <ol class="breadcrumb m-0">
+                     <li class="breadcrumb-item"><a href="javascript: void(0);">거래처등록</a></li>
+                     <li class="breadcrumb-item active">거래처등록</li>
+                 </ol>
+            
+             </div>
+
+         </div>
+     </div>
+ </div>
+ <!-- end page title -->
+ 
+ <!-- form태그 시작 -->
+ <form action="/cnpt/insert" method="post" id="insertFrm">
+ <div class="row">
+     <div class="col-12">
+         <div class="card">
+             <div class="card-body">
+
+                 <h4 class="card-title">기본정보</h4>
+				<hr><br>
+                 <div class="mb-3 row">
+                     <label for="example-text-input" class="col-md-2 col-form-label">거래처명 <font color="red">*</font></label>
+                     <div class="col-md-4">
+                         <input class="form-control" type="text" name="cnptNm" id="cnptNm">
+                     </div>
+                 </div>
+                 <div class="mb-3 row">
+                     <label class="col-md-2 col-form-label">구분 <font color="red">*</font></label>
+                     <div class="col-md-2">
+                         <select class="form-select" name="cnptSe" id="cnptSe">
+                             <option value="법인">법인</option>
+                             <option value="개인">개인</option>
+                         </select>
+                     </div>
+                 </div>                 
+                 <div class="mb-3 row">
+                     <label for="example-email-input" class="col-md-2 col-form-label">사업자등록번호 <font color="red">*</font></label>
+                     <div class="col-md-4">
+                         <input class="form-control" type="text" placeholder="사업자번호 입력" name="cnptBrno" id="cnptBrno">
+                     </div>
+                     <div class="col-md-2">
+                         <button type="button" class="btn btn-info waves-effect waves-light">조회</button>
+                     </div>
+                 </div>
+                 <div class="mb-3 row">
+                     <label for="example-url-input" class="col-md-2 col-form-label">업종분류</label>
+                     <div class="col-md-4">
+                         <select class="form-select" name="cmncdCd" id="cmncdCd">
+                         	<c:forEach var="cmncdVO" items="${cmncdList}">
+	                         	<option value="${cmncdVO.cmncdCd}">${cmncdVO.cmncdNm1}</option>
+                         	</c:forEach>
+                         </select>
+                     </div>
+                 </div>
+                 <div class="mb-3 row">
+                     <label for="example-tel-input" class="col-md-2 col-form-label">대표자 이름 <font color="red">*</font></label>
+                     <div class="col-md-4">
+                         <input class="form-control" type="text" placeholder="대표자 이름 입력"
+                             name="cnptRprsvNm" id="cnptRprsvNm">
+                     </div>
+                 </div>
+                 <div class="mb-3 row">
+                     <label for="example-password-input" class="col-md-2 col-form-label">연락처</label>
+                     <div class="col-md-4">
+                         <input class="form-control" type="tel" placeholder="연락처를 입력해주세요"
+                             name="cnptTel" id="cnptTel">
+                     </div>
+                 </div>
+                 <div class="mb-3 row">
+                     <label for="example-week-input" class="col-md-2 col-form-label">우편번호</label>
+                     <div class="col-md-4">
+                         <input class="form-control" type="text" name="cnptZip" id="cnptZip" >
+                     </div>
+                     <div class="col-md-2">
+                         <button type="button" class="btn btn-info waves-effect waves-light" onclick="openHomeSearch()">우편번호 검색</button>
+                     </div>     
+                 </div>
+                 <div class="mb-3 row">
+                     <label for="example-month-input" class="col-md-2 col-form-label">주소</label>
+                     <div class="col-md-6">
+                         <input class="form-control" type="text" name="cnptAddr" id="cnptAddr" >
+                     </div>
+                 </div>
+                 <div class="mb-3 row">
+                     <label for="example-month-input" class="col-md-2 col-form-label">상세주소</label>
+                     <div class="col-md-6">
+                         <input class="form-control" type="text" name="cnptDaddr" id="cnptDaddr">
+                     </div>
+                 </div>
+<!--                  <div class="mb-3 row"> -->
+<!--                      <label for="example-time-input" class="col-md-2 col-form-label">거래여부</label> -->
+<!--                      <div class="col-md-4"> -->
+<!--                          <input class="form-control" type="text" id="example-time-input"> -->
+<!--                      </div> -->
+<!--                  </div> -->
+
+<!--                  <div class="row"> -->
+<!--                      <label for="exampleDataList" class="col-md-2 col-form-label">Datalists</label> -->
+<!--                      <div class="col-md-10"> -->
+<!--                          <input class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Type to search..."> -->
+<!--                          <datalist id="datalistOptions"> -->
+<!--                              <option value="San Francisco"> -->
+<!--                              <option value="New York"> -->
+<!--                              <option value="Seattle"> -->
+<!--                              <option value="Los Angeles"> -->
+<!--                              <option value="Chicago"> -->
+<!--                          </datalist> -->
+<!--                      </div> -->
+<!--                  </div> -->
+
+             </div>
+         </div>
+     </div> <!-- end col -->
+ </div>
+ <!-- end row -->
+
+ <div class="row">
+     <div class="col-lg-12">
+         <div class="card">
+             <div class="card-body">
+                 <h4 class="card-title">계좌 정보</h4>
+                 <hr><br>
+                 <div>
+                     <div class="row">
+                         <div class="col-lg-3">
+                             <div>
+                                 <label class="form-label">은행명</label>
+                                 <select class="form-select" title="은행명을 선택해주세요" name="cnptBankNm" id="cnptBankNm">
+		                             <option>기업은행</option>
+		                             <option>국민은행</option>                                	
+		                             <option>외환은행</option>                                	
+		                             <option>수협</option>                                	
+		                             <option>농협</option>                                	
+		                             <option>우리은행</option>                                	
+		                             <option>제일은행</option>                                	
+		                             <option>씨티은행</option>                                	
+		                             <option>대구은행</option>                                	
+		                             <option>부산은행</option>                                	
+		                             <option>광주은행</option>                                	
+		                             <option>제주은행</option>                                	
+		                             <option>전북은행</option>                                	
+		                             <option>경남은행</option>                                	
+		                             <option>새마을금고</option>                                	
+		                             <option>신협</option>                                	
+		                             <option>우체국</option>                                	
+		                             <option>하나은행</option>                                	
+		                             <option>신한은행</option>                                	
+		                             <option>카카오뱅크</option>                                	
+                                 </select>
+<!--                      <div class="col-md-2"> -->
+<!--                          <select class="form-select"> -->
+<!--                              <option>법인</option> -->
+<!--                              <option>개인</option> -->
+<!--                          </select> -->
+<!--                      </div> -->
+                             </div>
+                         </div>
+                         <div class="col-lg-4">
+                             <div>
+                                 <label class="form-label">계좌번호</label>
+                                 <input class="form-control" type="text" placeholder="계좌번호 입력" name="cnptActno" id="cnptActno">
+                             </div>
+                         </div>
+                         <div class="col-lg-3">
+                             <div>
+                                 <label class="form-label">예금주명</label>
+                                 <input class="form-control" type="text" placeholder="예금주명 입력" name="cnptActnm" id="cnptActnm">
+                             </div>
+                         </div>
+                     </div>
+
+                 </div>
+             </div>
+         </div>
+     </div>
+ </div>
+
+
+ <!-- end row -->
+ 
+  <div class="row">
+     <div class="col-lg-12">
+         <div class="card">
+             <div class="card-body">
+                 <h4 class="card-title">담당자 정보</h4>
+                 <hr><br>
+                 <div>
+	                 <div class="mb-3 row">
+	                     <label for="cnptCharger" class="col-md-2 col-form-label">담당자명 <font color="red">*</font></label>
+	                     <div class="col-md-4">
+	                         <input class="form-control" type="text" name="cnptCharger" id="cnptCharger">
+	                     </div>
+	                 </div>
+	                 <div class="mb-3 row">
+	                     <label for="cnptMail" class="col-md-2 col-form-label">담당자이메일 <font color="red">*</font></label>
+	                     <div class="col-md-4">
+	                         <input class="form-control" type="text" name="cnptMail" id="cnptMail">
+	                     </div>
+	                 </div>
+                 </div>
+             </div>
+         </div>
+     </div>
+ </div>
+ <!-- form태그 끝 -->
+ <!-- end row -->
+ 
+ <div class="row">
+     <div class="col-lg-12">
+         <div class="card">
+             <div class="card-body">
+                 <div class="col-md-12">
+                     <button type="button" id="btnSub" class="btn btn-info ">등록</button>
+                     <a href="/cnpt/list" class="btn btn-primary ">목록으로</a>
+                 </div>                 
+             </div>
+         </div>
+     </div>
+ </div>
+</form>
+<!-- container-fluid -->
+ 
+</body>
+</html>

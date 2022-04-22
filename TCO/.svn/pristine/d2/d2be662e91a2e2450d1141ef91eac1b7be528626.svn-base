@@ -1,0 +1,70 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>진료</title>
+</head>
+<body>
+	<div class="card">
+			<div class="row">
+			
+				<div class="col-xl-4">
+				<div class="card">
+					<div class="row-md-6">
+						<div class="card-body">
+							<div class="card-body">
+								<strong>예약</strong>
+							</div>
+						</div>
+					</div>
+					<div class="row-md-6">
+							<div class="card-body">
+								<strong>대기</strong>
+							</div>
+						</div>
+					</div>
+				</div>
+			
+			
+				<div class="col-xl-4">
+				<div class="card">
+					<div class="row-md-6">
+						<div class="card-body">
+							<div class="card-body">
+								<strong>환자정보</strong>
+							</div>
+						</div>
+					</div>
+					<div class="row-md-6">
+							<div class="card-body">
+								<strong>증상</strong>
+							</div>
+						</div>
+					</div>
+					<button>1</button>
+					<button>2</button>
+					<button>3</button>
+				</div>
+			
+				<div class="col-xl-4">
+				<div class="card">
+					<div class="row-md-6">
+						<div class="card-body">
+							<div class="card-body">
+								<strong>코멘트</strong>
+							</div>
+						</div>
+					</div>
+					<div class="row-md-6">
+							<div class="card-body">
+								<strong>내용</strong>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+			</div>	
+	</div>
+</body>
+</html>

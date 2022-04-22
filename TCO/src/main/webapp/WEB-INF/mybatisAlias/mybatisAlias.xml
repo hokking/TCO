@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+  <configuration>
+  	<!-- 
+  		[MyBatis]
+  		스프링에서 "_"를 사용한 컬럼명을 사용 시 테이블 컬럼명에 "_"가 있을 경우 카멜케이스로읽어줌
+  		member 테이블의 컬럼명이 mem_id일 경우 memId로 사용가능하도록 도와줌
+  		ex. cart 테이블에 cart_prod => cartProd
+  	 -->
+  	<settings>
+  		<setting name="mapUnderscoreToCamelCase" value="true" />
+  	</settings>
+  	
+  	<!-- 자주 사용하는 타입의 별칭 -->
+  	<typeAliases>
+  		<typeAlias type="kr.or.tco.sls.vo.SlsVO" alias="slsVO"/>
+  		<typeAlias type="kr.or.tco.cnpt.vo.CnptVO" alias="cnptVO"/>
+  		<typeAlias type="kr.or.tco.emp.vo.EmpVO" alias="empVO"/>
+  		<typeAlias type="kr.or.tco.emp.vo.AttachFilesVO" alias="attachFilesVO"/>
+  		<typeAlias type="kr.or.tco.prod.vo.ProdVO" alias="prodVO"/>
+  		<typeAlias type="kr.or.tco.cal.vo.StrgWrhsVO" alias="strgWrhsVO"/>
+  		<typeAlias type="kr.or.tco.cal.vo.CustNtsVO" alias="custNtsVO"/>
+  		<typeAlias type="kr.or.tco.cal.vo.PosVO" alias="posVO"/>
+  		<typeAlias type="kr.or.tco.cmncd.vo.CmncdVO" alias="cmncdVO"/>
+  		<typeAlias type="kr.or.tco.cust.vo.CustVO" alias="custVO"/>
+  		<typeAlias type="kr.or.tco.att.vo.WorksttsVO" alias="worksttsVO"/>
+  		<typeAlias type="kr.or.tco.brnc.vo.BrncVO" alias="brncVO"/>
+  		<typeAlias type="kr.or.tco.strgstck.vo.StrgstckVO" alias="strgstckVO"/>
+  		<typeAlias type="kr.or.tco.sttst.vo.SttstVO" alias="sttstVO"/>
+  		<typeAlias type="kr.or.tco.ordr.vo.OrdrVO" alias="ordrVO"/>
+  		<typeAlias type="kr.or.tco.prchs.vo.PrchsVO" alias="prchsVO"/>
+  		<typeAlias type="kr.or.tco.notice.vo.BrdVO" alias="brdVO"/>
+  		<typeAlias type="kr.or.tco.store.vo.StoreVO" alias="storeVO"/>
+  		<typeAlias type="kr.or.tco.prchsgds.vo.PrchsGdsVO" alias="prchsGdsVO"/>
+  		<typeAlias type="kr.or.tco.util.vo.CalendarVO" alias="calendarVO"/>
+  		<typeAlias type="kr.or.tco.sig.vo.SigVO" alias="sigVO"/>
+  		<typeAlias type="kr.or.tco.alam.vo.AlamVO" alias="alamVO"/>
+  		
+  	</typeAliases>
+  	
+  </configuration>

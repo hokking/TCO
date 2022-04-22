@@ -1,0 +1,40 @@
+package kr.or.tco.sls.vo;
+
+public class SlsVO {
+
+	private String slsId;
+	private String brncofcId;
+	private String slsDt;
+	private int slsAmt;
+	
+	
+	public String getSlsId() {
+		return slsId;
+	}
+	public void setSlsId(String slsId) {
+		this.slsId = slsId;
+	}
+	public String getBrncofcId() {
+		return brncofcId;
+	}
+	public void setBrncofcId(String brncofcId) {
+		this.brncofcId = brncofcId;
+	}
+	public String getSlsDt() {
+		return slsDt;
+	}
+	public void setSlsDt(String slsDt) {
+		this.slsDt = slsDt;
+	}
+	public int getSlsAmt() {
+		return slsAmt;
+	}
+	public void setSlsAmt(int slsAmt) {
+		this.slsAmt = slsAmt;
+	}
+	@Override
+	public String toString() {
+		return "SlsVO [slsId=" + slsId + ", brncofcId=" + brncofcId + ", slsDt=" + slsDt + ", slsAmt=" + slsAmt + "]";
+	}
+	
+}

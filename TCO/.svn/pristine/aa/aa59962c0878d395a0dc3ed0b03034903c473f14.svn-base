@@ -1,0 +1,249 @@
+package kr.or.tco.cal.controller;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.tco.ArticlePage;
+import kr.or.tco.cal.service.CalService;
+import kr.or.tco.cal.vo.StrgWrhsVO;
+import kr.or.tco.cmncd.vo.CmncdVO;
+import kr.or.tco.prod.vo.ProdVO;
+import kr.or.tco.sls.vo.SlsVO;
+import kr.or.tco.cal.vo.CustNtsVO;
+import kr.or.tco.cal.vo.PosVO;
+
+//정산 컨트롤러
+@RequestMapping("/calculate")
+@Controller
+public class CalController {
+	private static final Logger logger = 
+			LoggerFactory.getLogger(CalController.class);
+	@Autowired CalService calService;
+	/**
+	 *  일일 매입 정산
+	 *  @return 일일 매입 vo 가 담긴 list 를 리턴.
+	 */
+	@RequestMapping(value = "/dailyPrc" ,method = RequestMethod.GET)
+	public String dailyPrc(Model model
+			, @RequestParam(required=false) String brnSelect 	
+			, @RequestParam(required=false) String startDay 	
+			, @RequestParam(required=false) String endDay) {	
+		
+		logger.info("brnSelect : " + brnSelect);
+		logger.info("startDay : " + startDay);
+		logger.info("endDay : " + endDay);
+		//<key,value>
+		Map<String,Object> map = new HashMap<String, Object>();
+		
+		map.put("brnSelect", brnSelect);
+		map.put("startDay", startDay);
+		map.put("endDay", endDay);
+//		map.put("currentPage", currentPage);
+//		map.put("size", size);
+		//고객 전체 인원수
+//		int total = this.cusService.getTotal(map);
+		//창고 입고 총 횟수
+//		int SGWTotal = this.calService.getSGWTotal(map);
+		//상품 판매 총 횟수
+//		int CNLTotal = this.calService.getCNLTotal(map);
+		//창고입고 페이징처리 
+//		model.addAttribute("dailyPrc",new ArticlePage(SGWTotal, currentPage, size, 5, dailyPrc));
+//		model.addAttribute("SGWTotal", SGWTotal);
+		//상품 판매 페이징 처리 
+//		model.addAttribute("dailyCustNts",new ArticlePage(CNLTotal, currentPage, size, 5, dailyCustNts));
+//		model.addAttribute("CNLTotal", CNLTotal);
+		List<StrgWrhsVO>dailyPrc = this.calService.dailyPrc(map);
+		List<CustNtsVO>dailyCustNts = this.calService.dailyCustNts(map);
+		model.addAttribute("dailyPrc",dailyPrc);
+		model.addAttribute("dailyCustNts",dailyCustNts);
+		
+		logger.info("dailyPrc : " + dailyPrc);
+		logger.info("dailyCustNts : " + dailyCustNts);
+		
+		//forwarding
+		return "calculate/dailyPrc";
+	}
+	
+	//일일정산 등록
+	@ResponseBody
+	@RequestMapping(value = "/dailyCalInsert" ,method = RequestMethod.POST)
+	public String dailyCalInsert(Model model
+			, @RequestParam(required=false) String calbrn 	
+			, @RequestParam(required=false) int netIncome 	
+			, @RequestParam(required=false) int prcsum 	
+			, @RequestParam(required=false) int slssum) {	
+		//<key,value>
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("calbrn", calbrn);
+		map.put("netIncome", netIncome);
+		map.put("prcsum", prcsum);
+		map.put("slssum", slssum);
+		int result = this.calService.dailyCalInsert(map);
+		model.addAttribute("dailyCalInsert",result);
+		
+		//정상적으로 등록
+		if(result > 0) {
+			//forward
+			return "success";
+		}else { //등록 실패
+			
+			return "fail";
+		}
+	}
+
+
+	//상품명으로 상품정보 가져오기
+	@ResponseBody
+	@RequestMapping(value ="/prodDetail", method = RequestMethod.GET)
+	public ProdVO detail(Model model, @RequestParam("prodInfoNm") String prodInfoNm) {
+		
+		ProdVO prodVO = calService.prodDetail(prodInfoNm);
+		logger.info("prodVO : " + prodVO);
+		
+		model.addAttribute("prodVO", prodVO);
+		
+		
+		return prodVO;
+	}
+	
+	
+	//상품 목록
+	@GetMapping("/prodList")
+	public String prodList(Model model, @RequestParam(required=false) String keyWord) {
+		logger.info("keyWord : " + keyWord);
+		
+		//mapper에 상품목록 뽑는 파라미터인 hashMap 생성
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("keyWord", keyWord);
+		
+		List<PosVO> prodList = this.calService.prodList(map);
+		
+		model.addAttribute("prodList", prodList);
+		
+		//forwarding
+		return "calculate/prodList";
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/custValChk",method = RequestMethod.POST)
+	public String custValChk(Model model, @RequestParam(required=false) String custId) {
+		logger.info("custId : " + custId);
+		//mapper에 상품목록 뽑는 파라미터인 hashMap 생성
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("custId", custId);
+		String result = this.calService.custValChk(map);
+//		model.addAttribute("custId", custId);
+		//정상적으로 등록
+		if(result != null) {
+			//forward
+			return "success";
+		}else { //등록 실패
+			return "fail";
+		}
+	}
+	
+	@RequestMapping(value = "/pos" ,method = RequestMethod.GET)
+	public String pos(Model model 
+			, @RequestParam(required=false) String selectBrn 	
+			, @RequestParam(required=false) String custId 	
+			, @RequestParam(required=false) String prodInfoId 	
+			, @RequestParam(required=false) String prodInfoNtslAmt 	
+			, @RequestParam(required=false) String streStckQty 	
+			, @RequestParam(required=false) String custNtslQty) {	
+		
+		//<key,value>
+		Map<String,Object> map = new HashMap<String, Object>();
+		
+		map.put("selectBrn", selectBrn);
+		map.put("custId", custId);
+		map.put("prodInfoId", prodInfoId);
+		map.put("prodInfoNtslAmt", prodInfoNtslAmt);
+		map.put("custNtslQty", custNtslQty);
+		
+//		int CustNtsInsert = this.calService.CustNtsInsert(map);
+//		model.addAttribute("CustNtsInsert",CustNtsInsert);
+//		logger.info("CustNtsInsert : " + CustNtsInsert);
+		
+		
+		Map<String,Object> map2 = new HashMap<String, Object>();
+		map2.put("streStckQty",streStckQty);
+		map2.put("custNtslQty",custNtslQty);
+		map2.put("selectBrn",selectBrn);
+		map2.put("prodInfoId",prodInfoId);
+		
+//		int streStckDsc = this.calService.streStckDsc(map2);
+//		model.addAttribute("streStckDsc",streStckDsc);
+//		logger.info("streStckDsc : " + streStckDsc);
+		
+		
+		
+		//forwarding
+		return "calculate/pos";
+	}
+	
+	
+	//pos기 판매->소비자 판매 증가 ajax 처리
+	@ResponseBody
+	@RequestMapping(value = "/CustNtsInsert" ,method = RequestMethod.POST)
+	public String CustNtsInsert(Model model
+			, @RequestParam(required=false) String selectBrn 	
+			, @RequestParam(required=false) String custId 	
+			, @RequestParam(required=false) String prodInfoId 	
+			, @RequestParam(required=false) String prodInfoNtslAmt 	
+			, @RequestParam(required=false) String custNtslAmt 	
+			, @RequestParam(required=false) String custNtslQty) {	
+//		logger.info("selectBrn : " + selectBrn);
+//		logger.info("custId : " + custId);
+//		logger.info("prodInfoId : " + prodInfoId);
+//		logger.info("prodInfoNtslAmt : " + prodInfoNtslAmt);
+//		logger.info("custNtslAmt : " + custNtslAmt);
+//		logger.info("custNtslQty : " + custNtslQty);
+		//<key,value>
+		Map<String,Object> map = new HashMap<String, Object>();
+		
+		map.put("selectBrn", selectBrn);
+		map.put("custId", custId);
+		map.put("prodInfoId", prodInfoId);
+		map.put("custNtslQty", custNtslQty);
+		map.put("prodInfoNtslAmt", prodInfoNtslAmt);
+		map.put("custNtslAmt", custNtslAmt);
+		
+		int CustNtsInsert = this.calService.CustNtsInsert(map);
+		model.addAttribute("CustNtsInsert",CustNtsInsert);
+//		logger.info("CustNtsInsert : " + CustNtsInsert);
+		
+		////////////////위 = 소비자 판매 증가(현금흐름) /// 아래 = 매장 재고 감소(재고흐름)
+		
+		Map<String,Object> map2 = new HashMap<String, Object>();
+		map2.put("custNtslQty",custNtslQty);
+		map2.put("selectBrn",selectBrn);
+		map2.put("prodInfoId",prodInfoId);
+		
+		int streStckDsc = this.calService.streStckDsc(map2);
+		model.addAttribute("streStckDsc",streStckDsc);
+//		logger.info("streStckDsc : " + streStckDsc);
+		
+		//정상적으로 등록
+		if(CustNtsInsert > 0 && streStckDsc > 0) {
+			//forward
+			return "success";
+		}else { //등록 실패
+			
+			return "fail";
+		}
+	}
+	
+	
+}

@@ -1,0 +1,111 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<style>
+
+</style>
+
+<html>
+<head>
+<title>일일정산</title>
+</head>
+<body>
+
+	<div class="card">
+		<div class="card-body">
+			<h4 class="card-title mb-4">일일정산 = 재고 + 입고 - 출고 where = 해당일자</h4>
+
+			<!--날짜 검색 버튼-->
+			<div class="row">
+				<div class="col-sm-2">
+					<div class="mb-3">
+						<label>시작일</label> <input class="form-control" type="date"
+							value="" id="startdate-input">
+					</div>
+				</div>
+				<div class="col-sm-2">
+					<div class="mb-3">
+						<label>종료일</label> <input class="form-control" type="date"
+							value="" id="enddate-input">
+					</div>
+				</div>
+				<div class="col-sm-2">
+					<div class="mb-3">
+						<label>검색</label>
+						<div class="input-group mb-3">
+							<input type="text" class="form-control" id="">
+							<button class="btn btn-success" type="button" id="">찾기</button>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-2">
+					<div class="mb-3">
+						<label>매입/매출</label> <select class="form-select">
+							<option>매입</option>
+							<option>매출</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<!--날짜검색버튼-->
+
+			<div class="table-responsive">
+				<table class="table align-middle table-nowrap">
+					<thead>
+						<tr>
+							<th>체크</th>
+							<th>창고입고아이디</th>			<!-- STRG_WRHS_DT -->
+							<th>창고입고일자</th>			<!-- STRG_WRHS_ID -->
+							<th>지점아이디</th>			<!-- BRNCOFC_ID -->
+							<th>창고입고상품</th>			<!-- PROD_INFO_ID  -->
+							<th>창고입고수량</th>			<!-- STRG_WRHS_QTY -->
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						<!--foreach문으로 출력-->
+						<c:forEach var="calVO" items="${data}">
+							<tr>
+								<td>
+									<div class="form-check font-size-16">
+										<input class="form-check-input" type="checkbox"
+											id="customerlistcheck01"> <label
+											class="form-check-label" for="customerlistcheck01"></label>
+									</div>
+								</td>
+
+
+								<td><a href="#">${calVO.strgWrhsId}</a></td>
+								<td>
+									<a href="#">${calVO.strgWrhsDt}</a>
+								</td>
+
+								<td><a href="#">${calVO.brncofcId}</a></td>
+								<td><a href="#">${calVO.prodInfoId}</a></td>
+								<td><a href="#">${calVO.strgWrhsQty}</a></td>
+								<td>
+									<div class="dropdown">
+										<a href="#" class="dropdown-toggle card-drop"
+											data-bs-toggle="dropdown" aria-expanded="false"> <i
+											class="mdi mdi-dots-horizontal font-size-18"></i>
+										</a>
+										<ul class="dropdown-menu dropdown-menu-end">
+											<li><a href="#" class="dropdown-item"><i
+													class="mdi mdi-pencil font-size-16 text-success me-1"></i>
+													Edit</a></li>
+											<li><a href="#" class="dropdown-item"><i
+													class="mdi mdi-trash-can font-size-16 text-danger me-1"></i>
+													Delete</a></li>
+										</ul>
+									</div>
+								</td>
+							</tr>
+						</c:forEach>
+					
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,30 @@
+package kr.or.tco.calculate.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@RequestMapping("/cal")
+@Controller
+public class CalController {
+
+	@GetMapping("/dailySettlement")
+	public String dailySettlement(){
+		
+		return "";
+	}
+	
+	@GetMapping("/weeklySettlement")
+	public String weeklySettlement(){
+		
+		return "";
+	}
+	
+	@GetMapping("/yearlySettlement")
+	public String yearlySettlement(){
+		
+		return "";
+	}
+	
+	
+}

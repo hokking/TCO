@@ -1,0 +1,5 @@
+package kr.or.tco.att.mapper;
+
+public interface AttMapper {
+
+}

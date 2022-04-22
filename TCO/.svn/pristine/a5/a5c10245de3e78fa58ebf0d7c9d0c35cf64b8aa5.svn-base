@@ -1,0 +1,520 @@
+<%@ page contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
+<%@ page import='java.util.Random' %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-Frame-Options" content="deny" />
+<title>대화 main</title><!--WebSocket messenger main-->
+
+<script  src="http://code.jquery.com/jquery-latest.min.js"></script>
+
+<!-- <script src="resource/js/json2.js"></script>-->
+<script>
+
+   //chat 팝업창을 여러개 띄우기 위함   
+   var webSocket = null;
+   $(document).ready(function() {
+      var url = 'ws://' + window.location.host + '${pageContext.request.contextPath}/usersServerEndpoint';
+      webSocket = connection(url);
+      var connectionType;
+      
+      webSocket.onopen = function(){ processOpen(); };
+      webSocket.onmessage = function(message) { processMessage(message); };
+      webSocket.onerror = function(message) { processError(message); };
+      
+   });
+   //var webSocket = new WebSocket('ws://' + window.location.host + '/egov-messenger/usersServerEndpoint');
+   
+   
+   function connection(url) {
+      var webSocket = null;
+      if ('WebSocket' in window) {
+         webSocket = new WebSocket(url);
+      } else if ('MozWebSocket' in window) {
+         webSocket = new MozWebSocket(url);
+      } else {
+         Console.log('Error: WebSocket is not supported by this browser.');
+            return null;
+      }
+      return webSocket;
+   }
+   
+   function processOpen() {
+      connectionType = "firstConnection";
+      username = "${empVO.empNm}";
+      webSocket.send(JSON.stringify({ "connectionType" : connectionType, "username" : username }));
+   }
+      
+   //server에서 메시지가 넘어왔을때
+   function processMessage(message) {
+      var jsonData = JSON.parse(message.data);
+      
+      if (jsonData.allUsers != null) {
+         //다른 사용자 접속 시,
+         displayUsers(jsonData.allUsers);
+      } 
+      
+      if (jsonData.disconnectedUser != null) {
+         //다른 사용자가 접속을 끊을 때,
+         $("#"+jsonData.disconnectedUser).remove();
+      }
+      
+      //다른 사용자와 대화하고자 시도할 때, 채팅창을 팝업
+      if (jsonData.enterChatId != null) {
+         var roomId = jsonData.enterChatId;
+         $("#roomId").val(roomId);
+         $("#username").val(jsonData.username);
+         openPopup(roomId);
+      }
+   }
+   
+   function openPopup(roomId) {
+      var popOptions = "width= 500, height= 700, resizable=yes, status= no, scrollbar= yes"; 
+      var targetTitle = random(roomId); //두명의 사용자가 다른 팝업으로 뜨기 위해서 targetTitle을 랜덤으로 만들어준다.
+      popupPost("<c:url value='/chat/websocketMessengePopup'/>", targetTitle, popOptions);
+   }
+   
+   function popupPost(url, target, option) {
+      window.open("", target, option);
+      
+      var form = $("form[name=usersForm]");
+      form.attr("target", target);
+      form.attr("action", url);
+      form.attr("method", "post");
+      form.submit();
+   }
+   
+   
+   function displayUsers(userList) {
+      var username;
+      $("#users tr:not(:first)").remove();
+      for (var i=0; i<userList.length; i++) {
+         if("${empVO.empNm}"==userList[i]) {
+            username = userList[i]+"(me!)";
+         } else{
+            username = userList[i];
+         }
+//          $.newTr = $("<tr id="+userList[i]+" onclick='trClick(this)'><td>"+username+"</td></tr>");
+         $.newTr = $("<tr id="+userList[i]+" onclick='trClick(this)'><td><li><a href='javascript: void(0);'><div class='d-flex'><div class='flex-shrink-0 align-self-center me-3'><i class='mdi mdi-circle text-success font-size-10'></i></div><div class='flex-shrink-0 align-self-center me-3'><img src='/resources/images/TCO로고_세로.png' class='avatar-xs' alt=''></div><div class='flex-grow-1 overflow-hidden'><h5 class='text-truncate font-size-14 mb-1'>"+username+"</h5><p class='text-truncate mb-0'>일일정산 상신 내역 확인 부탁 드립니다.</p></div><div class='font-size-11'>12 min</div><button onclick='openPop()' class='popup-form btn btn-sm btn-primary' >화상채팅</button></div></a></li></td></tr>");
+         //append
+         $("#users").last().append($.newTr);
+         
+      }
+   }
+   
+   //다른 사용자 선택 시, 선택한 사용자 값을 서버에 전달
+   function trClick(selectedTr) {
+      if (selectedTr.id != null) {
+            connectionType = "chatConnection";
+            webSocket.send(JSON.stringify({ "connectionType" : connectionType, "connectingUser" : selectedTr.id }));
+         }
+   }
+   
+   function random(roomId) {
+      <%
+         String rUid = "";
+      
+         for(int i=0; i<8; i++) {
+            rUid += (char)((new Random().nextDouble()*26)+97);
+         }
+      %>
+      return roomId+"."+"<%=rUid%>";
+   }
+   
+   function processError(message) {
+      /* messagesTextArea.value += "error...\n"; */
+   }
+
+   window.onbeforeunload = function() {
+      webSocket.close();
+   };
+   
+   function openPop(){
+      var width = 500;
+      var height = 700;
+      var left = (window.screen.width /2)-(width/2);
+      var top = (window.screen.height/4);
+      var windowStatus = 'width='+width+', height='+height+', left='+left+', top='+top+', scrollbars=yes, status=yes, resizable=yes, titlebar=yes';
+       var popup = window.open('https://192.168.142.3:3000', '채팅', windowStatus);
+   }
+</script>
+</head>
+<body>
+ 
+ 
+ <div class="container-fluid">
+
+        <!-- start page title -->
+      <div class="row">
+         <div class="col-12">
+            <div
+               class="page-title-box d-sm-flex align-items-center justify-content-between">
+               <h4 class="mb-sm-0 font-size-18">T-CO 사내 메신저~</h4>
+
+               <div class="page-title-right">
+                  <ol class="breadcrumb m-0">
+                  </ol>
+               </div>
+
+            </div>
+         </div>
+      </div>
+      <!-- end page title -->
+
+      <div class="d-lg-flex">
+         <div class="col-4">
+            <div class="">
+               <div class="py-4 border-bottom">
+                  <div class="d-flex">
+                     <div class="flex-shrink-0 align-self-center me-3">
+                        <img src="${img}" class="avatar-xs rounded-circle" alt="">
+                     </div>
+                     <div class="flex-grow-1">
+                        <h5 class="font-size-15 mb-1">${userNM}</h5>
+                        <p class="text-muted mb-0">
+                           <i class="mdi mdi-circle text-success align-middle me-1"></i>
+                           업무중
+                        </p>
+                     </div>
+
+                     <div>
+                        <div class="dropdown chat-noti-dropdown active">
+                           <button class="btn" type="button" data-bs-toggle="dropdown"
+                              aria-haspopup="true" aria-expanded="false">
+                              <i class="bx bx-bell bx-tada"></i>
+                           </button>
+                           <div class="dropdown-menu dropdown-menu-end" style="">
+                              <a class="dropdown-item" href="#">Action</a> <a
+                                 class="dropdown-item" href="#">Another action</a> <a
+                                 class="dropdown-item" href="#">Something else here</a>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+
+               <div class="search-box chat-search-box py-4">
+                  <div class="position-relative">
+                     <input type="text" class="form-control" placeholder="Search...">
+                     <i class="bx bx-search-alt search-icon"></i>
+                  </div>
+               </div>
+
+               <div class="chat-leftsidebar-nav">
+                  <ul class="nav nav-pills nav-justified">
+                     <li class="nav-item"><a href="#chat" data-bs-toggle="tab"
+                        aria-expanded="true" class="nav-link active"> <i
+                           class="bx bx-chat font-size-20 d-sm-none"></i> <span
+                           class="d-none d-sm-block">채팅/화상채팅</span>
+                     </a></li>
+                     <li class="nav-item"><a href="#groups" data-bs-toggle="tab"
+                        aria-expanded="false" class="nav-link"> <i
+                           class="bx bx-group font-size-20 d-sm-none"></i> <span
+                           class="d-none d-sm-block">조직</span>
+                     </a></li>
+                     <li class="nav-item"><a href="#contacts"
+                        data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                           <i class="bx bx-book-content font-size-20 d-sm-none"></i> <span
+                           class="d-none d-sm-block">연락</span>
+                     </a></li>
+                  </ul>
+                  <div class="tab-content py-4">
+                     <div class="tab-pane show active" id="chat">
+                        <div>
+                           <h5 class="font-size-14 mb-3"></h5>
+                           <ul class="list-unstyled chat-list" data-simplebar="init"
+                              style="max-height: 410px;">
+                              <div class="simplebar-wrapper" style="margin: 0px;">
+                                 <div class="simplebar-height-auto-observer-wrapper">
+                                    <div class="simplebar-height-auto-observer"></div>
+                                 </div>
+                                 <div class="simplebar-mask">
+                                    <div class="simplebar-offset"
+                                       style="right: -18.8889px; bottom: 0px;">
+                                       <div class="simplebar-content-wrapper"
+                                          style="height: auto; overflow: hidden scroll;">
+                                          <div class="simplebar-content" style="padding: 0px;">
+
+
+                                             <!-- li 자리 -->
+
+                                                                           
+                                        <!-- ---------------- 전자정부 --------------------->
+                                          <form name="usersForm">
+                                             <input type="hidden" id="roomId" name="roomId"/>
+                                             <input type="hidden" id="username" name="username"/>
+                                          <br/>
+                                          <div id="content"></div>
+                                           <br/><!-- 본인 외의 대화상태를 선택하면 대화창이 뜹니다. -->
+                                          <!-- List -->
+                                          <table id="users" name="users" cellspacing='0'><!-- cellspacing='0' is important, must stay -->
+                                              <tr><th>로그인 중인 사원 목록</th></tr><!-- Table Header -->
+                                              <tr><td>대화 상대방이 없습니다.</td></tr>
+                                           </table>
+                                          </form>
+                                          
+                                        <!-- ---------------- 전자정부 ------------------------->
+
+
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                                 <div class="simplebar-placeholder"
+                                    style="width: auto; height: 485px;"></div>
+                              </div>
+                              <div class="simplebar-track simplebar-horizontal"
+                                 style="visibility: hidden;">
+                                 <div class="simplebar-scrollbar"
+                                    style="transform: translate3d(0px, 0px, 0px); display: none;"></div>
+                              </div>
+                              <div class="simplebar-track simplebar-vertical"
+                                 style="visibility: visible;">
+                                 <div class="simplebar-scrollbar"
+                                    style="height: 346px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
+                              </div>
+                           </ul>
+                        </div>
+                     </div>
+
+                     <div class="tab-pane" id="groups">
+                        <h5 class="font-size-14 mb-3">Groups</h5>
+                        <ul class="list-unstyled chat-list" data-simplebar="init"
+                           style="max-height: 410px;">
+                           <div class="simplebar-wrapper" style="margin: 0px;">
+                              <div class="simplebar-height-auto-observer-wrapper">
+                                 <div class="simplebar-height-auto-observer"></div>
+                              </div>
+                              <div class="simplebar-mask">
+                                 <div class="simplebar-offset"
+                                    style="right: 0px; bottom: 0px;">
+                                    <div class="simplebar-content-wrapper"
+                                       style="height: auto; overflow: hidden;">
+                                       <div class="simplebar-content" style="padding: 0px;">
+                                          <li><a href="javascript: void(0);">
+                                                <div class="d-flex align-items-center">
+                                                   <div class="flex-shrink-0 me-3">
+                                                      <div class="avatar-xs">
+                                                         <span
+                                                            class="avatar-title rounded-circle bg-primary bg-soft text-primary">
+                                                            G </span>
+                                                      </div>
+                                                   </div>
+
+                                                   <div class="flex-grow-1">
+                                                      <h5 class="font-size-14 mb-0">인사</h5>
+                                                   </div>
+                                                </div>
+                                          </a></li>
+
+                                          <li><a href="javascript: void(0);">
+                                                <div class="d-flex align-items-center">
+                                                   <div class="flex-shrink-0 me-3">
+                                                      <div class="avatar-xs">
+                                                         <span
+                                                            class="avatar-title rounded-circle bg-primary bg-soft text-primary">
+                                                            R </span>
+                                                      </div>
+                                                   </div>
+
+                                                   <div class="flex-grow-1">
+                                                      <h5 class="font-size-14 mb-0">기획</h5>
+                                                   </div>
+                                                </div>
+                                          </a></li>
+
+                                          <li><a href="javascript: void(0);">
+                                                <div class="d-flex align-items-center">
+                                                   <div class="flex-shrink-0 me-3">
+                                                      <div class="avatar-xs">
+                                                         <span
+                                                            class="avatar-title rounded-circle bg-primary bg-soft text-primary">
+                                                            M </span>
+                                                      </div>
+                                                   </div>
+
+                                                   <div class="flex-grow-1">
+                                                      <h5 class="font-size-14 mb-0">재무</h5>
+                                                   </div>
+                                                </div>
+                                          </a></li>
+
+                                          <li><a href="javascript: void(0);">
+                                                <div class="d-flex align-items-center">
+                                                   <div class="flex-shrink-0 me-3">
+                                                      <div class="avatar-xs">
+                                                         <span
+                                                            class="avatar-title rounded-circle bg-primary bg-soft text-primary">
+                                                            A </span>
+                                                      </div>
+                                                   </div>
+
+                                                   <div class="flex-grow-1">
+                                                      <h5 class="font-size-14 mb-0">영업</h5>
+                                                   </div>
+                                                </div>
+                                          </a></li>
+
+                                          <li><a href="javascript: void(0);">
+                                                <div class="d-flex align-items-center">
+                                                   <div class="flex-shrink-0 me-3">
+                                                      <div class="avatar-xs">
+                                                         <span
+                                                            class="avatar-title rounded-circle bg-primary bg-soft text-primary">
+                                                            B </span>
+                                                      </div>
+                                                   </div>
+
+                                                   <div class="flex-grow-1">
+                                                      <h5 class="font-size-14 mb-0">물류</h5>
+                                                   </div>
+                                                </div>
+                                          </a></li>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="simplebar-placeholder"
+                                 style="width: 0px; height: 0px;"></div>
+                           </div>
+                           <div class="simplebar-track simplebar-horizontal"
+                              style="visibility: hidden;">
+                              <div class="simplebar-scrollbar"
+                                 style="transform: translate3d(0px, 0px, 0px); display: none;"></div>
+                           </div>
+                           <div class="simplebar-track simplebar-vertical"
+                              style="visibility: hidden;">
+                              <div class="simplebar-scrollbar"
+                                 style="transform: translate3d(0px, 0px, 0px); display: none;"></div>
+                           </div>
+                        </ul>
+                     </div>
+
+                     <div class="tab-pane" id="contacts">
+                        <h5 class="font-size-14 mb-3">Contacts</h5>
+
+                        <div data-simplebar="init" style="max-height: 410px;">
+                           <div class="simplebar-wrapper" style="margin: 0px;">
+                              <div class="simplebar-height-auto-observer-wrapper">
+                                 <div class="simplebar-height-auto-observer"></div>
+                              </div>
+                              <div class="simplebar-mask">
+                                 <div class="simplebar-offset"
+                                    style="right: 0px; bottom: 0px;">
+                                    <div class="simplebar-content-wrapper"
+                                       style="height: auto; overflow: hidden;">
+                                       <div class="simplebar-content" style="padding: 0px;">
+                                          <div>
+                                             <div class="avatar-xs mb-3">
+                                                <span
+                                                   class="avatar-title rounded-circle bg-primary bg-soft text-primary">
+                                                   A </span>
+                                             </div>
+
+                                             <ul class="list-unstyled chat-list">
+                                                <li><a href="javascript: void(0);">
+                                                      <h5 class="font-size-14 mb-0">Adam Miller</h5>
+                                                </a></li>
+
+                                                <li><a href="javascript: void(0);">
+                                                      <h5 class="font-size-14 mb-0">Alfonso Fisher</h5>
+                                                </a></li>
+                                             </ul>
+                                          </div>
+
+                                          <div class="mt-4">
+                                             <div class="avatar-xs mb-3">
+                                                <span
+                                                   class="avatar-title rounded-circle bg-primary bg-soft text-primary">
+                                                   B </span>
+                                             </div>
+
+                                             <ul class="list-unstyled chat-list">
+                                                <li><a href="javascript: void(0);">
+                                                      <h5 class="font-size-14 mb-0">Bonnie Harney</h5>
+                                                </a></li>
+                                             </ul>
+                                          </div>
+
+                                          <div class="mt-4">
+                                             <div class="avatar-xs mb-3">
+                                                <span
+                                                   class="avatar-title rounded-circle bg-primary bg-soft text-primary">
+                                                   C </span>
+                                             </div>
+
+                                             <ul class="list-unstyled chat-list">
+                                                <li><a href="javascript: void(0);">
+                                                      <h5 class="font-size-14 mb-0">Charles Brown</h5>
+                                                </a> <a href="javascript: void(0);">
+                                                      <h5 class="font-size-14 mb-0">Carmella Jones</h5>
+                                                </a> <a href="javascript: void(0);">
+                                                      <h5 class="font-size-14 mb-0">Carrie Williams</h5>
+                                                </a></li>
+                                             </ul>
+                                          </div>
+
+                                          <div class="mt-4">
+                                             <div class="avatar-xs mb-3">
+                                                <span
+                                                   class="avatar-title rounded-circle bg-primary bg-soft text-primary">
+                                                   D </span>
+                                             </div>
+
+                                             <ul class="list-unstyled chat-list">
+                                                <li><a href="javascript: void(0);">
+                                                      <h5 class="font-size-14 mb-0">Dolores Minter</h5>
+                                                </a></li>
+                                             </ul>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="simplebar-placeholder"
+                                 style="width: 0px; height: 0px;"></div>
+                           </div>
+                           <div class="simplebar-track simplebar-horizontal"
+                              style="visibility: hidden;">
+                              <div class="simplebar-scrollbar"
+                                 style="transform: translate3d(0px, 0px, 0px); display: none;"></div>
+                           </div>
+                           <div class="simplebar-track simplebar-vertical"
+                              style="visibility: hidden;">
+                              <div class="simplebar-scrollbar"
+                                 style="transform: translate3d(0px, 0px, 0px); display: none;"></div>
+                           </div>
+                        </div>
+
+                     </div>
+                  </div>
+               </div>
+
+
+            </div>
+         </div>
+         <div class="w-100 user-chat">
+            <div class="card">
+<!--                <a href="https://192.168.142.14" target="_blank">test</a> -->
+<!--                <button onclick="openPop()">화상채팅</button> -->
+<!--                <iframe src="https://192.168.142.14" width="800" height="800"></iframe> -->
+               
+            </div>
+         </div>
+
+      </div>
+      <!-- end row -->
+
+   </div>
+
+
+
+</body>
+</html>

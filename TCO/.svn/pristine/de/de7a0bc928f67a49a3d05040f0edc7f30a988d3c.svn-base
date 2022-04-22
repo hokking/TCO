@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.ordr.mapper.OrdrMapper">
+
+	<!-- 수주O - 발주 테이블 목록 가져오기(상세X) -->
+	<select id="rcvOrdrYList" resultType="ordrVO">
+		SELECT ORDR_ID,PROD_INFO_ID,ORDR_QTY,ORDR_DT,BRNCOFC_ID,ORDR_SE,ORDR_YN
+		  FROM (
+		         SELECT ORDR_ID,PROD_INFO_ID,ORDR_QTY,ORDR_DT,BRNCOFC_ID,ORDR_SE,ORDR_YN
+		              , ROW_NUMBER() OVER(PARTITION BY ORDR_ID ORDER BY PROD_INFO_ID DESC) AS RN
+		           FROM ORDR
+		       )
+		 WHERE RN = 1
+		   AND ORDR_YN='Y'
+		 ORDER BY ORDR_ID
+	</select>
+	
+	<!-- 수주X - 발주 테이블 목록 가져오기(상세X) -->
+	<select id="rcvOrdrNList" resultType="ordrVO">
+		SELECT ORDR_ID,PROD_INFO_ID,ORDR_QTY,ORDR_DT,BRNCOFC_ID,ORDR_SE,ORDR_YN
+		  FROM (
+		         SELECT ORDR_ID,PROD_INFO_ID,ORDR_QTY,ORDR_DT,BRNCOFC_ID,ORDR_SE,ORDR_YN
+		              , ROW_NUMBER() OVER(PARTITION BY ORDR_ID ORDER BY PROD_INFO_ID DESC) AS RN
+		           FROM ORDR
+		       )
+		 WHERE RN = 1
+		   AND ORDR_YN='N'
+		 ORDER BY ORDR_ID
+	</select>
+	
+	<!-- 발주 아이디 별 상세 정보 뽑기 -->
+	<select id="ordrDetail" parameterType="Integer" resultType="ordrVO">
+		SELECT ORDR_ID,PROD_INFO_ID,ORDR_QTY,ORDR_DT,BRNCOFC_ID,ORDR_SE,ORDR_YN
+		FROM   ORDR
+		WHERE ORDR_ID=#{ordrId}
+	</select>
+	
+	<!-- 수주X에서 O로 바꾸기 -->
+	<update id="rcvNtoY" parameterType="Integer">
+		UPDATE ORDR
+		   SET ORDR_YN='Y'
+		 WHERE ORDR_ID=#{ordrId}
+	</update>
+</mapper>

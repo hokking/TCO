@@ -1,0 +1,24 @@
+package kr.or.tco.sls.service;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.tco.sls.vo.SlsVO;
+
+public interface SlsService {
+	
+	/**
+	 * 매출 - 매출 현황
+	 * @param map
+	 * @return
+	 */
+	public List<SlsVO>list(Map<String, Object>map);
+	
+	
+	/**
+	 * 매출 - 상세보기
+	 * @param slsId
+	 * @return
+	 */
+	public List<SlsVO> slsdetail(String slsId);
+}

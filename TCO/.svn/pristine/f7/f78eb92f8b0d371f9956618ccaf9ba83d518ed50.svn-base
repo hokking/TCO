@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.cal.mapper.CalMapper">
+
+<!-- resultMap : CLOB 처리, 1대1 / 1대다의 관계 처리 -->
+
+<!-- 거래처 조회 - 검색 -->
+<select id="dailyPrc" resultType="strgWrhsVO" parameterType="hashMap">
+ SELECT     SW.STRG_WRHS_ID,
+			SW.BRNCOFC_ID,
+            BC.BRNCOFC_NM,
+			SW.PROD_INFO_ID,
+			PI.PROD_INFO_NM,
+			PI.PROD_INFO_LDT,
+			SW.STRG_WRHS_QTY,
+			SW.STRG_WRHS_DT,
+			PI.PROD_INFO_PRCHS_AMT,
+			PI.PROD_INFO_PLOR,
+            (SW.STRG_WRHS_QTY *PI.PROD_INFO_PRCHS_AMT) as STRG_WRHS_TOTAL
+	  FROM  STRG_WRHS SW
+	  LEFT JOIN PROD_INFO PI
+      ON(SW.PROD_INFO_ID = PI.PROD_INFO_ID)
+      LEFT JOIN BRNCOFC BC
+      ON(SW.BRNCOFC_ID = BC.BRNCOFC_ID)
+      WHERE 1=1
+	 <if test="brnSelect!=null and brnSelect!=''">
+	   AND (
+		   SW.BRNCOFC_ID LIKE '%'||#{brnSelect}||'%'
+	   )
+	   </if>
+	 <if test="startDay!=null and startDay!='' and endDay!=null and endDay!=''">
+	   AND (
+	    SW.STRG_WRHS_DT BETWEEN TO_DATE(#{startDay}, 'YYYY-MM-DD') 
+                           AND TO_DATE(#{endDay}, 'YYYY-MM-DD')
+	   )
+	   </if>
+</select>	
+
+<select id="dailyCustNts" resultType="custNtsVO" parameterType="hashMap">
+		select  CN.CUST_NTSL_ID,   
+		        CN.BRNCOFC_ID,     
+		        CN.CUST_ID,        
+		        BC.BRNCOFC_NM,     
+		        CN.PROD_INFO_ID,  
+		        PI.PROD_INFO_NM,  
+		        CN.CUST_NTSL_DT,  
+		        CN.CUST_NTSL_AMT,   
+		        CN.CUST_NTSL_QTY,
+		        PT.CNPT_NM,
+		        (CN.CUST_NTSL_AMT * CN.CUST_NTSL_QTY) AS CUST_NTSL_TOTAL 
+		FROM    CUST_NTSL CN
+		LEFT JOIN PROD_INFO PI
+		ON (CN.PROD_INFO_ID = PI.PROD_INFO_ID)
+		LEFT JOIN BRNCOFC BC
+		ON (CN.BRNCOFC_ID = BC.BRNCOFC_ID)
+		LEFT JOIN CNPT PT
+		ON (PI.CNPT_ID = PT.CNPT_ID)
+		WHERE 1=1
+	    <if test="brnSelect!=null and brnSelect!=''">
+	    AND (
+	        CN.BRNCOFC_ID LIKE '%'||#{brnSelect}||'%'
+	    )
+	    </if>
+		 <if test="startDay!=null and startDay!='' and endDay!=null and endDay!=''">
+		   AND (
+		    CN.CUST_NTSL_DT BETWEEN TO_DATE(#{startDay}, 'YYYY-MM-DD') 
+	                            AND TO_DATE(#{endDay}, 'YYYY-MM-DD')
+		   )
+		  </if>
+</select>
+
+<select id="getSGWTotal" resultType="int" >
+		SELECT COUNT(*)
+		FROM   STRG_WRHS
+		WHERE  1 = 1
+	    <if test="keyWord!=null and keyWord!=''">
+		    AND    (EMP_ID LIKE '%'||#{keyWord}||'%'
+			OR      EMP_NM LIKE '%'||#{keyWord}||'%' )
+	    </if>
+</select>	
+
+<select id="getCNLTotal" resultType="int" >
+		SELECT COUNT(*)
+		FROM   CUST_NTSL
+		WHERE  1 = 1
+	    <if test="keyWord!=null and keyWord!=''">
+		    AND    (EMP_ID LIKE '%'||#{keyWord}||'%'
+			OR      EMP_NM LIKE '%'||#{keyWord}||'%' )
+	    </if>
+</select>	
+
+<!-- 일일정산 입력 -->
+<insert id="dailyCalInsert" parameterType = "slsVO">
+	<selectKey order="BEFORE" keyProperty="slsId" resultType="string">
+		SELECT 'SLS' || LPAD(NVL(MAX(TO_NUMBER(SUBSTR(NVL(SLS_ID, 'SLS00001'),5))),0)+1,4,'0') FROM SLS
+	</selectKey>
+		INSERT INTO SLS (
+		    SLS_ID,
+		    BRNCOFC_ID,
+		    SLS_DT,
+		    SLS_AMT,
+		    PRC_AMT,
+		    NETINCOME
+		) VALUES (
+		   #{slsId},
+		   #{calbrn},
+		   TO_CHAR(SYSDATE, 'YYYY/MM/DD'),
+		   #{slssum},
+		   #{prcsum},
+		   #{netIncome}
+		)
+</insert>
+
+<!-- 상품 조회 (전체 및 검색어도 걸리게) -->
+	<select id="prodList" parameterType="hashMap" resultType="posVO">
+		SELECT P.RNUM, C.CMNCD_NM1, C.CMNCD_NM2, P.PROD_INFO_ID, P.PROD_INFO_NM,P.PROD_INFO_NTSL_AMT, P.PROD_INFO_PLOR,P.PROD_INFO_YN,P.CNPT_ID
+	      FROM
+				(SELECT ROW_NUMBER() OVER (ORDER BY PROD_INFO_ID) RNUM
+                        ,PROD_INFO_ID
+                        ,PROD_INFO_NM
+                        ,PROD_INFO_NTSL_AMT
+                        ,PROD_INFO_PLOR
+                        ,CMNCD_CD
+                        ,PROD_INFO_YN
+                        ,CNPT_ID
+				   FROM PROD_INFO
+				  WHERE 1=1
+				  <if test="keyWord!=null and keyWord!=''">
+				    AND PROD_INFO_NM LIKE '%'||#{keyWord}||'%'
+				  </if>
+				 ) P, CMNCD C
+         WHERE P.CMNCD_CD=C.CMNCD_CD
+           AND P.PROD_INFO_YN='Y'
+	</select>
+
+<!-- 상품 상세 조회 -->
+	<select id="prodDetail" parameterType="String" resultType="prodVO">
+		SELECT P.PROD_INFO_ID
+			 , P.PROD_INFO_NM
+			 , P.PROD_INFO_PRCHS_AMT
+			 , P.PROD_INFO_NTSL_AMT
+			 , P.PROD_INFO_LDT
+			 , P.PROD_INFO_PLOR 
+			 , P.CMNCD_CD 
+			 , P.PROD_INFO_YN
+			 , C.CMNCD_NM1
+			 , C.CMNCD_NM2
+			 , P.CNPT_ID 
+			 , T.CNPT_NM
+			 , T.CNPT_TEL
+			 , T.CNPT_MAIL
+		  FROM PROD_INFO P, CMNCD C , CNPT T
+		 WHERE P.CMNCD_CD=C.CMNCD_CD
+		   AND P.CNPT_ID=T.CNPT_ID
+		   AND P.PROD_INFO_NM=#{prodInfoNm}	
+	</select>
+	
+		<!-- 상품아이디에 따른 중분류 뽑기 -->
+	<select id="cdnm2List" parameterType="String" resultType="cmncdVO">
+		SELECT CD.CMNCD_NM1, CD.CMNCD_NM2
+		  FROM ( SELECT C.CMNCD_NM1, C.CMNCD_NM2
+		           FROM PROD_INFO P, CMNCD C
+		          WHERE P.CMNCD_CD=C.CMNCD_CD
+		            AND P.PROD_INFO_ID=#{prodInfoId}
+		        ) A, CMNCD CD
+		 WHERE a.CMNCD_NM1=CD.CMNCD_NM1
+		   AND CD.CMNCD_NM1=A.CMNCD_NM1
+	</select>
+	
+	<!-- 공통코드 분류 뽑기 -->
+	<select id="commonSeList" parameterType="String" resultType="cmncdVO">
+		SELECT CMNCD_NM2
+		  FROM CMNCD
+		 WHERE CMNCD_NM1=#{cmncdNm1}
+	</select>
+
+<!-- 아이디 유효성 검사 -->
+	<select id="custValChk" parameterType="String" resultType="String">
+	SELECT CUST_ID
+	FROM CUST
+	WHERE CUST_ID = #{custId}
+	</select>
+
+
+	<!-- 장바구니(소비자 판매 테이블) 등록 -->
+	<insert id="CustNtsInsert" parameterType="hashMap">
+		<selectKey order="BEFORE" keyProperty="custNtslId" resultType="int">
+			SELECT MAX(CUST_NTSL_ID)+1 FROM CUST_NTSL 
+		</selectKey>
+		
+		INSERT INTO cust_ntsl (
+				    cust_ntsl_id,
+				    brncofc_id,
+				    cust_id,
+				    prod_info_id,
+				    cust_ntsl_qty,
+				    cust_ntsl_dt,
+				    cust_ntsl_amt
+				) VALUES (
+				    #{custNtslId}, 
+				    #{selectBrn},
+				    #{custId} ,
+				    #{prodInfoId} ,
+				    #{custNtslQty},
+				    TO_CHAR(SYSDATE, 'YYYY/MM/DD'),
+				    #{custNtslAmt}
+				)
+		
+	</insert>
+	
+	
+	<!-- 매장 재고 감소 update //sql검증 완-->
+	<update id="streStckDsc" parameterType="hashMap">
+	<selectKey order="BEFORE" keyProperty="streStckQty" resultType="int">
+		SELECT STRE_STCK_QTY FROM STRE_STCK WHERE BRNCOFC_ID = #{selectBrn} AND PROD_INFO_ID = #{prodInfoId}
+	</selectKey>
+		UPDATE stre_stck
+	    SET STRE_STCK_QTY = #{streStckQty} - #{custNtslQty}
+		WHERE
+			BRNCOFC_ID = #{selectBrn}
+		AND
+			PROD_INFO_ID = #{prodInfoId}
+	</update>
+	
+<!-- 	장바구니(소비자 판매 테이블) 삭제 //sql검증 완 -->
+	<delete id="CustNtsdelete" parameterType="int">
+		DELETE FROM cust_ntsl
+		WHERE cust_ntsl_id = #{custNtslId}
+	</delete>
+	
+	<!-- 환불로 인한 매장 재고 증가 update //sql검증 완 -->
+	<update id="streStckAsc" parameterType="int">
+	<selectKey order="BEFORE" keyProperty="streStckQty" resultType="string">
+		SELECT STRE_STCK_QTY FROM STRE_STCK WHERE BRNCOFC_ID = #{selectBrn} AND PROD_INFO_ID = #{prodInfoId}
+	</selectKey>
+		UPDATE stre_stck
+	    SET STRE_STCK_QTY = #{streStckQty} + #{custNtslQty}
+		WHERE
+			BRNCOFC_ID = #{selectBrn}
+		AND
+			PROD_INFO_ID = #{prodInfoId}
+	</update>
+
+<!--  pos기 상품판매 중지여부 검사 -->
+<select id = "salesSuspensionChk" parameterType="String" resultType="prodVO">
+	SELECT  PROD_INFO_ID,
+		    PROD_INFO_NM,
+		    PROD_INFO_PRCHS_AMT,
+		    PROD_INFO_NTSL_AMT,
+		    PROD_INFO_LDT,
+		    PROD_INFO_PLOR,
+		    CMNCD_CD,
+		    PROD_INFO_YN,
+		    CNPT_ID
+	FROM    PROD_INFO
+	WHERE   PROD_INFO_YN = 'Y'
+	AND		PROD_INFO_ID = #{prodInfoId}
+</select>
+
+</mapper>

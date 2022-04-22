@@ -1,0 +1,46 @@
+package kr.or.tco.sls.service.Impl;
+
+
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.tco.sls.mapper.SlsMapper;
+import kr.or.tco.sls.service.SlsService;
+import kr.or.tco.sls.vo.SlsVO;
+
+@Service
+public class SlsServiceImpl implements SlsService {
+
+	@Autowired SlsMapper slsMapper;
+	
+	private static final Logger logger = 
+			LoggerFactory.getLogger(SlsServiceImpl.class);
+	
+	
+	/**
+	 * 매출 - 매출현황(파라미터는 시작날짜,종료날짜를 넣은 map)
+	 */
+	@Override
+	public List<SlsVO> list(Map<String, Object> map) {
+		// TODO Auto-generated method stub
+		return slsMapper.list(map);
+	}
+
+	/**
+	 * 매출 - 상세보기 
+	 */
+	@Override
+	public List<SlsVO> slsdetail(String slsId) {
+		List<SlsVO>detail = slsMapper.slsdetail(slsId);
+		logger.info("상세보기 : "+detail);
+		return detail;
+	}
+
+	
+	
+}

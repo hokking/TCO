@@ -1,0 +1,64 @@
+package kr.or.tco.att.vo;
+
+import java.util.Date;
+
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Repository
+public class WorksttsVO {
+
+	private String empId;
+	
+	@DateTimeFormat(pattern="yy/MM/dd")
+	private Date worksttsDt;
+
+	private String worksttsBgngTm;
+
+	private String worksttsEndTm;
+	
+	private String cmncdCd;
+	
+	// 근무시간 계산 변수 추가하실? 
+	
+	public String getEmpId() {
+		return empId;
+	}
+	public void setEmpId(String empId) {
+		this.empId = empId;
+	}
+	public Date getWorksttsDt() {
+		return worksttsDt;
+	}
+	public void setWorksttsDt(Date worksttsDt) {
+		this.worksttsDt = worksttsDt;
+	}
+	public String getWorksttsBgngTm() {
+		return worksttsBgngTm;
+	}
+	public void setWorksttsBgngTm(String worksttsBgngTm) {
+		this.worksttsBgngTm = worksttsBgngTm;
+	}
+	public String getWorksttsEndTm() {
+		return worksttsEndTm;
+	}
+	public void setWorksttsEndTm(String worksttsEndTm) {
+		this.worksttsEndTm = worksttsEndTm;
+	}
+	public String getCmncdCd() {
+		return cmncdCd;
+	}
+	public void setCmncdCd(String cmncdCd) {
+		this.cmncdCd = cmncdCd;
+	}
+	
+	@Override
+	public String toString() {
+		return "WorksttsVO [empId=" + empId + ", worksttsDt=" + worksttsDt + ", worksttsBgngTm=" + worksttsBgngTm
+				+ ", worksttsEndTm=" + worksttsEndTm + ", cmncdCd=" + cmncdCd + "]";
+	}
+	
+	
+	
+}

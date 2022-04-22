@@ -1,0 +1,54 @@
+package kr.or.tco.sttst.service.impl;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.tco.sls.vo.SlsVO;
+import kr.or.tco.sttst.mapper.SttstMapper;
+import kr.or.tco.sttst.service.SttstService;
+
+@Service
+public class SttstServiceimpl implements SttstService {
+	private static final Logger logger =
+			LoggerFactory.getLogger(SttstServiceimpl.class);
+	
+	@Autowired SttstMapper sttstMapper;
+
+	
+	/**
+	 * 일일매출현황
+	 */
+	@Override
+	public List<SlsVO> getDailyIncome() {
+		
+		//테스트용 
+		List<SlsVO> getIncome = sttstMapper.getDailyIncome();
+		logger.info("getincome"+getIncome);
+		return getIncome;
+//		return sttstMapper.getDailyIncome();
+	}
+
+	
+	/**
+	 * 월간매출현황
+	 */
+	@Override
+	public List<SlsVO> getMonthIncome() {
+		List<SlsVO> getMonth = sttstMapper.getMonthIncome();
+		logger.info("월별매출현황: "+getMonth);
+		return getMonth; 
+	}
+	
+	
+	
+	/**
+	 * 월별매출현황
+	 */
+	
+	
+	
+}

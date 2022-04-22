@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.ordr.mapper.OrdrMapper">
+
+	<!-- 수주O - 발주 테이블 목록 가져오기(상세X) -->
+	<select id="rcvOrdrYList" resultType="ordrVO">
+		SELECT O.ORDR_ID
+		      ,O.PROD_INFO_ID
+		      ,O.ORDR_QTY
+		      ,O.ORDR_DT
+		      ,O.BRNCOFC_ID
+		      ,O.ORDR_SE
+		      ,O.ORDR_YN
+		      ,B.BRNCOFC_NM
+		  FROM (
+		         SELECT ORDR_ID
+		               ,PROD_INFO_ID
+		               ,ORDR_QTY
+		               ,ORDR_DT
+		               ,BRNCOFC_ID
+		               ,ORDR_SE
+		               ,ORDR_YN
+		               ,ROW_NUMBER() OVER(PARTITION BY ORDR_ID ORDER BY PROD_INFO_ID DESC) AS RN
+		           FROM ORDR
+		       ) O, BRNCOFC B
+		 WHERE O.BRNCOFC_ID=B.BRNCOFC_ID
+		   AND RN = 1
+		   AND ORDR_YN='Y'
+		 ORDER BY ORDR_ID DESC
+	</select>
+	
+	<!-- 수주X - 발주 테이블 목록 가져오기(상세X) -->
+	<select id="rcvOrdrNList" resultType="ordrVO">
+		SELECT O.ORDR_ID
+		      ,O.PROD_INFO_ID
+		      ,O.ORDR_QTY
+		      ,O.ORDR_DT
+		      ,O.BRNCOFC_ID
+		      ,O.ORDR_SE
+		      ,O.ORDR_YN
+		      ,B.BRNCOFC_NM
+		  FROM (
+		         SELECT ORDR_ID
+		               ,PROD_INFO_ID
+		               ,ORDR_QTY
+		               ,ORDR_DT
+		               ,BRNCOFC_ID
+		               ,ORDR_SE
+		               ,ORDR_YN
+		               ,ROW_NUMBER() OVER(PARTITION BY ORDR_ID ORDER BY PROD_INFO_ID DESC) AS RN
+		           FROM ORDR
+		       ) O, BRNCOFC B
+		 WHERE O.BRNCOFC_ID=B.BRNCOFC_ID
+		   AND RN = 1
+		   AND ORDR_YN='N'
+		 ORDER BY ORDR_ID
+	</select>
+	
+	<!-- 발주 아이디 별 상세 정보 뽑기 -->
+	<select id="ordrDetail" parameterType="Integer" resultType="ordrVO">
+		SELECT OD.ORDR_ID
+			 , OD.PROD_INFO_ID
+			 , OD.ORDR_QTY
+			 , OD.ORDR_DT
+			 , OD.BRNCOFC_ID
+			 , OD.ORDR_SE
+			 , OD.ORDR_YN
+			 , OD.ORDR_WHYN
+			 , P.PROD_INFO_NM
+			 , P.PROD_INFO_PRCHS_AMT
+		FROM   ORDR OD, PROD_INFO P
+		WHERE  OD.PROD_INFO_ID=P.PROD_INFO_ID
+		AND    OD.ORDR_ID=#{ordrId}
+	</select>
+	
+	<!-- 발주 지점 이름 가져오기 -->
+	<select id="brnofcNm" parameterType="String" resultType="String">
+		SELECT BRNCOFC_NM
+		  FROM BRNCOFC
+		 WHERE BRNCOFC_ID=#{brncofcId}
+	</select>
+	
+	<!-- 수주X에서 O로 바꾸기 -->
+	<update id="rcvNtoY" parameterType="Integer">
+		UPDATE ORDR
+		   SET ORDR_YN='Y'
+		 WHERE ORDR_ID=#{ordrId}
+	</update>
+	
+	<!-- 발주번호 max 찾기 -->
+	<select id="ordrMax" resultType="Integer">
+		SELECT MAX(ORDR_ID)+1 AS MAX
+		FROM   ORDR
+	</select>
+	
+	<!-- 부족재고현황에서 발주시 insert -->
+	<insert id="lackInsert" parameterType="hashMap">
+		INSERT INTO ORDR (
+		    ORDR_ID
+		   ,PROD_INFO_ID
+		   ,ORDR_QTY
+		   ,ORDR_DT
+		   ,BRNCOFC_ID
+		   ,ORDR_SE
+		   ,ORDR_YN
+		) VALUES (
+		    #{ordrId}
+		   ,#{prodInfoId}
+  		   ,#{ordrQty}
+		   ,SYSDATE
+		   ,#{brncofcId}
+		   ,'내역'
+		   ,'N'
+		)
+	</insert>
+	
+	<!-- 발주 저장, 바로전송 ORDR_SE => 구분해서 넣기 -->
+	<insert id="ordrInsert" parameterType="ordrVO">
+		INSERT INTO ORDR(
+		    ORDR_ID, 
+		    PROD_INFO_ID, 
+		    ORDR_QTY, 
+		    ORDR_DT, 
+		    BRNCOFC_ID, 
+		    ORDR_SE, 
+		    ORDR_YN,
+		    ORDR_WHYN
+		    )
+		VALUES (
+		    #{ordrId}, 
+		    #{prodInfoId}, 
+		    #{ordrQty}, 
+		    <choose>
+		    	<when test="ordrDt !=null and ordrDt!=''">
+		    		#{ordrDt},
+		    	</when>
+		    	<otherwise>
+				    SYSDATE, 
+		    	</otherwise>
+		    </choose>
+		    #{brncofcId}, 
+		    #{ordrSe}, 
+		    'N',
+		    'N'
+		)
+	</insert>
+	
+	<!-- 발주 삭제 -->
+	<delete id="orderDelete" parameterType="int">
+		DELETE FROM ORDR
+		WHERE ORDR_ID = #{ordrId}
+	</delete>
+	
+	<!-- 발주 전송 update-->
+	<update id="saveUpdate" parameterType="int">
+		UPDATE ORDR
+		SET ORDR_SE = '내역'
+		WHERE ORDR_ID = #{ordrId}
+	</update>
+	
+	<!-- 발주 list 가져오기, 발주 현황 [검증하기] -->
+	<select id="getOrdrCondition" parameterType="string" resultType="ordrVO">
+		SELECT O.ORDR_ID
+		      ,O.PROD_INFO_ID
+		      ,O.ORDR_QTY
+		      ,O.ORDR_DT
+		      ,O.BRNCOFC_ID
+		      ,O.ORDR_SE
+		      ,O.ORDR_YN
+		      ,B.BRNCOFC_NM
+		  FROM (
+		         SELECT ORDR_ID
+		               ,PROD_INFO_ID
+		               ,ORDR_QTY
+		               ,ORDR_DT
+		               ,BRNCOFC_ID
+		               ,ORDR_SE
+		               ,ORDR_YN
+		               ,ROW_NUMBER() OVER(PARTITION BY ORDR_ID ORDER BY PROD_INFO_ID DESC) AS RN
+		           FROM ORDR
+                   
+		       ) O, BRNCOFC B
+		 WHERE O.BRNCOFC_ID=B.BRNCOFC_ID
+		   AND RN = 1
+		   AND ORDR_YN='N'
+           AND ORDR_SE = '현황'
+           AND O.BRNCOFC_ID = #{brncofcId}
+		 ORDER BY ORDR_ID
+	</select>
+	
+	<!-- 발주 내역 가져오기 -->
+	<select id="getOrdrList" parameterType="string" resultType="ordrVO">
+		SELECT O.ORDR_ID
+		      ,O.PROD_INFO_ID
+		      ,O.ORDR_QTY
+		      ,O.ORDR_DT
+		      ,O.BRNCOFC_ID
+		      ,O.ORDR_SE
+		      ,O.ORDR_YN
+		      ,B.BRNCOFC_NM
+		  FROM (
+		         SELECT ORDR_ID
+		               ,PROD_INFO_ID
+		               ,ORDR_QTY
+		               ,ORDR_DT
+		               ,BRNCOFC_ID
+		               ,ORDR_SE
+		               ,ORDR_YN
+		               ,ROW_NUMBER() OVER(PARTITION BY ORDR_ID ORDER BY PROD_INFO_ID DESC) AS RN
+		           FROM ORDR
+                   
+		       ) O, BRNCOFC B
+		 WHERE O.BRNCOFC_ID=B.BRNCOFC_ID
+		   AND RN = 1
+		   AND ORDR_YN='N'
+           AND ORDR_SE = '내역'
+           AND O.BRNCOFC_ID = #{brncofcId}
+		 ORDER BY ORDR_ID
+	</select>
+	
+	<!-- 입고완료/미입고된 발주 내역 list 가져오기 -->
+	<select id="getOrdrListAll" parameterType="string" resultType="ordrVO">
+		SELECT O.ORDR_ID, 
+		    O.PROD_INFO_ID, 
+		    O.ORDR_QTY, 
+		    O.ORDR_DT, 
+		    O.BRNCOFC_ID, 
+		    O.ORDR_SE, 
+		    O.ORDR_YN,
+		    O.ORDR_WHYN,
+		    O.RN,
+		    (CASE WHEN (SELECT COUNT(*) 
+		                   FROM ORDR
+		                   WHERE ORDR_ID = O.ORDR_ID
+		                    AND ORDR_WHYN = 'Y') = (SELECT COUNT(*) 
+		                                                 FROM ORDR
+		                                                WHERE ORDR_ID = O.ORDR_ID 
+		                                               ) THEN '입고완료' ELSE '미입고' END) AS CONDITION
+		FROM (SELECT ORDR_ID
+		           ,PROD_INFO_ID
+		           ,ORDR_QTY
+		           ,ORDR_DT
+		           ,BRNCOFC_ID
+		           ,ORDR_SE
+		           ,ORDR_YN
+		           ,ORDR_WHYN
+		           ,ROW_NUMBER() OVER(PARTITION BY ORDR_ID ORDER BY PROD_INFO_ID DESC) AS RN
+			   FROM ORDR 
+		       WHERE BRNCOFC_ID = #{brncofcNm}) O 
+		WHERE ORDR_SE = '내역'
+		  AND O.BRNCOFC_ID = #{brncofcNm}
+		  AND RN = 1
+		ORDER BY O.ORDR_DT
+	</select>
+	
+	<!-- 입고여부 Y로 변경 -->
+	<update id="updateWrhs" parameterType="hashmap">
+		UPDATE ORDR
+		SET ORDR_WHYN = 'Y'
+		WHERE ORDR_ID = #{ordrId}
+		AND PROD_INFO_ID = #{prodId} 
+	</update>
+	
+	<!-- 창고재고 테이블에 UPDATE -->
+	<update id="addStrgStck" parameterType="hashmap">
+		UPDATE 	STRG_STCK
+		SET 	STRG_STCK_QTY = STRG_STCK_QTY + #{ordrQty}
+			  ,	STRG_STCK_ORDR_YN = 'O'
+		WHERE 	BRNCOFC_ID = #{brncofcId}
+		AND	 	PROD_INFO_ID = #{prodId} 
+		AND 	STRG_STCK_YN = 'Y'
+	</update>
+</mapper>

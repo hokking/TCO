@@ -1,0 +1,26 @@
+package kr.or.tco.alam.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Mapper;
+
+import kr.or.tco.alam.vo.AlamVO;
+import kr.or.tco.emp.vo.EmpVO;
+
+@Mapper
+public interface AlamMapper {
+
+   int alamInsert(Map<String, Object> map);
+
+   int alamRead(Map<String, Object> map);
+
+   List<AlamVO> alamTable(Map<String, Object> map);
+
+   List<EmpVO> findStoreWorker(String brncofcId);
+
+   List<AlamVO> alamAll(String receiverId);
+
+   List<EmpVO> findStrgWorker(String brncofcId);
+
+}

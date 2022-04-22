@@ -1,0 +1,32 @@
+package kr.or.tco.ordr.service;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.tco.ordr.vo.OrdrVO;
+
+public interface OrdrService {
+
+	//수주O - 발주 테이블 목록 가져오기(상세X)
+	public List<OrdrVO> rcvOrdrYList();
+
+	//수주X - 발주 테이블 목록 가져오기(상세X)
+	public List<OrdrVO> rcvOrdrNList();
+
+	//발주 아이디 별 상세 정보 뽑기
+	public List<OrdrVO> ordrDetail(int ordrId);
+
+	//발주 지점 이름 가져오기
+	public String brnofcNm(String brncofcId);
+	
+	//수주X에서 O로 바꾸기
+	public int rcvNtoY(int ordrId);
+
+	//부족재고현황에서 발주시 insert
+	public int lackInsert(Map<String, Object> map) throws Exception;
+
+	//발주번호 max 찾기
+	public int ordrMax();
+
+
+}

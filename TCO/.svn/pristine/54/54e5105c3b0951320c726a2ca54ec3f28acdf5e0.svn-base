@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.prod.mapper.ProdMapper">
+	<!-- * selectKey?
+	일련번호 처리
+	마이바티스는 쿼리 실행 시 파라미터를 치환해줌 
+	 -->
+	
+	<!-- 상품 조회 (전체 및 검색어도 걸리게) -->
+	<select id="prodList" parameterType="hashMap" resultType="prodVO">
+		SELECT P.RNUM, C.CMNCD_NM1, C.CMNCD_NM2, P.PROD_INFO_ID, P.PROD_INFO_NM, P.PROD_INFO_PRCHS_AMT
+		     , P.PROD_INFO_NTSL_AMT, P.PROD_INFO_LDT, P.PROD_INFO_PLOR,P.PROD_INFO_YN
+	      FROM
+				(SELECT ROW_NUMBER() OVER (ORDER BY PROD_INFO_ID) RNUM
+                        ,PROD_INFO_ID
+                        ,PROD_INFO_NM
+                        ,PROD_INFO_PRCHS_AMT
+                        ,PROD_INFO_NTSL_AMT
+                        ,PROD_INFO_LDT
+                        ,PROD_INFO_PLOR
+                        ,CMNCD_CD
+                        ,PROD_INFO_YN
+				   FROM PROD_INFO
+				  WHERE 1=1
+				  <if test="keyWord!=null and keyWord!=''">
+				    AND PROD_INFO_NM LIKE '%'||#{keyWord}||'%'
+				  </if>
+				 ) P, CMNCD C
+         WHERE P.CMNCD_CD=C.CMNCD_CD
+           AND P.PROD_INFO_YN='Y'
+	</select>
+	
+	<!-- 상품 상세 조회 -->
+	<select id="prodDetail" parameterType="String" resultType="prodVO">
+	SELECT P.PROD_INFO_ID
+		 , P.PROD_INFO_NM
+		 , P.PROD_INFO_PRCHS_AMT
+		 , P.PROD_INFO_NTSL_AMT
+		 , P.PROD_INFO_LDT
+		 , P.PROD_INFO_PLOR 
+		 , P.CMNCD_CD 
+		 , P.PROD_INFO_YN
+		 , C.CMNCD_NM1
+		 , C.CMNCD_NM2
+	  FROM PROD_INFO P, CMNCD C
+	 WHERE P.CMNCD_CD=C.CMNCD_CD
+	   AND P.PROD_INFO_ID=#{prodInfoId}
+	</select>
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+

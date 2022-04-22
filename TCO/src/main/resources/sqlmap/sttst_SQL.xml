@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.sttst.mapper.SttstMapper">
+
+<!--통계관련SQL:값만 얻어서 내보냄 -->
+<!-- 본사용 모든 매출 -->
+<select id="mainDailyIncome" resultType="slsVO">
+	SELECT *
+  FROM (
+SELECT TO_DATE(SLS_DT,'YY-MM-DD') SLS_DT,
+       SUM(SLS_AMT) SLSAMT
+  FROM SLS
+ GROUP BY TO_DATE(SLS_DT,'YY-MM-DD')
+ ORDER BY SLS_DT ASC
+ )
+ WHERE ROWNUM <![CDATA[<=]]> 12
+</select>
+
+<!-- 모든 월별매출현황 -->
+<select id="mainMonthIncome" resultType="slsVO" >
+  SELECT TRUNC(TO_DATE(SLS_DT,'YY-MM-DD'),'MM')SLS_DT,
+         SUM(SLS_AMT)SLS_AMT
+    FROM SLS
+GROUP BY TRUNC(TO_DATE(SLS_DT,'YY-MM-DD'),'MM')
+ORDER BY SLS_DT
+</select>
+
+
+<!-- 모든 년도별매출현황 -->
+<select id="mainYearlyIncome" resultType="slsVO" >
+  SELECT TRUNC(TO_DATE(SLS_DT,'YY-MM-DD'),'YY')SLS_DT,
+         SUM(SLS_AMT)SLS_AMT
+    FROM SLS
+GROUP BY TRUNC(TO_DATE(SLS_DT,'YY-MM-DD'),'YY')
+ORDER BY SLS_DT
+</select>
+
+
+<!-- 지점용 모든 매출 -->
+<select id="getDailyIncome" resultType="slsVO" parameterType="String">
+	SELECT TO_DATE(SLS_DT,'YY-MM-DD') SLS_DT,
+	       SUM(SLS_AMT) slsAmt
+	  FROM SLS
+	 WHERE BRNCOFC_ID = #{brncofcId}
+  GROUP BY TO_DATE(SLS_DT,'YY-MM-DD')
+  ORDER BY SLS_DT
+</select>
+
+
+<!-- 일일매입현황 -->
+<select id="getDailyPurchase" resultType="prchsVO">
+	  SELECT TO_DATE(PRCHS_DT,'YY-MM-DD') PRCHS_DT,
+	         SUM(PRCHS_AMT) prchsAmt
+	    FROM PRCHS
+  	GROUP BY TO_DATE(PRCHS_DT,'YY-MM-DD')
+    ORDER BY PRCHS_DT
+</select>
+
+
+
+<!-- 자기 매장 월별매출현황 -->
+<select id="getMonthIncome" resultType="slsVO" parameterType="String">
+  SELECT TRUNC(TO_DATE(SLS_DT,'YY-MM-DD'),'MM')SLS_DT,
+         SUM(SLS_AMT)SLS_AMT
+    FROM SLS
+   WHERE BRNCOFC_ID = #{brncofcId}
+GROUP BY TRUNC(TO_DATE(SLS_DT,'YY-MM-DD'),'MM')
+ORDER BY SLS_DT
+</select>
+
+
+<!-- 자기 매장 년도별매출현황 -->
+<select id="getYearlyIncome" resultType="slsVO" parameterType="String">
+  SELECT TRUNC(TO_DATE(SLS_DT,'YY-MM-DD'),'YY')SLS_DT,
+         SUM(SLS_AMT)SLS_AMT
+    FROM SLS
+   WHERE BRNCOFC_ID = #{brncofcId}
+GROUP BY TRUNC(TO_DATE(SLS_DT,'YY-MM-DD'),'YY')
+ORDER BY SLS_DT
+</select>
+
+
+
+<!-- 매장 선택용 매출 -->
+<select id="brndaily" parameterType="String" resultType="slsVO">
+	SELECT *
+  FROM (
+SELECT TO_DATE(SLS_DT,'YY-MM-DD') SLS_DT,
+       SUM(SLS_AMT) SLSAMT
+  FROM SLS
+ WHERE BRNCOFC_ID = #{brncofcId}
+ GROUP BY TO_DATE(SLS_DT,'YY-MM-DD')
+ ORDER BY SLS_DT ASC
+ )
+ WHERE ROWNUM <![CDATA[<=]]> 12
+</select>
+
+
+
+
+
+
+<!-- 메인화면의 매장별 판매현황(값은 7개만) session값받기 -->
+<select id="getBrnChart" resultType="slsVO" parameterType="String">
+SELECT *
+  FROM (
+SELECT TO_DATE(SLS_DT,'YY-MM-DD') SLS_DT,
+       SUM(SLS_AMT) SLSAMT
+  FROM SLS
+ WHERE BRNCOFC_ID = #{brncofcId}
+ GROUP BY TO_DATE(SLS_DT,'YY-MM-DD')
+ ORDER BY SLS_DT ASC
+ )
+ WHERE ROWNUM <![CDATA[<=]]> 7
+</select>
+
+
+<!--  연령대,성별 별 선호 카테고리 -->
+<!-- 연령,성별 별 /총 판매 수량/총 판매 금액/판매 횟수(방문횟수)/평균 1회 구매금액 -->
+<select id ="PrfredCtg" resultType="sttstVO" >
+select  AGE_GROUP,
+        CUST_GNDR,
+        CMNCD_CD,  
+        sum(CUST_NTSL_QTY) as TOTAL_SOLD_QTY, 
+        sum(CUST_NTSL_AMT) as TOTAL_SLS_AMT,
+        count(AGE_GROUP||','||CUST_GNDR||','||CMNCD_CD) as SLSCOUNT, 
+        trunc((sum(CUST_NTSL_AMT) / count(AGE_GROUP||','||CUST_GNDR||','||CMNCD_CD)),-1) as AVG_PRS_AMT  
+from(
+        select 
+               TA.AGE_GROUP, 
+               TA.CUST_GNDR,
+               TB.CMNCD_CD,
+               TA.CUST_NTSL_QTY,
+               TA.CUST_NTSL_AMT
+          from (select  distinct c.CUST_ID as CUST_ID,
+                        c.CUST_NM as CUST_NM,
+                        c.CUST_MRG_YN as CUST_MRG_YN,
+                        c.CUST_CRCD_NO as CUST_CRCD_NO,
+                        c.CUST_GNDR as CUST_GNDR,
+                        c.CMNCD_CD as CMNCD_CD,
+                        CN.CUST_NTSL_ID as CUST_NTSL_ID,
+                        CN.CUST_NTSL_DT as CUST_NTSL_DT,
+                        CN.BRNCOFC_ID as BRNCOFC_ID,
+                        CN.CUST_NTSL_QTY as CUST_NTSL_QTY,
+                        CN.CUST_NTSL_AMT as CUST_NTSL_AMT,
+                       trunc((select MONTHS_BETWEEN(trunc(SYSDATE,'YEAR'),
+                               trunc(to_date(CUST_BRDT,'YYYY/MM/DD'),'YEAR')) /12 +1
+                         from CUST B where c.CUST_ID=B.CUST_ID),-1) as AGE_GROUP
+                 from CUST c ,CUST B, CUST_NTSL CN , PROD_INFO PI , CMNCD CC
+                where c.CUST_ID = B.CUST_ID
+                  and B.CUST_ID = CN.CUST_ID) TA,
+               (select PI.CMNCD_CD as CMNCD_CD,
+                       CN.CUST_NTSL_ID as CUST_NTSL_ID
+                 from CMNCD CC , CUST_NTSL CN, PROD_INFO PI
+                where PI.CMNCD_CD = CC.CMNCD_CD
+                  and PI.PROD_INFO_ID = CN.PROD_INFO_ID
+                  and CN.PROD_INFO_ID = PI.PROD_INFO_ID) TB   
+         where TA.CUST_NTSL_ID=TB.CUST_NTSL_ID  
+                                                     )
+ group by AGE_GROUP,CUST_GNDR,CMNCD_CD
+order by 1,3
+</select>
+
+
+
+
+<select id="dailyPrc" resultType="strgWrhsVO" parameterType="String">
+ SELECT     SW.STRG_WRHS_ID,
+			SW.BRNCOFC_ID,
+            BC.BRNCOFC_NM,
+			SW.PROD_INFO_ID,
+			PI.PROD_INFO_NM,
+			SW.STRG_WRHS_QTY,
+			TO_DATE(SW.STRG_WRHS_DT,'YY-MM-DD') AS STRG_WRHS_DT,
+			PI.PROD_INFO_PRCHS_AMT,
+			PI.PROD_INFO_PLOR,
+            (SW.STRG_WRHS_QTY *PI.PROD_INFO_PRCHS_AMT) as STRG_WRHS_TOTAL
+	  FROM  STRG_WRHS SW
+	  LEFT JOIN PROD_INFO PI
+      ON(SW.PROD_INFO_ID = PI.PROD_INFO_ID)
+      LEFT JOIN BRNCOFC BC
+      ON(SW.BRNCOFC_ID = BC.BRNCOFC_ID)
+	 <if test="keyWord!=null and keyWord!=''">
+	   AND (
+		   STRG_WRHS_ID LIKE '%'||#{keyWord}||'%'
+		   OR BRNCOFC_ID LIKE '%'||#{keyWord}||'%'
+		   OR PROD_INFO_ID LIKE '%'||#{keyWord}||'%'
+		   OR STRG_WRHS_DT LIKE '%'||#{keyWord}||'%'
+	   )
+	   </if>
+</select>	
+
+
+<!-- 입고입출 -->
+<select id="dailyCustNts" resultType="custNtsVO" parameterType="String">
+		select  CN.CUST_NTSL_ID,   
+		        CN.BRNCOFC_ID,     
+		        CN.CUST_ID,        
+		        BC.BRNCOFC_NM,     
+		        CN.PROD_INFO_ID,  
+		        PI.PROD_INFO_NM,  
+		        CN.CUST_NTSL_DT,  
+		        CN.CUST_NTSL_AMT,   
+		        CN.CUST_NTSL_QTY,  
+		        (CN.CUST_NTSL_AMT * CN.CUST_NTSL_QTY) as CUST_NTSL_TOTAL 
+		from    CUST_NTSL CN
+		left join PROD_INFO PI
+		on (CN.PROD_INFO_ID = PI.PROD_INFO_ID)
+		left join BRNCOFC BC
+		on (CN.BRNCOFC_ID = BC.BRNCOFC_ID)
+	 <if test="keyWord!=null and keyWord!=''">
+	   AND (
+		   CUST_NTSL_ID LIKE '%'||#{keyWord}||'%'
+		   OR CUST_NTSL_DT LIKE '%'||#{keyWord}||'%'
+	   )
+	    </if>
+</select>
+
+<!-- 조직도test jstree -->
+<select id="grouplist" resultType="sttstVO">
+SELECT CHILD_ID,GROUP_NM,PARENT_ID,PERSON_NM
+  FROM GROUPMAP
+</select>
+
+<!-- 조직도 jsGrid -->
+<select id="groupemp" resultType="sttstVO" parameterType="String">
+SELECT PERSON_NM,RANK,DEPT_NM,PERSON_TEL
+  FROM GROUPMAP
+ WHERE CHILD_ID=#{childId}
+</select>
+
+
+
+</mapper>

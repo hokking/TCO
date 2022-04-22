@@ -1,0 +1,88 @@
+package kr.or.tco.cust.controller;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import kr.or.tco.cust.service.CustService;
+import kr.or.tco.cust.vo.CustVO;
+import kr.or.tco.eatrz.controller.EatrzController;
+
+@RequestMapping("/cust")
+@Controller
+public class CustController {
+	
+	@Autowired
+	CustService custService;
+	
+	private static final Logger logger = 
+			LoggerFactory.getLogger(EatrzController.class);
+	
+	
+	@GetMapping("/custinsert")
+	public String getInsert(Model model) {
+		CustVO custVO = new CustVO();
+		model.addAttribute("custVO", custVO);
+		logger.info("custVO : " + custVO.toString());
+		
+		return "cust/custinsert";
+	}
+	
+	
+	@PostMapping("/custinsert")
+	public String postInsert(@Validated CustVO custVO,
+			BindingResult result) {
+		//validation 문제가 발생된다면
+		if(result.hasErrors()) {
+			List<ObjectError> allErrors = result.getAllErrors();
+			List<ObjectError> globalErrors = result.getGlobalErrors();
+//			List<FieldError> fieldErrors = result.getFieldErrors();
+			//validation 중에 어떤 오류가 나왔는지 확인..
+			for(int i=0;i<allErrors.size();i++) {
+				ObjectError objectError = allErrors.get(i);
+				logger.info("objectError : " + objectError);
+			}
+			
+			for(ObjectError objectError : globalErrors) {
+				logger.info("objectError : " + objectError);
+			}
+			
+//			for(FieldError fieldError : fieldErrors) {
+//				logger.info("fieldError : " + fieldError.getDefaultMessage());
+//			}
+			// redirect(x) => 데이터를 보낼 수 없음
+			// forwarding(o)
+			//문제가 발생되면 수정프로세스는 중단되고 forward
+			return "cust/custinsert";
+		}//end if
+		
+		logger.info("custVO : " + custVO.toString());
+		
+		//수정 비즈니스 로직 처리 후 -> 몇 건이 update되었나..
+		int insertCustRslt = custService.custInsert(custVO);
+		
+		if(!(insertCustRslt > 0)) {//수정 실패
+			return "cust/custinsert";
+		}
+		
+		//상세페이지로 되돌아감
+		return "redirect:/cust/custinsert";
+	}
+	
+	
+	@GetMapping("/custlist")
+	public String getCustList(Model model) {
+		
+		return "cust/custlist";
+	}
+}

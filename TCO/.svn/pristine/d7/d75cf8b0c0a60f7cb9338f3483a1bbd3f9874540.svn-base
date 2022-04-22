@@ -1,0 +1,86 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<title>일별 매출 현황</title>
+<script type="text/javascript" src="https://www.chartjs.org/dist/master/chart.min.js"></script>
+<script src="/resources/js/jquery-3.6.0.min.js"></script>	
+</head>
+<h1>test</h1>
+
+<body>
+	<div>
+		<div class="linechart" style="height:400px; width: 400px">
+			<canvas id="myChart" height="400px;" width="400px;"></canvas>
+		</div>
+	</div>
+</body>
+
+ 
+<script type="text/javascript">
+//chart.js
+//data:는 컨트롤러로 보내는값
+//success: function(data)에서 data는 컨트롤러에서 받아오는 값이다.
+//즉 컨트롤러Post에서 반환되는 String json이 들어간다.
+
+
+
+$(function(){
+		$.ajax({
+			url: "/sttst/daily",
+			async: true,
+			//data: JSON.stringify(data),
+			type: "POST",
+			dataType:"json",
+			contentType: "application/json; charset=utf-8",
+			success:function(data){
+				var salelist=[];
+				var datelist=[];
+				
+				$.each(data,function(){
+					salelist.push(this["sale"])
+					datelist.push(this["date"])
+				})
+				console.log(salelist);
+				console.log(datelist);
+				
+				
+				const ctx = document.getElementById('myChart').getContext('2d');
+				// 그래픽 엔진으로 유명한 것 (DirectX, OpenGL)
+				const myChart = new Chart(ctx, {
+				    type: 'line', //bar,line,pie,doughnut,radar
+				    //labels : x축의 값
+				    //datasets : data의 값, 속성들 지정
+				    data: {
+				        labels: datelist,
+				        datasets: [{
+				            label: '일일 매출 차트',
+				            data: salelist,
+				            backgroundColor: [
+				                'lightblue'
+				            ],
+				            borderColor: [
+				            	'lightblue'
+				            ],
+				            borderWidth: 3
+				        }]
+				    },
+				    options: {
+				        scales: {
+				            y: {
+				                beginAtZero: true
+				            }
+				        }
+				    }
+				});
+				
+		}
+	});
+});
+
+
+</script>
+
+ 
+</html>

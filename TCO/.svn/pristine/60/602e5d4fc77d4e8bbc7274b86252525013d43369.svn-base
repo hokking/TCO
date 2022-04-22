@@ -1,0 +1,13 @@
+package kr.or.tco.cust.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.tco.cust.mapper.CustMapper;
+import kr.or.tco.cust.service.CustService;
+
+@Service
+public class CustServiceImpl implements CustService {
+	
+	@Autowired CustMapper custMapper;
+}

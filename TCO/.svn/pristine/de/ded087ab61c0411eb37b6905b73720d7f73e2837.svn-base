@@ -1,0 +1,202 @@
+package kr.or.tco.store.controller;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.google.gson.Gson;
+
+import kr.or.tco.ordr.service.OrdrService;
+import kr.or.tco.store.service.StoreService;
+import kr.or.tco.store.vo.StoreVO;
+import kr.or.tco.strgstck.service.StrgstckService;
+import kr.or.tco.strgstck.vo.StrgstckVO;
+
+@RequestMapping("/store")
+@Controller
+public class StoreController {
+	private static final Logger logger = LoggerFactory.getLogger(StoreController.class);
+
+	@Autowired
+	StoreService storeService;
+	
+	@Autowired
+	OrdrService ordrService;
+	
+	@Autowired
+	StrgstckService strgstckService;
+	
+	//지점의 입고 목록
+	@GetMapping("/branchWrhouseList")
+	public String branchWrhouseList(Model model, String brncofcId) {
+		//지점 이름 가져오기
+		String brnNm = this.ordrService.brnofcNm(brncofcId);
+		//지점의 매장입고 목록(=창고출고)
+		List<StrgstckVO> list = this.strgstckService.branchShipList(brncofcId);
+		//지점의 창고입고 목록
+		List<StrgstckVO> strgList = this.strgstckService.branchWrHouseList(brncofcId);
+		
+		model.addAttribute("name", brnNm);
+		model.addAttribute("list", list);
+		model.addAttribute("strgList", strgList);
+		return "store/branchWrhouseList";
+	}
+	
+	//지점의 부족재고현황
+	@GetMapping("/lackStock")
+	public String lackStock(Model model, String brncofcId) {
+		//지점 이름 가져오기
+		String brnNm = this.ordrService.brnofcNm(brncofcId);
+		
+		//지점의 매장 부족재고 현황을 뽑기 위한 테이블 만들기(지점의 모든 제품 현황임)
+		List<StoreVO> shopList = this.storeService.storeLackList(brncofcId);
+		//지점의 창고 부족재고 현황뽑기(지점의 모든 제품 현황)
+		List<StrgstckVO> strgList = this.strgstckService.strgLackList(brncofcId);
+		
+		model.addAttribute("id", brncofcId);
+		model.addAttribute("name", brnNm);
+		model.addAttribute("shopList", shopList);
+		model.addAttribute("strgList", strgList);
+		
+		return "store/branchLackStock";
+	}
+	
+	//매장 - 부족재고현황 새로가져오기
+	@ResponseBody
+	@PostMapping("/newLack.do")
+	public List<StoreVO> newLack(String id){
+		logger.info("지점 아이디 : " + id);
+		
+		//지점의 매장 부족재고 현황을 뽑기 위한 테이블 만들기(지점의 모든 제품 현황임)
+		List<StoreVO> shopList = this.storeService.storeLackList(id);
+		logger.info(shopList.get(0).toString());
+		return shopList;
+	}
+	
+	//창고 - 부족재고현황 새로가져오기
+	@ResponseBody
+	@PostMapping("/newLackStrg.do")
+	public List<StrgstckVO> newLackStrg(String id){
+		//안전재고 밑인 상품의 발주여부를 N으로 바꾸기
+		int result = this.strgstckService.underSafty(id);
+		logger.info("N으로 변한 행 수 : " + result);
+		//지점의 창고 부족재고 현황뽑기(지점의 모든 제품 현황)
+		List<StrgstckVO> strgList = this.strgstckService.strgLackList(id);
+		
+		return strgList;
+	}
+	
+	//매장 - 재고보충 버튼 눌렀을 때
+	@ResponseBody
+	@GetMapping("/refillShop.do")
+	public int refillShop(@RequestParam(required=false) String prodId,
+			@RequestParam String brncId) {
+		System.out.println(prodId);
+		//GSON 객체 선언
+		Gson gson = new Gson();
+		//GSON으로 id를 List로 만들어주기(체크된 상품 아이디가 들은 List)
+		List<String> idList = gson.fromJson(prodId, List.class);
+		logger.info(idList.toString());
+		
+		//매장 - 재고수 알기 위한 파라미터 map 만들기 
+		Map<String, Object> shopMap = new HashMap<String, Object>();
+		//지점 아이디 넣기
+		shopMap.put("brncofcId", brncId);
+		//채울 재고수
+		int refill = 0;
+		int result = 0;
+		//상품별 update, insert 처리할 for문
+		for(String id : idList) {
+			//Map에 상품아이디 넣기
+			shopMap.put("prodInfoId", id);
+			
+			//상품별 채울 재고수((안전재고 * 2) - 현재고) 찾기
+			refill = this.storeService.refillQtyShop(shopMap);
+			logger.info(id + "의 채울 재고수 : " + refill);
+			
+			shopMap.put("refill", refill);
+			shopMap.put("strgShmtQty", refill);
+			
+			try {
+				result += this.storeService.shopRefill(shopMap);
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.info("catch : " + e.getMessage());
+			}
+		}
+		logger.info("매장 재고보충 버튼 result : " + result);
+		if(result % 3 == 0) {
+			result = 1;
+		}else {
+			result = 0;
+		}
+		return result;
+	}
+	
+	//창고 - 발주버튼 눌렀을때
+	@ResponseBody
+	@GetMapping("/strgOrder.do")
+	public int strgOrder(@RequestParam(required=false) String prodId,
+			@RequestParam String brncId) throws Exception {
+		//GSON 객체 선언
+		Gson gson = new Gson();
+		//GSON으로 id를 List로 만들어주기(체크된 상품 아이디가 들은 List)
+		List<String> idList = gson.fromJson(prodId, List.class);
+		logger.info(idList.toString());
+		
+		//파라미터로 사용할 Map 객체 만들기
+		Map<String, Object> map = new HashMap<String, Object>();
+		//지점 아이디 넣기
+		map.put("brncofcId", brncId);
+		//발주번호
+		int ordrId = this.ordrService.ordrMax();
+		map.put("ordrId", ordrId);
+		//발주 수량 구하기(기본보유수량 - 현재고)
+		int refill = 0;
+		int result = 0;
+		//상품별 발주 insert, 발주여부 update
+		for(String id : idList) {
+			//Map에 상품아이디 넣기
+			map.put("prodInfoId", id);
+			
+			//발주 수량 구하기(기본보유수량 - 현재고)
+			refill = this.strgstckService.ordrQtyStrg(map);
+			map.put("ordrQty", refill);
+			//발주여부 Y로 수정 및 발주하기
+			result += this.strgstckService.lackUpdate(map);
+		}
+		logger.info("창고 발주버튼 result : " + result);
+		if(result % 2 == 0) {
+			result = 1;
+		}else {
+			result = 0;
+		}
+		return result;
+	}
+	
+	//지점별 매장 도면
+	@GetMapping("/storeMap")
+	public String storeMap(Model model, String brncofcId) {
+		//지점 이름 가져오기
+		String brnNm = this.ordrService.brnofcNm(brncofcId);
+		//지점의 모든 재고 가져오기
+		List<StoreVO> list = this.storeService.storeLackList(brncofcId);
+		
+		model.addAttribute("list", list);
+		model.addAttribute("id", brncofcId);
+		model.addAttribute("name", brnNm);
+		return "store/storeMap";
+	}
+}

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.att.mapper.AttMapper">
+
+<select id="binfoselect" parameterType="String" resultType="empVO">
+	SELECT EMP_NM, EMP_IMG, CMNCD_CD
+	  FROM EMP
+	 WHERE EMP_ID = #{empId}
+</select>
+
+<select id="sdselect" parameterType="String" resultType="cmncdVO">
+	SELECT CMNCD_GU_NM, CMNCD_NM1, CMNCD_NM2
+	  FROM CMNCD
+	 WHERE CMNCD_CD = #{cmncdCd}
+</select>
+
+
+<!-- 출근/퇴근시간 확인용  -->
+<select id="checkselect" parameterType="String">
+	SELECT WORKSTTS_DT, WORKSTTS_BGNG_TM, WORKSTTS_END_TM
+	  FROM WORKSTTS
+	 WHERE EMP_ID=#{empId}
+</select>
+
+<!-- 출근  -->
+<insert id="inselect" parameterType="worksttsVO">
+	INSERT INTO WORKSTTS(EMP_ID, WORKSTTS_DT, WORKSTTS_BGNG_TM)
+		   VALUES (#{empId}, #{worksttsDt}, #{worksttsBgngTm})
+</insert>
+
+<!-- 퇴근  -->
+<insert id="outselect" parameterType="String"></insert>
+</mapper>

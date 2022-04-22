@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.cust.mapper.CustMapper">
+
+	<insert id="custInsert" parameterType="custVO">
+		<selectKey order="BEFORE" keyProperty="custId" resultType="String">
+			SELECT CASE WHEN MAX(SUBSTR(CUST_ID, 1, 8)) = TO_CHAR(SYSDATE, 'YYYYMMDD')
+			       THEN TO_CHAR(SYSDATE, 'YYYYMMDD') || LPAD(NVL(SUBSTR(MAX(CUST_ID), 9, 4), 0) + 1, 4, '0')
+			       ELSE TO_CHAR(SYSDATE, 'YYYYMMDD') || '0001'
+			       END
+			  FROM CUST
+		</selectKey>
+		INSERT INTO CUST
+		VALUES (#{custId}, #{custNm}, #{custTel}, #{custMail}, #{custZip}, 
+				#{custAddr}, #{custDaddr}, #{custBrdt}, #{custMrgYn}, '일반', 
+				#{custCrcdNo}, #{custGndr}, #{custMktRcptnAgreYn}, 'B103')
+	</insert>	
+	
+	<!-- 일반 고객 목록 -->
+	<select id="custSelect" parameterType="hashMap" resultType="custVO">
+		SELECT T.RNUM, T.CUST_ID, T.CUST_GNDR, T.CUST_NM, T.CUST_TEL, T.CUST_MAIL, T.CMNCD_NM1
+		  FROM (
+				SELECT ROW_NUMBER() OVER(ORDER BY CUST_ID DESC) RNUM, C.CUST_ID, C.CUST_NM, C.CUST_TEL, C.CUST_MAIL, C.CUST_ZIP,
+				       C.CUST_ADDR, C.CUST_DADDR, C.CUST_BRDT, C.CUST_MRG_YN,
+				       C.CUST_STTS, C.CUST_CRCD_NO, C.CUST_GNDR,
+				       C.CUST_MKT_RCPTN_AGRE_YN, C.CMNCD_CD, M.CMNCD_NM1
+				  FROM CUST C, CMNCD M
+				 WHERE C.CMNCD_CD = M.CMNCD_CD
+				   AND C.CUST_STTS = '일반'
+				 <if test="keyWord!=null and keyWord!=''">
+			       AND  (CUST_ID LIKE '%' || #{keyWord} || '%' OR
+			             CUST_NM   LIKE '%' || #{keyWord} || '%' OR
+			             CUST_TEL   LIKE '%' || #{keyWord} || '%' OR
+			             CUST_MAIL    LIKE '%' || #{keyWord} || '%')
+			     </if>
+			   ) T
+		 WHERE T.RNUM BETWEEN #{currentPage}*#{size}-#{size}+1 AND #{currentPage}*#{size}
+	</select>
+	
+	<!-- 마케팅 수신 동의 고객 목록 -->
+	<select id="custMktSelect" parameterType="hashMap" resultType="custVO">
+		SELECT T.RNUM, T.CUST_ID, T.AGE, T.CUST_MRG_YN, T.CUST_GNDR, T.CUST_NM, T.CUST_TEL, T.CUST_MAIL, T.CMNCD_NM1
+		  FROM (
+				SELECT ROW_NUMBER() OVER(ORDER BY CUST_ID DESC) RNUM, C.CUST_ID, C.CUST_NM, C.CUST_TEL, C.CUST_MAIL, C.CUST_ZIP,
+				       C.CUST_ADDR, C.CUST_DADDR, C.CUST_BRDT, C.CUST_MRG_YN,
+				       C.CUST_STTS, C.CUST_CRCD_NO, C.CUST_GNDR,
+				       C.CUST_MKT_RCPTN_AGRE_YN, C.CMNCD_CD, M.CMNCD_NM1,
+				       (FLOOR(MONTHS_BETWEEN(SYSDATE, CUST_BRDT)/12/10) * 10) AS AGE
+				  FROM CUST C, CMNCD M
+				 WHERE C.CMNCD_CD = M.CMNCD_CD
+				   AND C.CUST_STTS = '일반'
+				   AND C.CUST_MKT_RCPTN_AGRE_YN = 'Y'
+				 <if test="keyWord!=null and keyWord!=''">
+			       AND  (CUST_ID LIKE '%' || #{keyWord} || '%' OR
+			             CUST_NM   LIKE '%' || #{keyWord} || '%' OR
+			             CUST_TEL   LIKE '%' || #{keyWord} || '%' OR
+			             CUST_MAIL    LIKE '%' || #{keyWord} || '%')
+			     </if>
+				 <if test="ageList!=null and ageList!=''">
+				 	AND FLOOR(MONTHS_BETWEEN(SYSDATE, CUST_BRDT)/12/10) * 10 IN
+			     	<foreach collection="ageList" item="item" open="(" close=")" separator=",">
+			       	 #{item}
+			       	</foreach>
+			     </if>
+				 <if test="genderList!=null and genderList!=''">
+				 	AND CUST_GNDR IN
+			     	<foreach collection="genderList" item="item" open="(" close=")" separator=",">
+			         #{item}
+			        </foreach>
+			     </if>
+				 <if test="rankList!=null and rankList!=''">
+			       	AND CMNCD_NM1 IN 
+			     	<foreach collection="rankList" item="item" open="(" close=")" separator=",">
+			     	#{item}
+			     	</foreach>
+			     </if>
+				 <if test="mrgList!=null and mrgList!=''">
+			       	AND CUST_MRG_YN IN
+			     	<foreach collection="mrgList" item="item" open="(" close=")" separator=",">
+			     	#{item}
+			     	</foreach>
+			     </if>
+			   ) T
+	</select>
+	
+	<!-- 휴면 고객 목록 -->
+	<select id="custMktSelect1" parameterType="hashMap" resultType="custVO">
+		SELECT T.RNUM, T.CUST_ID, T.AGE, T.CUST_MRG_YN, T.CUST_GNDR, T.CUST_NM, T.CUST_TEL, T.CUST_MAIL, T.CMNCD_NM1
+		  FROM (
+				SELECT ROW_NUMBER() OVER(ORDER BY CUST_ID DESC) RNUM, C.CUST_ID, C.CUST_NM, C.CUST_TEL, C.CUST_MAIL, C.CUST_ZIP,
+				       C.CUST_ADDR, C.CUST_DADDR, C.CUST_BRDT, C.CUST_MRG_YN,
+				       C.CUST_STTS, C.CUST_CRCD_NO, C.CUST_GNDR,
+				       C.CUST_MKT_RCPTN_AGRE_YN, C.CMNCD_CD, M.CMNCD_NM1,
+				       (FLOOR(MONTHS_BETWEEN(SYSDATE, CUST_BRDT)/12/10) * 10) AS AGE
+				  FROM CUST C, CMNCD M
+				 WHERE C.CMNCD_CD = M.CMNCD_CD
+				   AND C.CUST_STTS = '휴면'
+				 <if test="keyWord!=null and keyWord!=''">
+			       AND  (CUST_ID LIKE '%' || #{keyWord} || '%' OR
+			             CUST_NM   LIKE '%' || #{keyWord} || '%' OR
+			             CUST_TEL   LIKE '%' || #{keyWord} || '%' OR
+			             CUST_MAIL    LIKE '%' || #{keyWord} || '%')
+			     </if>
+			     <if test="ageList!=null and ageList!=''">
+				 	AND FLOOR(MONTHS_BETWEEN(SYSDATE, CUST_BRDT)/12/10) * 10 IN
+			     	<foreach collection="ageList" item="item" open="(" close=")" separator=",">
+			       	 #{item}
+			       	</foreach>
+			     </if>
+				 <if test="genderList!=null and genderList!=''">
+				 	AND CUST_GNDR IN
+			     	<foreach collection="genderList" item="item" open="(" close=")" separator=",">
+			         #{item}
+			        </foreach>
+			     </if>
+				 <if test="rankList!=null and rankList!=''">
+			       	AND CMNCD_NM1 IN 
+			     	<foreach collection="rankList" item="item" open="(" close=")" separator=",">
+			     	#{item}
+			     	</foreach>
+			     </if>
+				 <if test="mrgList!=null and mrgList!=''">
+			       	AND CUST_MRG_YN IN
+			     	<foreach collection="mrgList" item="item" open="(" close=")" separator=",">
+			     	#{item}
+			     	</foreach>
+			     </if>
+			   ) T
+	</select>
+
+	<!-- 탈퇴 고객 목록 -->
+	<select id="custMktSelect2" parameterType="hashMap" resultType="custVO">
+		SELECT T.RNUM, T.CUST_ID, T.AGE, T.CUST_MRG_YN, T.CUST_GNDR, T.CUST_NM, T.CUST_TEL, T.CUST_MAIL, T.CMNCD_NM1
+		  FROM (
+				SELECT ROW_NUMBER() OVER(ORDER BY CUST_ID DESC) RNUM, C.CUST_ID, C.CUST_NM, C.CUST_TEL, C.CUST_MAIL, C.CUST_ZIP,
+				       C.CUST_ADDR, C.CUST_DADDR, C.CUST_BRDT, C.CUST_MRG_YN,
+				       C.CUST_STTS, C.CUST_CRCD_NO, C.CUST_GNDR,
+				       C.CUST_MKT_RCPTN_AGRE_YN, C.CMNCD_CD, M.CMNCD_NM1,
+				       (FLOOR(MONTHS_BETWEEN(SYSDATE, CUST_BRDT)/12/10) * 10) AS AGE
+				  FROM CUST C, CMNCD M
+				 WHERE C.CMNCD_CD = M.CMNCD_CD
+				   AND C.CUST_STTS = '탈퇴'
+				 <if test="keyWord!=null and keyWord!=''">
+			       AND  (CUST_ID LIKE '%' || #{keyWord} || '%' OR
+			             CUST_NM   LIKE '%' || #{keyWord} || '%' OR
+			             CUST_TEL   LIKE '%' || #{keyWord} || '%' OR
+			             CUST_MAIL    LIKE '%' || #{keyWord} || '%')
+			     </if>
+			     <if test="ageList!=null and ageList!=''">
+				 	AND FLOOR(MONTHS_BETWEEN(SYSDATE, CUST_BRDT)/12/10) * 10 IN
+			     	<foreach collection="ageList" item="item" open="(" close=")" separator=",">
+			       	 #{item}
+			       	</foreach>
+			     </if>
+				 <if test="genderList!=null and genderList!=''">
+				 	AND CUST_GNDR IN
+			     	<foreach collection="genderList" item="item" open="(" close=")" separator=",">
+			         #{item}
+			        </foreach>
+			     </if>
+				 <if test="rankList!=null and rankList!=''">
+			       	AND CMNCD_NM1 IN 
+			     	<foreach collection="rankList" item="item" open="(" close=")" separator=",">
+			     	#{item}
+			     	</foreach>
+			     </if>
+				 <if test="mrgList!=null and mrgList!=''">
+			       	AND CUST_MRG_YN IN
+			     	<foreach collection="mrgList" item="item" open="(" close=")" separator=",">
+			     	#{item}
+			     	</foreach>
+			     </if>
+			   ) T
+	</select>
+	
+	<!-- 휴면 고객 목록 -->
+	<select id="custSelectH" parameterType="hashMap" resultType="custVO">
+		SELECT T.RNUM, T.CUST_ID, T.CUST_NM, T.CUST_TEL, T.CUST_MAIL, T.CMNCD_NM1
+		  FROM (
+				SELECT ROW_NUMBER() OVER(ORDER BY CUST_ID DESC) RNUM, C.CUST_ID, C.CUST_NM, C.CUST_TEL, C.CUST_MAIL, C.CUST_ZIP,
+				       C.CUST_ADDR, C.CUST_DADDR, C.CUST_BRDT, C.CUST_MRG_YN,
+				       C.CUST_STTS, C.CUST_CRCD_NO, C.CUST_GNDR,
+				       C.CUST_MKT_RCPTN_AGRE_YN, C.CMNCD_CD, M.CMNCD_NM1
+				  FROM CUST C, CMNCD M
+				 WHERE C.CMNCD_CD = M.CMNCD_CD
+				   AND C.CUST_STTS = '휴면'
+				 <if test="keyWord!=null and keyWord!=''">
+			       AND  (CUST_ID LIKE '%' || #{keyWord} || '%' OR
+			             CUST_NM   LIKE '%' || #{keyWord} || '%' OR
+			             CUST_TEL   LIKE '%' || #{keyWord} || '%' OR
+			             CUST_MAIL    LIKE '%' || #{keyWord} || '%')
+			     </if>
+			   ) T
+		 WHERE T.RNUM BETWEEN #{currentPage}*#{size}-#{size}+1 AND #{currentPage}*#{size}
+	</select>
+	
+	<!-- 탈퇴 고객 목록 -->
+	<select id="custSelectT" parameterType="hashMap" resultType="custVO">
+		SELECT T.RNUM, T.CUST_ID, T.CUST_NM, T.CUST_TEL, T.CUST_MAIL, T.CMNCD_NM1
+		  FROM (
+				SELECT ROW_NUMBER() OVER(ORDER BY CUST_ID DESC) RNUM, C.CUST_ID, C.CUST_NM, C.CUST_TEL, C.CUST_MAIL, C.CUST_ZIP,
+				       C.CUST_ADDR, C.CUST_DADDR, C.CUST_BRDT, C.CUST_MRG_YN,
+				       C.CUST_STTS, C.CUST_CRCD_NO, C.CUST_GNDR,
+				       C.CUST_MKT_RCPTN_AGRE_YN, C.CMNCD_CD, M.CMNCD_NM1
+				  FROM CUST C, CMNCD M
+				 WHERE C.CMNCD_CD = M.CMNCD_CD
+				   AND C.CUST_STTS = '탈퇴'
+				 <if test="keyWord!=null and keyWord!=''">
+			       AND  (CUST_ID LIKE '%' || #{keyWord} || '%' OR
+			             CUST_NM   LIKE '%' || #{keyWord} || '%' OR
+			             CUST_TEL   LIKE '%' || #{keyWord} || '%' OR
+			             CUST_MAIL    LIKE '%' || #{keyWord} || '%')
+			     </if>
+			   ) T
+		 WHERE T.RNUM BETWEEN #{currentPage}*#{size}-#{size}+1 AND #{currentPage}*#{size}
+	</select>
+	
+	<!-- 고객 상세 정보 -->
+	<select id="custDetailSelect" parameterType="String" resultType="custVO">
+		SELECT C.CUST_ID, C.CUST_NM, C.CUST_TEL, C.CUST_MAIL, C.CUST_ZIP,
+		       C.CUST_ADDR, C.CUST_DADDR, C.CUST_BRDT, C.CUST_MRG_YN,
+		       C.CUST_STTS, C.CUST_CRCD_NO, C.CUST_GNDR,
+		       C.CUST_MKT_RCPTN_AGRE_YN, C.CMNCD_CD, M.CMNCD_NM1
+		  FROM CUST C, CMNCD M
+		 WHERE C.CMNCD_CD = M.CMNCD_CD
+		   AND C.CUST_ID = #{custId}
+	</select>
+	
+	<!-- 일반 고객 전체 인원수 -->
+	<select id="getCustTotal" parameterType="hashMap" resultType="int">
+		SELECT COUNT(*)
+		  FROM CUST
+		 WHERE 1 = 1
+		   AND CUST_STTS = '일반'
+	    <if test="keyWord!=null and keyWord!=''">
+	    AND    (CUST_ID LIKE '%' || #{keyWord} || '%' OR
+	            CUST_NM   LIKE '%' || #{keyWord} || '%' OR
+	            CUST_TEL   LIKE '%' || #{keyWord} || '%' OR
+	            CUST_TEL   LIKE '%' || #{keyWord} || '%' OR
+	            CUST_MAIL    LIKE '%' || #{keyWord} || '%')
+	    </if>
+	</select>
+	
+	<!-- 휴면 고객 전체 인원수 -->
+	<select id="getCustTotal1" parameterType="hashMap" resultType="int">
+		SELECT COUNT(*)
+		  FROM CUST
+		 WHERE 1 = 1
+		   AND CUST_STTS = '휴면'
+	    <if test="keyWord!=null and keyWord!=''">
+	    AND    (CUST_ID LIKE '%' || #{keyWord} || '%' OR
+	            CUST_NM   LIKE '%' || #{keyWord} || '%' OR
+	            CUST_TEL   LIKE '%' || #{keyWord} || '%' OR
+	            CUST_TEL   LIKE '%' || #{keyWord} || '%' OR
+	            CUST_MAIL    LIKE '%' || #{keyWord} || '%')
+	    </if>
+	</select>
+	
+	<!-- 탈퇴 고객 전체 인원수 -->
+	<select id="getCustTotal2" parameterType="hashMap" resultType="int">
+		SELECT COUNT(*)
+		  FROM CUST
+		 WHERE 1 = 1
+		   AND CUST_STTS = '탈퇴'
+	    <if test="keyWord!=null and keyWord!=''">
+	    AND    (CUST_ID LIKE '%' || #{keyWord} || '%' OR
+	            CUST_NM   LIKE '%' || #{keyWord} || '%' OR
+	            CUST_TEL   LIKE '%' || #{keyWord} || '%' OR
+	            CUST_TEL   LIKE '%' || #{keyWord} || '%' OR
+	            CUST_MAIL    LIKE '%' || #{keyWord} || '%')
+	    </if>
+	</select>
+	
+	<!-- 고객 정보 수정 -->
+	<update id="custDetailUpdate" parameterType="custVO">
+		UPDATE CUST
+   		   SET CUST_NM = #{custNm}, CUST_TEL = #{custTel}, CUST_MAIL = #{custMail},
+               CUST_ZIP = #{custZip}, CUST_ADDR = #{custAddr}, CUST_DADDR = #{custDaddr},
+               CUST_BRDT = #{custBrdt}, CUST_MRG_YN = #{custMrgYn},
+    		   CUST_CRCD_NO = #{custCrcdNo}, CUST_GNDR = #{custGndr},
+    		   CUST_MKT_RCPTN_AGRE_YN = #{custMktRcptnAgreYn}
+		 WHERE CUST_ID = #{custId}
+	</update>
+	
+	<!-- 고객 상태 수정 - 탈퇴 -->
+	<update id="custDeleteUpdate" parameterType="String">
+		UPDATE CUST
+   		   SET CUST_STTS = '탈퇴'
+		 WHERE CUST_ID = #{custId}
+	</update>
+	
+	<select id="custQRSelect" parameterType="HashMap" resultType="custVO">
+		SELECT
+			    cust_id,
+			    cust_nm,
+			    cust_tel,
+			    cust_gndr,
+			    cust_mkt_rcptn_agre_yn,
+			    cmncd_cd
+			FROM
+			    cust
+			 WHERE 1 = 1
+	    <if test="keyWord!=null and keyWord!=''">
+	    AND    (CUST_ID LIKE '%' || #{keyWord} || '%' OR
+	            CUST_NM   LIKE '%' || #{keyWord} || '%' OR
+	            CUST_TEL   LIKE '%' || #{keyWord} || '%' OR
+	            CUST_MAIL    LIKE '%' || #{keyWord} || '%')
+	    </if>	
+	</select>
+	
+	<!-- 소비자판매 자동으로 하기 위한 쿼리 -->
+	<insert id="autoNtsl" parameterType="HashMap">
+		INSERT INTO cust_ntsl (
+		    CUST_NTSL_ID
+		   ,BRNCOFC_ID
+		   ,CUST_ID
+		   ,PROD_INFO_ID
+		   ,CUST_NTSL_DT
+		   ,CUST_NTSL_AMT
+		   ,CUST_NTSL_QTY
+		) VALUES (
+		    CUST_NTSL_SEQ.NEXTVAL
+		   ,#{brncofcId}
+		   ,#{custId}
+		   ,#{prodInfoId}
+		   ,SYSDATE
+		   ,#{custNtslAmt}
+		   ,#{custNtslQty}
+		)
+	</insert>
+	
+	<!-- 상품명으로 가격찾기 -->
+	<select id="amtFind" resultType="Integer" parameterType="String">
+		SELECT PROD_INFO_NTSL_AMT
+		FROM   PROD_INFO
+		WHERE  PROD_INFO_ID=#{prodInfoId}
+	</select>
+	
+	
+</mapper>

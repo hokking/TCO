@@ -1,0 +1,23 @@
+package kr.or.tco.sttst.mapper;
+
+import java.util.List;
+
+import kr.or.tco.sls.vo.SlsVO;
+
+public interface SttstMapper {
+	
+	/**
+	 * 일일매출 통계
+	 * @return 일자와 일총판매매출을 담은 list
+	 */
+	List<SlsVO>getDailyIncome();
+	
+	
+	
+	/**
+	 * 월간매출 통계
+	 * @return 월판매 매출을 담은 list
+	 */
+	List<SlsVO>getMonthIncome();
+	
+}

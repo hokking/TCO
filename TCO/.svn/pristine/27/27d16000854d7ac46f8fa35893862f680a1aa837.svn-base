@@ -1,0 +1,329 @@
+package kr.or.tco.att.controller;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.tco.att.service.impl.AttService;
+import kr.or.tco.att.vo.WorksttsVO;
+import kr.or.tco.cmncd.vo.CmncdVO;
+import kr.or.tco.emp.service.impl.EmpService;
+import kr.or.tco.emp.vo.EmpVO;
+import oracle.jdbc.proxy.annotation.Post;
+
+@RequestMapping("/att")
+@Controller
+public class AttController {
+
+	@Autowired
+	AttService attService;
+
+	@Autowired
+	EmpService empService;
+
+	private static final Logger logger = LoggerFactory.getLogger(AttController.class);
+
+	@GetMapping("/attlist")
+	public String attlist(Model model, @RequestParam(defaultValue = "0", value = "num", required = false) int num) {
+		List<WorksttsVO> list = attService.thisweekall(num);
+
+		Map<String, Object> map = new HashMap<String, Object>();
+
+		for (WorksttsVO worksttsVO : list) {
+
+			map.put("empId", worksttsVO.getEmpId());
+			map.put("num", num);
+
+			logger.info("map: " + map.toString());
+
+			logger.info("id: " + worksttsVO.getEmpId());
+			int sumtm = attService.sumtm2(worksttsVO.getEmpId());
+			logger.info("sumtm: " + sumtm);
+			worksttsVO.setSumtm(sumtm);
+
+		}
+		logger.info("모든이의이번쭈" + list);
+
+		logger.info("리쓰트크기는: " + list.size());
+		logger.info("list.get(0).empNm" + list.get(0).getEmpNm());
+		logger.info("list.get(1).empNm" + list.get(1).getEmpNm());
+		model.addAttribute("list", list);
+
+		return "att/attlist";
+	}
+
+	@PostMapping("/attlist")
+	public String pattlist(Model model, @RequestParam(defaultValue = "0", value = "num", required = false) int num) {
+		List<WorksttsVO> list = attService.thisweekall(num);
+
+		Map<String, Object> map = new HashMap<String, Object>();
+
+		for (WorksttsVO worksttsVO : list) {
+			if (worksttsVO.getEmpId() != null) {
+
+				map.put("empId", worksttsVO.getEmpId());
+				map.put("num", num);
+
+				logger.info("postmap: " + map.toString());
+
+				logger.info("idp: " + worksttsVO.getEmpId());
+
+				Integer sum2 = attService.sumtm(map);
+				if (sum2 == null) {
+					sum2 = 0;
+				}
+				worksttsVO.setSumtm(sum2);
+				logger.info("post sum2: " + sum2);
+
+			} else {
+				break;
+			}
+		}
+		logger.info("모든이의이번쭈" + list);
+
+		logger.info("리쓰트크기는: " + list.size());
+		model.addAttribute("list", list);
+		// model.addAttribute("num" , num);
+		return "ajax/att/ajax_attlist";
+	}
+
+	@GetMapping("/attdetail")
+	public String attdetail(Model model, HttpServletRequest request) {
+		HttpSession session = request.getSession(false);
+		// getAttribute의 리턴값은 object
+		String userId = String.valueOf(session.getAttribute("userID"));
+		logger.info("userid는:" + userId);
+
+		EmpVO empVO = attService.binfoselect(userId);
+		CmncdVO cmncdVO = attService.sdselect(empVO.getCmncdCd());
+		empVO.setOpt(cmncdVO.getCmncdGuNm());
+		empVO.setDptopt(cmncdVO.getCmncdNm1());
+		empVO.setLelopt(cmncdVO.getCmncdNm2());
+
+		WorksttsVO worksttsVO = new WorksttsVO();
+		String gotime = attService.gotime(userId);
+		String outtime = attService.outtime(userId);
+
+		// 출퇴근 둘다 x
+		if (gotime == null && outtime == null) {
+			worksttsVO.setWorksttsBgngTm("미등록");
+			worksttsVO.setWorksttsEndTm("미등록");
+			// 출근만했을때
+		} else if (gotime != null && outtime == null) {
+			worksttsVO.setWorksttsBgngTm(gotime);
+			worksttsVO.setWorksttsEndTm("미등록");
+			// 출퇴근 둘다o
+		} else {
+			worksttsVO.setWorksttsBgngTm(gotime);
+			worksttsVO.setWorksttsEndTm(outtime);
+		}
+
+		model.addAttribute("empVO", empVO);
+
+		// 이번달 근무시간
+		int sumtm = attService.sumtm2(userId);
+
+		worksttsVO.setSumtm(sumtm);
+
+		// 출근시간 view에 출력위해 model로 보내준다 ^.^
+		logger.info("시간아나와라?: " + worksttsVO.toString());
+		model.addAttribute("worksttsVO", worksttsVO);
+
+		// 이번주 지정근무시간, 근무시간 구하기
+		List<WorksttsVO> list = attService.thisweek(userId);
+		logger.info("이번쭈: " + list);
+		logger.info("이번쮸" + list.get(0).getWorksttsTm());
+		model.addAttribute("list", list);
+		return "att/attdetail";
+	}
+
+	DateTimeFormatter dayf = DateTimeFormatter.ofPattern("yy-MM-dd");
+	DateTimeFormatter timef = DateTimeFormatter.ofPattern("HH:mm:ss");
+	LocalDateTime now = LocalDateTime.now();
+
+	// 출근
+	@ResponseBody
+	@PostMapping("/attin")
+	public int attin(HttpServletRequest request, Model model) throws ParseException {
+		HttpSession session = request.getSession(false);
+		String userId = String.valueOf(session.getAttribute("userID"));
+		String time = now.format(timef);
+
+		logger.info("날것: " + now);
+		logger.info("시간: " + time);
+
+		int ck = attService.checkIselect(userId);
+
+		logger.info("ck" + ck);
+
+		if (ck <= 0) {
+			WorksttsVO worksttsVO = new WorksttsVO();
+			worksttsVO.setWorksttsBgngTm(time);
+			worksttsVO.setEmpId(userId);
+
+			logger.info("vo: " + worksttsVO);
+			int result = attService.ininsert(worksttsVO);
+
+			// 업무상태 update
+			worksttsVO.setWorksttsCk("업무중");
+			attService.workck(worksttsVO);
+
+			// 출근시간
+			int st = attService.st(userId);
+			// 출근 분
+			int stm = attService.stm(userId);
+			// 지정 출근시간
+			int stck = attService.stck(userId);
+			// 상태update
+			if (st >= stck && stm > 0) {
+				worksttsVO.setCmncdCd("A503");
+				int cd = attService.cdupdate(worksttsVO);
+			} else {
+				worksttsVO.setCmncdCd("A501");
+				int cd = attService.cdupdate(worksttsVO);
+			}
+
+			logger.info("출근시간왜 안나오냐: " + worksttsVO.toString());
+
+			return result;
+		} else {
+			return 0;
+		}
+	}
+
+	// 퇴근
+	@ResponseBody
+	@PostMapping("/attout")
+	public int attout(HttpServletRequest request, Model model) throws ParseException {
+		HttpSession session = request.getSession(false);
+		String userId = String.valueOf(session.getAttribute("userID"));
+
+		// 퇴근여부
+		int ck1 = attService.checkOselect(userId);
+		// 출근여부
+		int ck2 = attService.checkIselect(userId);
+
+		// 퇴근 0 이고 출근 1일때 => 성공
+		if (ck1 <= 0 && ck2 > 0) {
+			WorksttsVO worksttsVO = new WorksttsVO();
+			worksttsVO.setEmpId(userId);
+
+			logger.info("OUTvo: " + worksttsVO);
+
+			int result = attService.outinsert(userId);
+
+			// 업무상태 update
+			worksttsVO.setWorksttsCk("업무종료");
+			attService.workck(worksttsVO);
+
+			// 근무시간 INSERT
+			// 지정 근무시간 계산
+			int enbgck = attService.CKenbgselect(userId);
+
+			int result2;
+
+			worksttsVO.setWorksttsTm(enbgck);
+			result2 = attService.enbgupdate(worksttsVO);
+
+			// 업무상태 UPDATE
+			// 퇴근시간
+			int end = attService.end(userId);
+			// 지정 퇴근시간
+			int endck = attService.endck(userId);
+
+			if (end <= endck) {
+				worksttsVO.setCmncdCd("A504");
+				int cd = attService.cdupdate(worksttsVO);
+			}
+			// model.addAttribute("worksttsVO", worksttsVO);
+			// logger.info("퇴근시간왜 안나오냐: "+ worksttsVO.toString());
+			return result2;
+
+			// 퇴근 0이고 출근0일때 => 출근해주슈
+		} else if (ck1 <= 0 && ck2 <= 0) {
+			return 2;
+			// 퇴근 1이고 출근1일때=> 이미처리
+		} else if (ck1 > 0 && ck2 > 0) {
+			return 3;
+		} else {
+			return 4;
+		}
+
+	}
+
+	// 업무 상태 리스트
+	@GetMapping("/attcheck")
+	public String attcheck(Model model) {
+		List<EmpVO> list = attService.attchecklist();
+		logger.info("attchecklist"+ list.toString());
+		
+		  for(EmpVO empVO : list) { 
+			  
+		logger.info("empVO"+ empVO);
+	      CmncdVO cmncdVO = new CmncdVO(); 
+	      cmncdVO = empService.sdselect(empVO.getCmncdCd());
+		  
+			
+	      logger.info("근태상태능? "+ empVO.getCmncdCdd());
+			String CmncdCdd =  empVO.getCmncdCdd();
+	      if(CmncdCdd!=null) {
+	    	  
+	    	  empVO.setCmncdCdd(attService.sdselect2(CmncdCdd)); 
+	      }else {
+	    	  empVO.setCmncdCdd(""); 
+	      }
+			 
+		  
+		  logger.info("머누"+cmncdVO.toString());
+		  
+		  empVO.setOpt(cmncdVO.getCmncdGuNm()); 
+		  empVO.setDptopt(cmncdVO.getCmncdNm1());
+		  empVO.setLelopt(cmncdVO.getCmncdNm2());
+		  
+		  
+		  }
+		 
+		
+		model.addAttribute("list", list);
+		logger.info("업무리스트: " + list);
+		return "att/attcheck";
+	}
+
+	@Scheduled(cron = "0 0 6 ? * 3")
+	public void test() {
+
+		// 임시테이블에 오늘부터 5일간 날짜 insert
+		int teminsert = attService.teminsert();
+		// 크로스 조인한것 insert
+		int reinsert = attService.reinsert();
+		// 지정시간 update
+		int reupdate = attService.reupdate();
+
+		logger.info("teminsert:" + teminsert + "reinsert:" + reinsert);
+		System.out.println("cron 테스트 : 5초에 1번씩 console 찍기");
+
+	}
+
+}

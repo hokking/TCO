@@ -1,0 +1,110 @@
+package kr.or.tco.alam.controller;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+
+import kr.or.tco.alam.service.AlamService;
+import kr.or.tco.alam.vo.AlamVO;
+import kr.or.tco.emp.vo.EmpVO;
+
+@RequestMapping("/alam")
+@Controller
+public class AlamController {
+	
+	private static final Logger logger =
+			LoggerFactory.getLogger(AlamController.class);
+
+	@Autowired 
+	AlamService AlamService;
+	
+	@ResponseBody
+	@RequestMapping(value = "/alamInsert", method= RequestMethod.POST)
+	public String alamInsert(Model model
+			, @RequestParam(required=false) String title 	
+			, @RequestParam(required=false) String sender 	
+			, @RequestParam(required=false) String receiver 	
+			, @RequestParam(required=false) String brncofcnm 	
+			
+			, @RequestParam(required=false) String shortstocknm 	
+			, @RequestParam(required=false) String dptopt 	
+			, @RequestParam(required=false) String lelopt
+			, @RequestParam(required=false) String receptionStatus 	
+			) {
+	
+	 		//<key,value>
+			Map<String,Object> map = new HashMap<String, Object>();
+			map.put("title", title);
+			map.put("sender", sender);
+			map.put("receiver", receiver);
+			map.put("brncofcnm", brncofcnm);
+			
+			map.put("shortstocknm", shortstocknm);
+			map.put("lelopt", lelopt);
+			map.put("dptopt", dptopt);
+			map.put("receptionStatus", receptionStatus);
+			
+			logger.info("map : " + map);
+			int result = this.AlamService.alamInsert(map);
+			model.addAttribute("alamInsert",result);
+		
+			//정상적으로 등록
+			if(result > 0) {
+				//forward
+				return "success";
+			}else { //등록 실패
+				return "fail";
+			}
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/alamRead", method= RequestMethod.POST)
+	public String alamUpdate(Model model
+			, @RequestParam(required=false) String alamnum ) {
+		
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("alamnum", alamnum);
+		
+		int result = this.AlamService.alamRead(map);
+		model.addAttribute("alamUpdate",result);
+	
+		//정상적으로 등록
+		if(result > 0) {
+			//forward
+			return "success";
+		}else { //등록 실패
+			return "fail";
+		}
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/alamTable", method= RequestMethod.POST)
+	public String alamTable(Model model
+			, @RequestParam(required=false) String receiver ) {
+		
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("receiver", receiver);
+		
+		AlamVO alamVO = new AlamVO();
+		
+		alamVO = this.AlamService.alamTable(map);
+		model.addAttribute("alamTable",alamVO);
+		
+		return "tiles/header";
+	}
+	
+	
+	
+	
+	
+}

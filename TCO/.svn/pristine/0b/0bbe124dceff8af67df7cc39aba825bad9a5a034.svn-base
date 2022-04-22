@@ -1,0 +1,30 @@
+package kr.or.tco.prchs.controller;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import kr.or.tco.prchs.service.PrchsService;
+
+//매입 컨트롤러
+@RequestMapping("/prchs")
+@Controller
+public class PrchsController {
+	
+	@Autowired
+	PrchsService prchsService;
+	
+	final static Logger logger = 
+			LoggerFactory.getLogger(PrchsController.class);
+	
+	//매입 발주서 화면
+	@GetMapping("/prchsOrder")
+	public String prchsOrder() {
+		return "prchs/prchsOrder";
+	}
+	
+	//
+}

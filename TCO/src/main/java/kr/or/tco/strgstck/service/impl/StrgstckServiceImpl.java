@@ -1,0 +1,149 @@
+package kr.or.tco.strgstck.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.tco.ordr.mapper.OrdrMapper;
+import kr.or.tco.prod.vo.ProdVO;
+import kr.or.tco.strgstck.mapper.StrgstckMapper;
+import kr.or.tco.strgstck.service.StrgstckService;
+import kr.or.tco.strgstck.vo.StrgstckVO;
+
+@Service
+public class StrgstckServiceImpl implements StrgstckService {
+	
+	@Autowired
+	StrgstckMapper strgstckMapper;
+	
+	@Autowired
+	OrdrMapper ordrMapper;
+	
+	//부족재고현황에서 발주시 발주여부 Y로 수정
+	@Override
+	public int lackUpdate(Map<String, Object> map) throws Exception {
+		int count = 0;
+		
+		//발주여부 Y로 수정
+		count += this.strgstckMapper.lackUpdate(map);
+		System.out.println("발주여부 Y로 수정 후 : "+count);
+		//발주시 insert
+		count += this.ordrMapper.lackInsert(map);
+		
+		return count;
+	}
+	
+	//본사용 - 부족재고현황에서 발주시 발주여부 Y로 수정
+	@Override
+	public int lackUpdateHead(Map<String, Object> map) throws Exception {
+		int count = 0;
+		
+		//발주여부 Y로 수정
+		count += this.strgstckMapper.lackUpdate(map);
+		System.out.println("발주여부 Y로 수정 후 : "+count);
+		
+		return count;
+	}
+	
+	
+	
+	//상품 등록시 본사 insert
+	@Override
+	public int strgTcoInsert(StrgstckVO strgstckVO) {
+		return this.strgstckMapper.strgTcoInsert(strgstckVO);
+	}
+	
+	//상품 등록시 지점 insert
+	@Override
+	public int strgBrncInsert(String brncofcId) {
+		return this.strgstckMapper.strgBrncInsert(brncofcId);
+	}
+	
+	//상품 정보 테이블에서 상품 삭제시 창고재고 본사 인스턴스 삭제
+	@Override
+	public int strgTcoDelete(String prodInfoId) {
+		return this.strgstckMapper.strgTcoDelete(prodInfoId);
+	}
+	
+	//수주버튼 클릭시 창고 출고 insert
+	@Override
+	public int shipStrg(Map<String, Object> map) {
+		return this.strgstckMapper.shipStrg(map);
+	}
+	
+	//본사창고의 현재고 확인
+	@Override
+	public int nowStck(String prodInfoId) {
+		return this.strgstckMapper.nowStck(prodInfoId);
+	}
+	
+	//본사의 창고 재고 update
+	@Override
+	public int stckUpdate(Map<String, Object> map) {
+		return this.strgstckMapper.stckUpdate(map);
+	}
+	
+	//본사의 창고출고 List 뽑기.. 근데 이제 필터를 곁들인..
+	@Override
+	public List<StrgstckVO> headShipList(){
+		return this.strgstckMapper.headShipList();
+	}
+	
+	//지점의 창고출고 목록뽑기
+	@Override
+	public List<StrgstckVO> branchShipList(String brncofcId){
+		return this.strgstckMapper.branchShipList(brncofcId);
+	}
+	
+	//지점의 창고입고 목록뽑기
+	@Override
+	public List<StrgstckVO> branchWrHouseList(String brncofcId){
+		return this.strgstckMapper.branchWrHouseList(brncofcId);
+	}
+	
+	//지점의 창고 부족재고 현황뽑기(지점의 모든 제품 현황)
+	@Override
+	public List<StrgstckVO> strgLackList(String brncofcId){
+		return this.strgstckMapper.strgLackList(brncofcId);
+	}
+
+	//상세재고현황
+	@Override
+	public List<StrgstckVO> detailstock(Map<String, Object> map) {
+		return this.strgstckMapper.detailstock(map);
+	}
+	
+	//지점 부족재고 현황에서 매장 재고보충 클릭시 창고 재고 update
+	@Override
+	public int refillStorage(Map<String, Object> map) {
+		return this.strgstckMapper.refillStorage(map);
+	}
+	
+	//지점 부족재고 현황에서 매장 재고보충 클릭시 창고 출고 insert
+	@Override
+	public int refillInsert(Map<String, Object> map) {
+		return this.strgstckMapper.refillInsert(map);
+	}
+	
+	//지점의 창고재고가 안전재고 밑으로 떨어지면 발주여부를 N으로 update
+	@Override
+	public int underSafty(String brncofcId) {
+		return this.strgstckMapper.underSafty(brncofcId);
+	}
+	
+	//발주 수량 구하기(기본보유수량 - 현재고)
+	@Override
+	public int ordrQtyStrg(Map<String, Object> map) {
+		return this.strgstckMapper.ordrQtyStrg(map);
+	}
+	
+	//본사의 창고재고 리스트 가져오기
+	@Override
+	public List<StrgstckVO> getHeadshipStock(ProdVO prodVO) {
+		return this.strgstckMapper.getHeadshipStock(prodVO);
+	}
+	
+	
+}

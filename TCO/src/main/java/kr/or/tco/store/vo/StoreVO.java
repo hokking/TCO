@@ -1,0 +1,212 @@
+package kr.or.tco.store.vo;
+
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class StoreVO {
+
+	private String custNtslId       ; //소비자판매번호
+	private String brncofcId        ; //지점아이디
+	private String brncofcNm	    ; //지점명
+	private String custId           ; //고객아이디
+	private String custNm           ; //고객이름
+	private String prodInfoId       ; //상품아이디
+	private String prodInfoNm	    ; //상품명
+	private Date custNtslDt         ; //판매일
+	private int custNtslAmt         ; //총액
+	private int custNtslQty         ; //판매개수
+	private int prodInfoPrchsAmt    ; //개당가격
+	private String cmncdCd		    ; //공통코드
+	private String cmncdNm1		    ; //공통코드명1
+	private String cmncdNm2		    ; //공통코드명2
+	private String custNtslDtDisplay; //형변환한 출고일
+	public int streStckQty          ; //매장재고수량
+	public int streStckSftyQty      ; //매장안전재고수
+	public String streSe            ; //매장섹션
+	public String streGdsCg         ; //매장상품카테고리
+	public String streLctn          ; //매장위치
+	
+	public String getCustNmDisplay() {
+		String res = "";
+		if(this.custNm != null) {
+			String first = this.custNm.substring(0,1);
+			int index = this.custNm.length();
+			String end = this.custNm.substring(index-1, index);
+			res = first + "*" + end;
+		}
+		return res;
+	}
+	public String getProdInfoNmDisplay() {
+		String res = this.prodInfoNm.replaceAll("_", " ");
+		return res;
+	}
+	public void setProdInfoNmDisplay(String prodInfoNmDisplay) {
+		if(prodInfoNmDisplay != null) {
+			this.prodInfoNm = prodInfoNmDisplay.replaceAll(" ", "_");
+		}
+	}
+	public String getCustNtslAmtDisplay() { //총액
+		String res = new DecimalFormat("#,###").format(custNtslAmt); 
+		res = res + "원";
+		return res;
+	}
+	public String getCustNtslQtyDisplay() { //판매개수
+		String res = new DecimalFormat("#,###").format(custNtslQty); 
+		return res;
+	}
+	public String getProdInfoPrchsAmtDisplay() { //개당가격
+		String res = new DecimalFormat("#,###").format(prodInfoPrchsAmt); 
+		res = res + "원";
+		return res;
+	}
+	public void setProdInfoPrchsAmtDisplay(String prodInfoPrchsAmtDisplay) { //개당가격
+		if(prodInfoPrchsAmtDisplay != null && !prodInfoPrchsAmtDisplay.trim().equals("")) {
+			prodInfoPrchsAmt = Integer.parseInt(prodInfoPrchsAmtDisplay.replaceAll(",", ""));
+		}
+	}
+	public String getCustNtslDtDisplay() {
+		if(this.custNtslDt != null) {
+			custNtslDtDisplay = new SimpleDateFormat("YYYY-MM-dd").format(this.custNtslDt);
+		}
+		return custNtslDtDisplay;
+	}
+	public void setCustNtslDtDisplay(String custNtslDtDisplay) {
+		
+		if(custNtslDtDisplay != null) {
+			try {
+				this.custNtslDt = new SimpleDateFormat("YYYY-MM-dd").parse(custNtslDtDisplay);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	public String getCustNtslId() {
+		return custNtslId;
+	}
+	public void setCustNtslId(String custNtslId) {
+		this.custNtslId = custNtslId;
+	}
+	public String getBrncofcId() {
+		return brncofcId;
+	}
+	public void setBrncofcId(String brncofcId) {
+		this.brncofcId = brncofcId;
+	}
+	public String getCustId() {
+		return custId;
+	}
+	public void setCustId(String custId) {
+		this.custId = custId;
+	}
+	public String getProdInfoId() {
+		return prodInfoId;
+	}
+	public void setProdInfoId(String prodInfoId) {
+		this.prodInfoId = prodInfoId;
+	}
+	public Date getCustNtslDt() {
+		return custNtslDt;
+	}
+	public void setCustNtslDt(Date custNtslDt) {
+		this.custNtslDt = custNtslDt;
+	}
+	public int getCustNtslAmt() {
+		return custNtslAmt;
+	}
+	public void setCustNtslAmt(int custNtslAmt) {
+		this.custNtslAmt = custNtslAmt;
+	}
+	public int getCustNtslQty() {
+		return custNtslQty;
+	}
+	public void setCustNtslQty(int custNtslQty) {
+		this.custNtslQty = custNtslQty;
+	}
+	public int getProdInfoPrchsAmt() {
+		return prodInfoPrchsAmt;
+	}
+	public void setProdInfoPrchsAmt(int prodInfoPrchsAmt) {
+		this.prodInfoPrchsAmt = prodInfoPrchsAmt;
+	}
+	public String getCmncdCd() {
+		return cmncdCd;
+	}
+	public void setCmncdCd(String cmncdCd) {
+		this.cmncdCd = cmncdCd;
+	}
+	public String getCmncdNm1() {
+		return cmncdNm1;
+	}
+	public void setCmncdNm1(String cmncdNm1) {
+		this.cmncdNm1 = cmncdNm1;
+	}
+	public String getCmncdNm2() {
+		return cmncdNm2;
+	}
+	public void setCmncdNm2(String cmncdNm2) {
+		this.cmncdNm2 = cmncdNm2;
+	}
+	public String getBrncofcNm() {
+		return brncofcNm;
+	}
+	public void setBrncofcNm(String brncofcNm) {
+		this.brncofcNm = brncofcNm;
+	}
+	public String getProdInfoNm() {
+		return prodInfoNm;
+	}
+	public void setProdInfoNm(String prodInfoNm) {
+		this.prodInfoNm = prodInfoNm;
+	}
+	public int getStreStckQty() {
+		return streStckQty;
+	}
+	public void setStreStckQty(int streStckQty) {
+		this.streStckQty = streStckQty;
+	}
+	public int getStreStckSftyQty() {
+		return streStckSftyQty;
+	}
+	public void setStreStckSftyQty(int streStckSftyQty) {
+		this.streStckSftyQty = streStckSftyQty;
+	}
+	public String getStreSe() {
+		return streSe;
+	}
+	public void setStreSe(String streSe) {
+		this.streSe = streSe;
+	}
+	public String getStreGdsCg() {
+		return streGdsCg;
+	}
+	public void setStreGdsCg(String streGdsCg) {
+		this.streGdsCg = streGdsCg;
+	}
+	public String getStreLctn() {
+		return streLctn;
+	}
+	public void setStreLctn(String streLctn) {
+		this.streLctn = streLctn;
+	}
+	public String getCustNm() {
+		return custNm;
+	}
+	public void setCustNm(String custNm) {
+		this.custNm = custNm;
+	}
+	@Override
+	public String toString() {
+		return "StoreVO [custNtslId=" + custNtslId + ", brncofcId=" + brncofcId + ", brncofcNm=" + brncofcNm
+				+ ", custId=" + custId + ", custNm=" + custNm + ", prodInfoId=" + prodInfoId + ", prodInfoNm="
+				+ prodInfoNm + ", custNtslDt=" + custNtslDt + ", custNtslAmt=" + custNtslAmt + ", custNtslQty="
+				+ custNtslQty + ", prodInfoPrchsAmt=" + prodInfoPrchsAmt + ", cmncdCd=" + cmncdCd + ", cmncdNm1="
+				+ cmncdNm1 + ", cmncdNm2=" + cmncdNm2 + ", custNtslDtDisplay=" + custNtslDtDisplay + ", streStckQty="
+				+ streStckQty + ", streStckSftyQty=" + streStckSftyQty + ", streSe=" + streSe + ", streGdsCg="
+				+ streGdsCg + ", streLctn=" + streLctn + "]";
+	}
+}

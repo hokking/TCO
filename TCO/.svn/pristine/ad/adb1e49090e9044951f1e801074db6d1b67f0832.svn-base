@@ -1,0 +1,22 @@
+package kr.or.tco.sttst.service;
+
+import java.util.List;
+
+import kr.or.tco.sls.vo.SlsVO;
+
+public interface SttstService {
+	
+	
+	/**
+	 * 일일매출차트
+	 * @return
+	 */
+	List<SlsVO>getDailyIncome();
+	
+	
+	/**
+	 * 월간매출차트
+	 * @return
+	 */
+	List<SlsVO>getMonthIncome();
+}

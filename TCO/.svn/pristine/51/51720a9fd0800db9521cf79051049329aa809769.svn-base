@@ -1,0 +1,28 @@
+package kr.or.tco.sls.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.tco.sls.vo.SlsVO;
+
+public interface SlsMapper {
+	
+	
+	//매출현황
+	public List<SlsVO>list(Map<String, Object>map);
+	
+	
+	//매출 상세보기
+	public SlsVO detail(String slsId);
+	
+	
+	//매입 엑셀파일 업로드
+	public void insertprchsExcel(Map<String, Object> paramMap)throws Exception;
+	
+	
+	//매출 엑셀파일 업로드
+	public void insertslsExcel(Map<String, Object> paramMap)throws Exception;
+	
+	
+	
+}

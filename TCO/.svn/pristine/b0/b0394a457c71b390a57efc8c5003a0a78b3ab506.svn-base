@@ -1,0 +1,62 @@
+package kr.or.tco.prod.vo;
+
+public class ProdVO {
+
+	private String prodInfoId       ;
+	private String prodInfoNm       ;
+	private int prodInfoPrchsAmt ;
+	private int prodInfoNtslAmt  ;
+	private String prodInfoLdt      ;
+	private String prodInfoPlor     ;
+	private String cmncdCd          ;
+	
+	public String getProdInfoId() {
+		return prodInfoId;
+	}
+	public void setProdInfoId(String prodInfoId) {
+		this.prodInfoId = prodInfoId;
+	}
+	public String getProdInfoNm() {
+		return prodInfoNm;
+	}
+	public void setProdInfoNm(String prodInfoNm) {
+		this.prodInfoNm = prodInfoNm;
+	}
+	public int getProdInfoPrchsAmt() {
+		return prodInfoPrchsAmt;
+	}
+	public void setProdInfoPrchsAmt(int prodInfoPrchsAmt) {
+		this.prodInfoPrchsAmt = prodInfoPrchsAmt;
+	}
+	public int getProdInfoNtslAmt() {
+		return prodInfoNtslAmt;
+	}
+	public void setProdInfoNtslAmt(int prodInfoNtslAmt) {
+		this.prodInfoNtslAmt = prodInfoNtslAmt;
+	}
+	public String getProdInfoLdt() {
+		return prodInfoLdt;
+	}
+	public void setProdInfoLdt(String prodInfoLdt) {
+		this.prodInfoLdt = prodInfoLdt;
+	}
+	public String getProdInfoPlor() {
+		return prodInfoPlor;
+	}
+	public void setProdInfoPlor(String prodInfoPlor) {
+		this.prodInfoPlor = prodInfoPlor;
+	}
+	public String getCmncdCd() {
+		return cmncdCd;
+	}
+	public void setCmncdCd(String cmncdCd) {
+		this.cmncdCd = cmncdCd;
+	}
+	
+	@Override
+	public String toString() {
+		return "ProdVO [prodInfoId=" + prodInfoId + ", prodInfoNm=" + prodInfoNm + ", prodInfoPrchsAmt="
+				+ prodInfoPrchsAmt + ", prodInfoNtslAmt=" + prodInfoNtslAmt + ", prodInfoLdt=" + prodInfoLdt
+				+ ", prodInfoPlor=" + prodInfoPlor + ", cmncdCd=" + cmncdCd + "]";
+	}
+}

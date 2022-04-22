@@ -1,0 +1,16 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>조직도test</title>
+</head>
+<script type="text/javascript" src="/resources/js/jstree.min.js"></script>
+<script type="text/javascript">
+
+</script>
+<body>
+<pre id="node"></pre>
+<div id="jstree"></div>
+</body>
+</html>

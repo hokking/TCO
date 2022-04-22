@@ -1,0 +1,34 @@
+package kr.or.tco.cal.service;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.tco.cal.vo.StrgWrhsVO;
+import kr.or.tco.cmncd.vo.CmncdVO;
+import kr.or.tco.prod.vo.ProdVO;
+import kr.or.tco.cal.vo.CustNtsVO;
+import kr.or.tco.cal.vo.PosVO;
+
+public interface CalService {
+
+	List<StrgWrhsVO> dailyPrc(Map<String,Object> map);
+
+	List<StrgWrhsVO> dailySls(Map<String,Object> map);
+
+	List<CustNtsVO> dailyCustNts(Map<String,Object> map);
+
+	int getSGWTotal(Map<String, Object> map);
+
+	int getCNLTotal(Map<String, Object> map);
+
+	int dailyCalInsert(Map<String, Object> map);
+
+	List<PosVO> prodList(Map<String, String> map);
+	
+	ProdVO prodDetail(String prodInfoId);
+
+	List<CmncdVO> cdnm2List(String prodInfoId);
+
+
+
+}

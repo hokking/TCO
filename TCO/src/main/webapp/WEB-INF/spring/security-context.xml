@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<!-- 로그인 성공!
+	인증(로그인) 성공 처리자 AuthenticationSuccessHandler
+	-->
+	<bean id="customLoginSuccess"
+		class="kr.or.tco.util.CustomLoginSuccessHandler"></bean>
+	
+	<!-- 로그인 실패! -->
+	<bean id="customAccessDenied" 
+		class="kr.or.tco.util.CustomAccessDeniedHandler"></bean>
+	
+	<!-- 스프링 시큐리티의 UserDetailService를 구현해서 사용자의 상세 정보를 얻어오기 위함 -->
+	<bean id="customUserDetailService" 
+		class="kr.or.tco.util.CustomUserDetailService"></bean>
+		
+	<!-- 사용자가 정의한 비밀번호 암호화 처리기를 빈으로 등록 -->
+	<bean id="customPasswordEncoder"
+		class="kr.or.tco.util.CustomNoOpPasswordEncoder"></bean>
+	
+	<security:http>
+	<!-- URI 패턴으로 접근 제한을 설정함 
+	pattern : url 요청 경로 
+	access  : 접근 제한 정책
+	-->
+<!-- 		<security:intercept-url pattern="/board/list" access="permitAll" /> -->
+			<!-- <security:intercept-url pattern="/cust/custlist" 
+			access="hasRole('ROLE_ADMIN')" /> -->
+<!-- 		<security:intercept-url pattern="/notice/list" access="permitAll" /> -->
+<!-- 		<security:intercept-url pattern="/notice/register"  -->
+<!-- 			access="hasRole('ROLE_ADMIN')" /> -->
+
+		<!-- 사용자가 정의한 로그인 페이지의 URI를 지정함 -->
+		<security:form-login login-page="/login/main" 
+			authentication-success-handler-ref="customLoginSuccess" />
+			
+		<!-- 접근 거부 처리자(접근 거부가 발생한 상황을 처리)의 URI를 지정-->
+		<security:access-denied-handler ref="customAccessDenied" />
+		
+		<!-- 로그아웃. 세션을 무효화 함 -->
+		<security:logout logout-url="/emp/logout" invalidate-session="true" />
+	</security:http>
+	
+	<security:authentication-manager>
+	<!-- 
+	지정된 아이디와 패스워드로 로그인이 가능하도록 설정함
+	스프링 시큐리티 5버전부터는 패스워드 암호화 처리기를 반드시 이용하도록 변경이 되었음
+	-->
+		<security:authentication-provider user-service-ref="customUserDetailService">
+			<!-- 사용자가 정의한 비밀번호 암호화 처리기 지정 -->
+			<security:password-encoder ref="customPasswordEncoder" />
+		</security:authentication-provider>
+	</security:authentication-manager>
+</beans>
+
+
+
+
+
+
+
+
+

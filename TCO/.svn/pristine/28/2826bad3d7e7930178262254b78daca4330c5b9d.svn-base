@@ -1,0 +1,118 @@
+package kr.or.tco.notice.vo;
+
+import java.util.Date;
+
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class BrdVO {
+
+	private int brdVi;
+	private String brdImg;
+	private int brdId;
+	private String brdSe;
+	private String brdTtl;
+	private String brdCn;
+	private String empId;
+	// 글작성자 이름
+	private String empNm;
+	
+	private Date brdDt;
+	
+	// 리스트 출력위한  순번 추가 부탁
+	private int rnum;
+
+	public int getBrdVi() {
+		return brdVi;
+	}
+
+	public void setBrdVi(int brdVi) {
+		this.brdVi = brdVi;
+	}
+
+	public String getBrdImg() {
+		return brdImg;
+	}
+
+	public void setBrdImg(String brdImg) {
+		this.brdImg = brdImg;
+	}
+
+	public int getBrdId() {
+		return brdId;
+	}
+
+	public void setBrdId(int brdId) {
+		this.brdId = brdId;
+	}
+
+	public String getBrdSe() {
+		return brdSe;
+	}
+
+	public void setBrdSe(String brdSe) {
+		this.brdSe = brdSe;
+	}
+
+	public String getBrdTtl() {
+		return brdTtl;
+	}
+
+	public void setBrdTtl(String brdTtl) {
+		this.brdTtl = brdTtl;
+	}
+
+	public String getBrdCn() {
+		return brdCn;
+	}
+
+	public void setBrdCn(String brdCn) {
+		this.brdCn = brdCn;
+	}
+
+	public String getEmpId() {
+		return empId;
+	}
+
+	public void setEmpId(String empId) {
+		this.empId = empId;
+	}
+
+	public Date getBrdDt() {
+		return brdDt;
+	}
+
+	public void setBrdDt(Date brdDt) {
+		this.brdDt = brdDt;
+	}
+
+	public int getRnum() {
+		return rnum;
+	}
+
+	public void setRnum(int rnum) {
+		this.rnum = rnum;
+	}
+
+	
+	public String getEmpNm() {
+		return empNm;
+	}
+
+	public void setEmpNm(String empNm) {
+		this.empNm = empNm;
+	}
+
+	@Override
+	public String toString() {
+		return "BrdVO [brdVi=" + brdVi + ", brdImg=" + brdImg + ", brdId=" + brdId + ", brdSe=" + brdSe + ", brdTtl="
+				+ brdTtl + ", brdCn=" + brdCn + ", empId=" + empId + ", empNm=" + empNm + ", brdDt=" + brdDt + ", rnum="
+				+ rnum + "]";
+	}
+
+	
+	
+	
+		
+}

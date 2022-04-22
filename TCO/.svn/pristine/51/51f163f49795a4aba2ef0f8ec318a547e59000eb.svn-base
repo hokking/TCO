@@ -1,0 +1,255 @@
+package kr.or.tco.sls.controller;
+
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.servlet.ModelAndView;
+
+import kr.or.tco.cal.vo.CustNtsVO;
+import kr.or.tco.sls.service.SlsService;
+import kr.or.tco.sls.vo.SlsVO;
+
+
+/**
+ * 
+ * 매출창을 컨트롤한다.
+ * @author 김영훈
+ *
+ */
+@RequestMapping("/sls")
+@Controller
+public class SlsController {
+	
+	private static final Logger logger = 
+			LoggerFactory.getLogger(SlsController.class);
+	
+	
+	@Autowired SlsService slsService;
+	
+	/**
+	 * 매출 - 매출현황 화면(본사)
+	 * @return 매출vo가 담긴 list값을 내보낸다.
+	 */
+	@RequestMapping(value="/list",method = RequestMethod.GET)
+	public String slsList(Model model
+			,@RequestParam(required = false)String startDay
+			,@RequestParam(required = false)String endDay) {
+		
+		logger.info("시작일:"+startDay);
+		logger.info("종료일:"+endDay);
+		Map<String, Object>map = new HashMap<String, Object>();
+		
+		map.put("startDay", startDay);
+		map.put("endDay", endDay);
+		
+		List<SlsVO>list = this.slsService.list(map);
+		model.addAttribute("data", list);
+		logger.info("list: "+list);
+		
+		return "sls/list";
+	}
+	
+	
+	/**
+	 * 매출 - 상세보기
+	 * VO를 출력한다. data로 나감
+	 */
+	@RequestMapping(value="/detail/{slsId}", method = RequestMethod.GET)
+	public String slsdetail(@PathVariable("slsId")String slsId, Model model) {
+		
+		SlsVO slsVO = (SlsVO) this.slsService.detail(slsId);
+		
+		model.addAttribute("slsVO", slsVO);
+		
+		logger.info("상세정보: "+slsVO.toString());
+		
+		return "sls/detail";
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/slspagelist/{custNtslDt}",method=RequestMethod.POST)
+	public List<CustNtsVO> slspagelist(@PathVariable("custNtslDt")String custNtslDt) {
+		
+		List<CustNtsVO>slslist = this.slsService.slslist(custNtslDt);
+		logger.info("매출상세: "+slslist);
+		return slslist;
+	}
+	
+	
+	/**
+	 * 매출 - 매출명세서 화면(사용안함)
+	 * @return datatable이 담긴 예제 화면 출력
+	 */
+	@RequestMapping(value="/pagelist",method = RequestMethod.GET)
+	public String slsPage() {
+		return "sls/pagelist";
+	}
+	
+	
+	
+	/**
+	 * 매출 - 품목별 매출현황 화면
+	 * @return 품목별 매출현황 화면을 출력
+	 */
+	@RequestMapping(value="/prodlist",method = RequestMethod.GET)
+	public String prodSlsList() {
+		return "sls/prodlist";
+	}
+	
+	
+	
+	
+	/**
+	 * 정산 - 매입자료 업로드 
+	 * 최초 출력 화면은 매입 자료 업로드
+	 * @return 매입자료업로드 화면
+	 */
+	@RequestMapping(value="/uploadlist",method = RequestMethod.GET)
+	public String uploadExcel() {
+		return "calculate/excellist";
+	}
+	/**
+	 * 정산 - 매입자료 파일을 업로드
+	 * 엑셀 자료를 db로 업로드
+	 * @return view
+	 */
+	@ResponseBody
+	@RequestMapping(value="/uploadprchsExcel.do",method = RequestMethod.POST)
+	public ModelAndView uploadExcelPost(MultipartFile testFile,
+			MultipartHttpServletRequest req) {
+		
+		MultipartFile excelFile = req.getFile("excelFile");
+		if(excelFile==null || excelFile.isEmpty()) {
+			throw new RuntimeException("엑셀파일을 선택하세요");
+		}
+		File destFile = new File("C:\\upload\\"+excelFile.getOriginalFilename());
+			try {
+				excelFile.transferTo(destFile);
+			} catch (Exception e) {
+				throw new RuntimeException(e.getMessage(),e);
+			}
+			slsService.excelUpload(destFile);
+			logger.info("파일: "+destFile);
+		destFile.delete();
+		
+		ModelAndView view = new ModelAndView();
+		view.setViewName("redirect:/sls/uploadlist");
+		
+		return view;
+	}
+	
+	
+	
+	
+	/**
+	 * 정산 - 매출자료 업로드
+	 * sls/uploadlist에서 이동하는 화면
+	 * @return 매출 자료 화면 업로드
+	 */
+	@RequestMapping(value="/insertSls", method =RequestMethod.GET)
+	public String insertExcel() {
+		return "calculate/insertExcel";
+	}
+	
+	
+	/**
+	 * 정산 - 매출자료 db업로드
+	 * 엑셀자료를 db로 업로드
+	 * @return view
+	 */
+	@ResponseBody
+	@RequestMapping(value="/insertSls.do", method=RequestMethod.POST)
+	public ModelAndView insertExcelPost(MultipartFile testFile,
+			MultipartHttpServletRequest req) {
+		
+		MultipartFile excelFile = req.getFile("slsFile");
+		if(excelFile==null || excelFile.isEmpty()) {
+			throw new RuntimeException("엑셀파일을 선택하세요");
+		}
+		File destFile = new File("C:\\upload\\"+excelFile.getOriginalFilename());
+			try {
+				excelFile.transferTo(destFile);
+			} catch (Exception e) {
+				throw new RuntimeException(e.getMessage(),e);
+			}
+			
+			slsService.excelSlsUpload(destFile);
+			
+			logger.info("파일: "+destFile);
+			//파일업로드 후 삭제
+			destFile.delete();
+		
+		ModelAndView view = new ModelAndView();
+		view.setViewName("redirect:/sls/insertSls");
+		
+		return view;
+	}
+	
+	
+	/**
+	 * 업로드사용법
+	 * @return  화면 출력
+	 */
+	@RequestMapping(value="/howuse")
+	public String howuse() {
+		return "/calculate/howuse/how";
+		
+	}
+	
+	
+	
+	@RequestMapping(value="/brnlist",method = RequestMethod.GET)
+	public String brnlist(Model model
+			,@RequestParam(required = false)String startDay,
+			@RequestParam(required = false)String endDay,
+			HttpServletRequest req) {
+		
+		HttpSession session = req.getSession();
+		String brncofcId = (String) session.getAttribute("brncofcId");
+		
+		logger.info("시작일:"+startDay);
+		logger.info("종료일:"+endDay);
+		Map<String, Object>map = new HashMap<String, Object>();
+		
+		map.put("brncofcId", brncofcId);
+		map.put("startDay", startDay);
+		map.put("endDay", endDay);
+		
+		List<SlsVO>brnlist = this.slsService.brnlist(map);
+		model.addAttribute("data", brnlist);
+		logger.info("list: "+brnlist);
+		
+		return "sls/brnlist";
+	}
+	
+	
+	
+	//날짜데이터 공공api받아오기
+	@RequestMapping(value = "/weather")
+	public String weather() {
+		return "sls/weather";
+	}
+	
+	
+	
+	
+	
+}

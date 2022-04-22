@@ -1,0 +1,391 @@
+<%@page import="kr.or.tco.strgstck.vo.StrgstckVO"%>
+<%@page import="java.util.List"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<script src="/resources/js/jquery-3.6.0.min.js"></script>
+<script src="/resources/js/section.js"></script>
+<script src="/resources/js/reduce.js"></script>
+<script>
+var newArray 	= [];
+<c:forEach var="vo" items="${list}">
+	var jsonObj = new Object();
+	jsonObj.brncofcId = "${vo.brncofcId}";
+	jsonObj.brncofcIdWr = "${vo.brncofcIdWr}";
+	jsonObj.prodInfoId = "${vo.prodInfoId}";
+	jsonObj.strgShmtQty = "${vo.strgShmtQtyDisplay}";
+	jsonObj.strgShmtId = "${vo.strgShmtId}";
+	jsonObj.strgShmtDt = "${vo.strgShmtDtDisplay}";
+	jsonObj.prodInfoPrchsAmt = "${vo.prodInfoPrchsAmtDisplay}";
+	jsonObj.cmncdCd = "${vo.cmncdCd}";
+	jsonObj.cmncdNm1 = "${vo.cmncdNm1}";
+	jsonObj.cmncdNm2 = "${vo.cmncdNm2}";
+	jsonObj.brncofcNm = "${vo.brncofcNm}";
+	jsonObj.prodInfoNm = "${vo.prodInfoNmDisplay}";
+	jsonObj.shipAmount = "${vo.shipAmount}";
+	
+	jsonObj = JSON.stringify(jsonObj);
+	console.log("JSON jsonObj : " + jsonObj);
+	//String 형태로 파싱한 객체를 다시 json으로 변환
+	newArray.push(JSON.parse(jsonObj));
+</c:forEach>
+	
+console.log("원본 배열 : " + newArray);
+
+var jsonArray = newArray;
+
+
+//테이블에 추가할 내용 만드는 함수
+var str = "";
+function chgFilter(){
+	str = "";
+	console.log("chgFilter 안 jsonArray.length : " + jsonArray.length);
+	for(var i=0; i < jsonArray.length; i++){
+		str += '<tr class="arryTd"><td data-org-colspan="1" data-priority="1" data-columns="tech-companies-1-col-1">';
+		str += jsonArray[i].strgShmtId + "</td>";
+		str += '<td data-org-colspan="1" data-priority="3" data-columns="tech-companies-1-col-2">';
+		str += jsonArray[i].brncofcNm + "</td>";
+		str += '<td data-org-colspan="1" data-priority="1" data-columns="tech-companies-1-col-3">';
+		str += jsonArray[i].cmncdNm1 + "</td>";
+		str += '<td data-org-colspan="1" data-priority="3" data-columns="tech-companies-1-col-4">';
+		str += jsonArray[i].cmncdNm2 + "</td>";
+		str += '<td data-org-colspan="1" data-priority="3" data-columns="tech-companies-1-col-5">';
+		str += jsonArray[i].prodInfoNm + "</td>";
+		str += '<td data-org-colspan="1" data-priority="6" data-columns="tech-companies-1-col-6" style="text-align:right;">';
+		str += jsonArray[i].strgShmtQty + "</td>";
+		str += '<td data-org-colspan="1" data-priority="6" data-columns="tech-companies-1-col-7" style="text-align:right;">';
+		str += jsonArray[i].prodInfoPrchsAmt + "</td>";
+		str += '<td data-org-colspan="1" data-priority="6" data-columns="tech-companies-1-col-8" style="text-align:right;">';
+		str += jsonArray[i].shipAmount + '</td>';
+		str += '<td data-org-colspan="1" data-priority="6" data-columns="tech-companies-1-col-9">';
+		str += jsonArray[i].strgShmtDt + '</td></tr>';
+	}
+	$("#tbContent").append(str);
+}
+
+
+//대분류 바뀌었을때
+function fn_seChg(e){
+	var radiopt = document.querySelector('input[name="toast-type-radio"]:checked').value;
+	var opt = $("#cmncdNm1").val();
+	var dtOpt = $("#orderid-input").val();
+	var midOpt = $("#cmncdNm2").val();
+	resetBtn();
+	fn_seChgJs(e);
+	if(opt != '전체'){
+		bigSe();
+	}
+	
+	//라디오버튼이 전체일때
+	if(radiopt == "all"){
+		//날짜 선택을 안했다면
+		if(dtOpt == ''){
+			chgFilter();
+		}else{ //날짜를 선택했다면
+			dtSelect();
+			chgFilter();
+		}
+	}else{ //라디오버튼이 선택됐을때
+		brnSelect();
+		//날짜 선택을 안했다면
+		if(dtOpt == ''){
+			chgFilter();
+		}else{ //날짜를 선택했다면
+			dtSelect();
+			chgFilter();
+		}
+	}
+}
+
+//중분류 바뀌었을때
+function fn_midChg(e){
+	var radiopt = document.querySelector('input[name="toast-type-radio"]:checked').value;
+	var opt = $("#cmncdNm1").val();
+	var dtOpt = $("#orderid-input").val();
+	var midOpt = $("#cmncdNm2").val();
+	resetBtn();
+	midSe();
+	
+	//라디오버튼이 전체일때
+	if(radiopt == "all"){
+		//날짜 선택을 안했다면
+		if(dtOpt == ''){
+			chgFilter();
+		}else{ //날짜를 선택했다면
+			dtSelect();
+			chgFilter();
+		}
+	}else{ //라디오버튼이 선택됐을때
+		brnSelect();
+		//날짜 선택을 안했다면
+		if(dtOpt == ''){
+			chgFilter();
+		}else{ //날짜를 선택했다면
+			dtSelect();
+			chgFilter();
+		}
+	}
+}
+
+//날짜 바뀌었을때
+function fn_dateChg(e){
+	var radiopt = document.querySelector('input[name="toast-type-radio"]:checked').value;
+	var opt = $("#cmncdNm1").val();
+	var dtOpt = $("#orderid-input").val();
+	var midOpt = $("#cmncdNm2").val();
+	resetBtn();
+	dtSelect();
+	
+	//라디오버튼이 전체일때
+	if(radiopt == "all"){
+		//대분류 선택을 안했다면
+		if(opt == '전체'){
+			chgFilter();
+		}else{ //대분류를 선택했다면
+			bigSe();
+			//중분류를 선택하지 않았다면
+			if(midOpt =='전체'){
+				chgFilter();
+			}else{ //중분류를 선택했다면
+				midSe();
+				chgFilter();
+			}
+		}
+	}else{ //라디오버튼이 선택됐을때
+		brnSelect();
+		//대분류 선택을 안했다면
+		if(opt == '전체'){
+			chgFilter();
+		}else{ //대분류를 선택했다면
+			bigSe();
+			//중분류를 선택하지 않았다면
+			if(midOpt =='전체'){
+				chgFilter();
+			}else{ //중분류를 선택했다면
+				midSe();
+				chgFilter();
+			}
+		}
+	}
+}
+
+//reset 이미지 누르면
+function fn_reset(){
+	resetBtn();
+	chgFilter();
+	
+	$("#orderid-input").val("");
+	$("#cmncdNm1").val("전체");
+	$("#brnCheck0").prop("checked", true); 
+	const cmncdNm2 = document.querySelector("#cmncdNm2");
+	cmncdNm2.options.length = 0;
+	let optt = document.createElement("option");
+	optt.value = "";
+	optt.innerHTML = "중분류 선택";
+	cmncdNm2.append(optt);
+	$("#cmncdNm2").val("");
+}
+$(function(){
+	chgFilter();
+	//라디오 버튼이 바뀌었을때
+	$('input[type=radio][name=toast-type-radio]').change(function(){
+		var radiopt = document.querySelector('input[name="toast-type-radio"]:checked').value;
+		var opt = $("#cmncdNm1").val();
+		var dtOpt = $("#orderid-input").val();
+		var midOpt = $("#cmncdNm2").val();
+		resetBtn();
+		
+		//전체로 바뀌었다면
+		if(radiopt =='all'){
+			//날짜를 선택하지 않았다면
+			if(dtOpt==''){
+				//대분류 선택을 안했다면
+				if(opt == '전체'){
+					chgFilter();
+				}else{ //대분류를 선택했다면
+					bigSe();
+					//중분류를 선택하지 않았다면
+					if(midOpt =='전체'){
+						chgFilter();
+					}else{ //중분류를 선택했다면
+						midSe();
+						chgFilter();
+					}
+				}
+			}else{ //날짜를 선택했다면
+				dtSelect();
+				//대분류 선택을 안했다면
+				if(opt == '전체'){
+					chgFilter();
+				}else{ //대분류를 선택했다면
+					bigSe();
+					//중분류를 선택하지 않았다면
+					if(midOpt =='전체'){
+						chgFilter();
+					}else{ //중분류를 선택했다면
+						midSe();
+						chgFilter();
+					}
+				}
+			}
+		} else { //지점이 선택됐다면
+			brnSelect();
+			//날짜를 선택하지 않았다면
+			if(dtOpt==''){
+				//대분류 선택을 안했다면
+				if(opt == '전체'){
+					chgFilter();
+				}else{ //대분류를 선택했다면
+					bigSe();
+					//중분류를 선택하지 않았다면
+					if(midOpt =='전체'){
+						chgFilter();
+					}else{ //중분류를 선택했다면
+						midSe();
+						chgFilter();
+					}
+				}
+			}else{ //날짜를 선택했다면
+				dtSelect();
+				//대분류 선택을 안했다면
+				if(opt == '전체'){
+					chgFilter();
+				}else{ //대분류를 선택했다면
+					bigSe();
+					//중분류를 선택하지 않았다면
+					if(midOpt =='전체'){
+						chgFilter();
+					}else{ //중분류를 선택했다면
+						midSe();
+						chgFilter();
+					}
+				}
+			}
+		}
+	});
+})
+
+</script>
+<style>
+	.nnii{
+		float: right;
+		width:83%;
+	}
+	.miio{
+		width: 100%;
+	}
+	.filDiv{
+	}
+	#startDay{
+		float: left;
+	}
+	.btn-toolbar{
+		padding: 10px 10px 0px 10px;
+	}
+	.filterr{
+		width:200px;
+	}
+</style>
+<div class="container-fluid" id="after" >
+<!-- start page title -->
+<div class="row">
+	<div class="col-12">
+		<div class="page-title-box d-sm-flex align-items-center justify-content-between">
+			<h1 class="mb-sm-0 font-size-20">📜출고</h1>
+			
+			<div class="page-title-right">
+			    <ol class="breadcrumb m-0">
+			        <li class="breadcrumb-item"><a href="javascript: void(0);">출고</a></li>
+			        <li class="breadcrumb-item active">출고 목록</li>
+			    </ol></div></div></div></div>
+<!-- end page title -->
+
+<div class="row ">
+	<div class="col-lg-2">
+		<div class="card">
+			<div class="card-body filDiv">
+				<h4 class="card-title mb-4">Filter</h4>
+				<div class="control-group" id="toastTypeGroup">
+	                <div class="controls mb-4">
+	                    <h5 class="font-size-14 mb-3">지점</h5>
+	                    <div class="form-check mb-2">
+	                        <input class="form-check-input" type="radio" name="toast-type-radio" id="brnCheck0" value="all" checked="">
+	                        <label class="form-check-label" for="brnCheck0">
+	                            전체
+	                        </label>
+	                    </div>
+	                    <c:set var="i" value="0" />
+						<c:forEach var="brn" items="${brnc}">
+						<c:set var="cnt" value="${i=i+1}"/>
+		                    <div class="form-check mb-2">
+		                        <input class="form-check-input" type="radio" name="toast-type-radio" id="brnCheck${cnt}" value="${brn.brncofcId}">
+		                        <label class="form-check-label" for="brnCheck${cnt}">
+		                            ${brn.brncofcNm}
+		                        </label>
+		                    </div>
+						</c:forEach>
+	
+	                   </div></div>
+
+				<div class="mt-4 pt-3">
+					<h5 class="font-size-14 mb-3">상품분류</h5>
+					<div class="col-md-10">
+					    <select id="cmncdNm1" name="cmncdNm1" class="form-select seSelect filterr" onchange="fn_seChg(this)">
+					        <option value="전체" label="전체"/>
+					        <option value="패션" label="패션"/>
+					        <option value="가구/인테리어" label="가구/인테리어" />
+					        <option value="화장품/미용" label="화장품/미용" />
+					        <option value="식품" label="식품" />
+					        <option value="출산/유아동" label="출산/유아동" />
+					        <option value="반려동물용품" label="반려동물용품" />
+					        <option value="생활/주방용품" label="생활/주방용품" />
+					        <option value="가전" label="가전" />
+					        <option value="디지털" label="디지털" />
+					        <option value="컴퓨터" label="컴퓨터" />
+					        <option value="스포츠/레저" label="스포츠/레저" />
+					        <option value="건강/의료용품" label="건강/의료용품" />
+					        <option value="자동차/공구" label="자동차/공구" />
+					        <option value="취미/문구/악기" label="취미/문구/악기" />
+					        <option value="도서" label="도서" />
+					    </select>
+					    <select id="cmncdNm2" name="cmncdNm2" class="form-select seSelect filterr" onchange="fn_midChg(this)">
+					    	 <option value="중분류 선택" label="중분류 선택"/>
+					    </select>
+					</div></div>
+					
+				<div class="mt-4 pt-3">
+	               	<label class="form-label">날짜</label>
+	                <input type="text" class="form-control filterr" id="orderid-input" placeholder="Select date" data-date-format="yyyy-mm-dd" data-date-orientation="bottom auto" data-provide="datepicker" data-date-autoclose="true" onchange="fn_dateChg(this)">
+                </div>
+                <a href="javascript: void(0);" onclick="fn_reset()"><i style="float:right;" class="mdi mdi-backup-restore mdi-36px"></i></a>
+			</div>
+		</div>
+	</div>
+	        
+	   
+	<!-- 출고리스트 -->
+	<div class="card nnii">
+		<div class="col-lg-9 miio">
+		<div class="table-rep-plugin">
+			<div class="table-wrapper">
+				<div class="table-responsive mb-0 fixed-solution" data-pattern="priority-columns">
+				<div class="sticky-table-header" style="height: 46px; visibility: hidden; top: -1px; width: auto;"></div>
+				<table id="tech-companies-1" class="table table-striped">
+					<thead>
+						<tr>
+						    <th data-priority="1" id="tech-companies-1-col-1">출고번호</th>
+						    <th data-priority="3" id="tech-companies-1-col-2">지점명</th>
+						    <th data-priority="1" id="tech-companies-1-col-3">대분류</th>
+						    <th data-priority="3" id="tech-companies-1-col-4">중분류</th>
+						    <th data-priority="3" id="tech-companies-1-col-5">상품명</th>
+						    <th data-priority="6" id="tech-companies-1-col-6" style="text-align:right;">출고수량</th>
+						    <th data-priority="6" id="tech-companies-1-col-7" style="text-align:right;">개당가격</th>
+						    <th data-priority="6" id="tech-companies-1-col-8" style="text-align:right;">총액</th>
+						    <th data-priority="6" id="tech-companies-1-col-9">출고일</th>
+						</tr>
+					</thead>
+					<tbody id="tbContent">
+					</tbody>
+				</table>
+				</div></div></div></div></div></div></div>
+<!-- end row -->

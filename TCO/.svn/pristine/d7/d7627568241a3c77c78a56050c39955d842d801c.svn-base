@@ -1,0 +1,14 @@
+package kr.or.tco.alam.mapper;
+
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Mapper;
+
+@Mapper
+public interface AlamMapper {
+
+	int alamInsert(Map<String, Object> map);
+
+	int alamUpdate(Map<String, Object> map);
+
+}

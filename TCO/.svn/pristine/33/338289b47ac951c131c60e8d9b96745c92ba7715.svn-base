@@ -1,0 +1,160 @@
+package kr.or.tco.util.controller;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
+import kr.or.tco.util.service.CalendarService;
+import kr.or.tco.util.vo.CalendarVO;
+
+
+
+/**
+ * 캘린더
+ * @author 김영훈
+ *
+ */
+@RequestMapping("/calendar")
+@Controller
+public class CalendarController {
+	
+	@Autowired
+	CalendarService calendarService;
+	
+	private static final Logger logger =
+			LoggerFactory.getLogger(CalendarController.class);
+	
+	
+	
+	
+	/**
+	 * 달력 - 메인화면 출력
+	 * @return
+	 */
+	@RequestMapping(value = "/main",method = RequestMethod.GET)
+	public String calendarMain(HttpServletRequest req) {
+		HttpSession session = req.getSession();
+		String user = (String) session.getAttribute("userId");
+		
+		return "calendar/main";
+	}
+	
+	
+	
+	/**
+	 * 달력 - 일정 조회
+	 * @return json데이터를 담아서 db로 보냄
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/main",method = RequestMethod.POST)
+	public String calendarList() {
+		
+		List<CalendarVO>list = calendarService.schedulelist();
+		
+		Gson gson = new Gson();
+		JsonArray jarray = new JsonArray();
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		
+		
+		Iterator<CalendarVO> it = list.iterator();
+		while(it.hasNext()) {
+			CalendarVO calendarVO = it.next();
+			JsonObject object = new JsonObject();
+			
+			int calendarNo = calendarVO.getCalendarNo();
+			String title = calendarVO.getTitle();
+			String content = calendarVO.getContent();
+			Date start = calendarVO.getStartday();
+			String startday = df.format(start); 
+			Date end = calendarVO.getEndday();
+			String endday = df.format(end);
+			String category = calendarVO.getCategory();
+			
+			object.addProperty("calendarno", calendarNo);
+			object.addProperty("title", title);
+			object.addProperty("description", content);
+			object.addProperty("startday", startday);
+			object.addProperty("endday", endday);
+			object.addProperty("category", category);
+			
+			jarray.add(object);
+		}
+		String json = gson.toJson(jarray);
+		logger.info("달력조회 : "+json);
+		
+		return json;
+	}
+	
+	
+	
+	/**
+	 * 달력 - 일정 등록
+	 * @param param
+	 * @throws Exception
+	 */
+	@RequestMapping(value="/insertSchedule",method = RequestMethod.POST)
+	public String insertSchedule(@Validated CalendarVO calendarVO) throws Exception {
+		
+		int res = this.calendarService.insertschedule(calendarVO);
+		logger.info("등록결과: "+res);
+		
+		return "redirect:/calendar/main";
+	}
+	
+	
+	
+	/**
+	 * 달력 - 일정수정
+	 * @param calendarVO
+	 */
+	@RequestMapping(value="/updateSchedule", method = RequestMethod.POST)
+	public String updateSchedule(@Validated CalendarVO calendarVO) {
+		int res = calendarService.updateschedule(calendarVO);
+		logger.info("수정결과: "+res);
+		
+		return "redirect:/calendar/main";
+	}
+	
+	
+	/**
+	 * 달력 - 일정 삭제
+	 */
+	@RequestMapping(value="/deleteSchedule", method = RequestMethod.GET)
+	public String deleteSchedule(@RequestParam int calendarNo) {
+		int res = calendarService.deleteschedule(calendarNo);
+		logger.info("삭제결과: "+res);
+		
+		return "redirect:/calendar/main";
+	}
+	
+	
+
+}

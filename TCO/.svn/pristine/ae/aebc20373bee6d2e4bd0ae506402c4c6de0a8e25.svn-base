@@ -1,0 +1,134 @@
+package kr.or.tco.ordr.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import kr.or.tco.ordr.service.OrdrService;
+import kr.or.tco.ordr.vo.OrdrVO;
+import kr.or.tco.prod.vo.ProdVO;
+import kr.or.tco.strgstck.service.StrgstckService;
+import kr.or.tco.strgstck.vo.StrgstckVO;
+
+@RequestMapping("/ordr")
+@Controller
+public class OrdrController {
+	private static final Logger logger = LoggerFactory.getLogger(OrdrController.class);
+	
+	@Autowired
+	OrdrService ordrService;
+	
+	@Autowired
+	StrgstckService strgstckService;
+	
+	//지점의 발주 메인페이지
+	@GetMapping("/order")
+	public String order(Model model) {
+		
+		//파라미터로 보낼 상품정보(prod) - 이후에 파라미터로 받아오깅
+		ProdVO prodVO = new ProdVO();
+		List<StrgstckVO> strgstckList = strgstckService.getHeadshipStock(prodVO);
+		
+		//model에 저장
+		model.addAttribute("strgstckList", strgstckList); // 본사의 창고재고 가져오기
+		
+		return "order/order";
+	}
+	
+	//발주 저장 시 
+	@RequestMapping(value = "/insertOrder", method = RequestMethod.GET)
+	public @ResponseBody int insertOrder(@RequestParam("orderList") String orderList) {
+		// String형태의 json을 다시 json배열로 바꾸기
+		JsonParser parser = new JsonParser();
+		JsonElement tradeElement = parser.parse(orderList);
+		JsonArray trade = tradeElement.getAsJsonArray();
+
+		//orderId가져오기 
+		int ordrId = ordrService.ordrMax();
+		
+		int result = 0;
+		//[{"ordrQty":"10","prodInfoId":"PROD00007","brncofcId":"","ordrSe":"저장"},
+		//{"ordrQty":"10","prodInfoId":"PROD00008","brncofcId":"","ordrSe":"저장"},
+		//{"ordrQty":"10","prodInfoId":"PROD00009","brncofcId":"","ordrSe":"저장"}]
+		for(int i = 0 ; i < trade.size() ; i++ ){
+
+			JsonObject Jsonfor = trade.get(i).getAsJsonObject(); //i에 해당하는 JsonArray를 다시 JsonObject로 변형
+			
+			OrdrVO vo = new OrdrVO();
+
+			//toString()으로도 뽑아낼수있지만 그럼 "가 붙어서 나오게 된다. 맞는 형식으로 뽑아주자 getAsString말고도 많다
+//			String recvName = Jsonfor.get("name").getAsString();
+			String ordrQty = Jsonfor.get("ordrQty").getAsString();
+			String prodInfoId = Jsonfor.get("prodInfoId").getAsString();
+			String brncofcId = Jsonfor.get("brncofcId").getAsString();
+			String ordrSe = Jsonfor.get("ordrSe").getAsString();
+			
+			vo.setOrdrId(ordrId);
+			vo.setOrdrQty(Integer.parseInt(ordrQty));
+			vo.setProdInfoId(prodInfoId);
+			vo.setBrncofcId(brncofcId);
+			vo.setOrdrSe(ordrSe);
+			
+			logger.info("이것이다" + vo);
+			
+			result += ordrService.ordrInsert(vo);
+			logger.info("insert 됨");
+		}
+
+		return result;
+	}
+	
+	//지점의 발주 현황
+	@GetMapping("/condition") // + 지점코드를 parameter로 ?brncofcId=${sessionScope.brncofcId}
+	public String orderCondition(Model model
+			, @RequestParam("brncofcId") String brncofcId) { // 해당 아이디의 지점의 목록
+		
+		logger.info("예스");
+		
+		//리스트 가져오기
+		List<OrdrVO> orderList = ordrService.getOrdrCondition(brncofcId);
+		
+		model.addAttribute("orderList", orderList);
+		//지점명
+//		model.addAttribute("branch", orderList.get(0));
+		
+		return "order/orderCondition";
+	}
+	
+	//지점의 발주 내역
+	@GetMapping("/orderList") // + 지점코드를 parameter
+	public String orderList(Model model
+			, @RequestParam("brncofcId") String brncofcId) {
+		return "order/orderList";
+	}
+	
+
+}

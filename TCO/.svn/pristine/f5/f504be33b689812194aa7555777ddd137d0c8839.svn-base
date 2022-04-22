@@ -1,0 +1,13 @@
+package kr.or.tco.prod.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.tco.prod.vo.ProdVO;
+
+public interface ProdMapper {
+
+	//상품 목록
+	public List<ProdVO> prodList(Map<String, String> map);
+
+}

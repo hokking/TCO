@@ -1,0 +1,12 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<title>주간정산</title>
+</head>
+<body>
+일일정산 = 재고  + 입고 - 출고 where =  BETWEEN TO_DATE('2022-01-01', 'YYYY-MM-DD') 
+                  					 AND TO_DATE('2022-01-08', 'YYYY-MM-DD')      
+</body>
+</html>

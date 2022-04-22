@@ -1,0 +1,39 @@
+package kr.or.tco.notice.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.tco.emp.vo.AttachFilesVO;
+
+import kr.or.tco.notice.vo.BrdVO;
+
+public interface NoticeMapper {
+	
+	//메인화면 공지사항
+	public List<BrdVO>mainnotice();
+	
+	// 글목록
+	public List<BrdVO> noticelist(Map<String, Object> map);
+	
+	// 행의 수
+	public int selectCount(Map<String, Object> map);
+	
+	// 이름 찾기
+	public String selectname(String empId);
+	
+	// 글 상세
+	public BrdVO noticedetail(int brdId);
+	
+	// 글 조회수
+	public int noticevi(int brdId);
+	
+	public int noticeinsert(BrdVO brdVO);
+	
+	public int insertAttachFiles(AttachFilesVO attachFilesVO);
+	
+	// 글수정
+	public int noticeupdate(BrdVO brdVO);
+	
+	// 글 삭제
+	public int noticedelete(String brdId);
+}

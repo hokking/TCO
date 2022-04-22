@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.notice.mapper.NoticeMapper">
+<!-- 리스트 출력  -->
+	<select id="noticelist" resultType="brdVO">
+		SELECT T.RNUM, T.BRD_TTL, T.EMP_ID, T.BRD_DT, T.BRD_VI
+		FROM (
+		    SELECT ROW_NUMBER() OVER (ORDER BY BRD_DT) RNUM, BRD_TTL, EMP_ID, BRD_DT, BRD_VI
+		    FROM   BRD 
+	               WHERE  1 = 1
+		   <if test="keyWord!=null and keyWord!=''">
+			    AND    (BRD_TTL LIKE '%'||#{keyWord}||'%')
+			    
+		  </if>
+		) T
+		WHERE T.RNUM BETWEEN #{currentPage}*7-6 AND #{currentPage}*7
+	</select>
+
+	<select id="selectCount" parameterType="hashMap" resultType="int">
+		SELECT COUNT(*)
+		FROM   BRD
+		WHERE  1 = 1
+	   <if test="keyWord!=null and keyWord!=''">
+		AND    (BRD_TTL LIKE '%'||#{keyWord}||'%')	    
+	   </if>
+	</select>
+	
+	<!-- 이름 찾기 -->
+	<select id="selectname" parameterType="String" resultType="string">
+	SELECT EMP_NM
+	  FROM EMP
+	  WHERE EMP_ID = #{empId}
+	</select>
+</mapper>

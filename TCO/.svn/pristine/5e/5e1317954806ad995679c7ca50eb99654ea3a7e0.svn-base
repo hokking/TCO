@@ -1,0 +1,25 @@
+package kr.or.tco.sls.service.Impl;
+
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.tco.sls.mapper.SlsMapper;
+import kr.or.tco.sls.service.SlsService;
+import kr.or.tco.sls.vo.SlsVO;
+
+@Service
+public class SlsServiceImpl implements SlsService {
+
+	@Autowired SlsMapper slsMapper;
+	
+	@Override
+	public List<SlsVO> list(String keyWord) {
+		return this.slsMapper.list(keyWord);
+	}
+
+	
+	
+}

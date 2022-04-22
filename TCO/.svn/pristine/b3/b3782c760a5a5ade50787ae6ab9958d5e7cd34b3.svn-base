@@ -1,0 +1,400 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+ <div class="vertical-menu">
+
+                <div data-simplebar class="h-100">
+
+                    <!--- Sidemenu -->
+                    <div id="sidebar-menu">
+                        <!-- Left Menu Start -->
+                        <ul class="metismenu list-unstyled" id="side-menu">
+                            <li class="menu-title" key="t-menu">Menu</li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="bx bx-home-circle"></i>
+                                    <span key="t-dashboards">Dashboards</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="index.html" key="t-default">Default</a></li>
+                                    <li><a href="dashboard-saas.html" key="t-saas">Saas</a></li>
+                                    <li><a href="dashboard-crypto.html" key="t-crypto">Crypto</a></li>
+                                    <li><a href="dashboard-blog.html" key="t-blog">Blog</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="bx bx-layout"></i>
+                                    <span key="t-layouts">Layouts</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="true">
+                                    <li>
+                                        <a href="javascript: void(0);" class="has-arrow" key="t-vertical">Vertical</a>
+                                        <ul class="sub-menu" aria-expanded="true">
+                                            <li><a href="layouts-light-sidebar.html" key="t-light-sidebar">Light Sidebar</a></li>
+                                            <li><a href="layouts-compact-sidebar.html" key="t-compact-sidebar">Compact Sidebar</a></li>
+                                            <li><a href="layouts-icon-sidebar.html" key="t-icon-sidebar">Icon Sidebar</a></li>
+                                            <li><a href="layouts-boxed.html" key="t-boxed-width">Boxed Width</a></li>
+                                            <li><a href="layouts-preloader.html" key="t-preloader">Preloader</a></li>
+                                            <li><a href="layouts-colored-sidebar.html" key="t-colored-sidebar">Colored Sidebar</a></li>
+                                            <li><a href="layouts-scrollable.html" key="t-scrollable">Scrollable</a></li>
+                                        </ul>
+                                    </li>
+
+                                    <li>
+                                        <a href="javascript: void(0);" class="has-arrow" key="t-horizontal">Horizontal</a>
+                                        <ul class="sub-menu" aria-expanded="true">
+                                            <li><a href="layouts-horizontal.html" key="t-horizontal">Horizontal</a></li>
+                                            <li><a href="layouts-hori-topbar-light.html" key="t-topbar-light">Topbar light</a></li>
+                                            <li><a href="layouts-hori-boxed-width.html" key="t-boxed-width">Boxed width</a></li>
+                                            <li><a href="layouts-hori-preloader.html" key="t-preloader">Preloader</a></li>
+                                            <li><a href="layouts-hori-colored-header.html" key="t-colored-topbar">Colored Header</a></li>
+                                            <li><a href="layouts-hori-scrollable.html" key="t-scrollable">Scrollable</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li class="menu-title" key="t-apps">Apps</li>
+
+                
+
+                            <li>
+                                <a href="javascript: void(0);" class="waves-effect">
+                                    <i class="bx bx-calendar"></i>
+                                    <span key="t-dashboards">Calendars</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="calendar.html" key="t-tui-calendar">TUI Calendar</a></li>
+                                    <li><a href="calendar-full.html" key="t-full-calendar">Full Calendar</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="chat.html" class="waves-effect">
+                                    <i class="bx bx-chat"></i>
+                                    <span key="t-chat">Chat</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="apps-filemanager.html" class="waves-effect">
+                                    <i class="bx bx-file"></i>
+                                    <span key="t-file-manager">File Manager</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="bx bx-store"></i>
+                                    <span key="t-ecommerce">거래처/상품</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="/cnpt/insert" key="t-products">거래처등록</a></li>
+                                    <li><a href="/cnpt/list" key="t-product-detail">거래처조회</a></li>
+                                    <li><a href="ecommerce-orders.html" key="t-orders">상품등록</a></li>
+                                    <li><a href="/prod/list" key="t-customers">상품조회</a></li>
+                                    <li><a href="ecommerce-cart.html" key="t-cart">Cart</a></li>
+                                    <li><a href="ecommerce-checkout.html" key="t-checkout">Checkout</a></li>
+                                    <li><a href="ecommerce-shops.html" key="t-shops">Shops</a></li>
+                                    
+                                    <li><a href="ecommerce-add-product.html" key="t-add-product">Add Product</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="bx bx-bitcoin"></i>
+                                    <span key="t-crypto">직원</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="emp/empinsert" key="t-wallet">직원등록/조회</a></li>
+                                    <li><a href="crypto-exchange.html" key="t-exchange">업무상태확인</a></li>
+                                    <li><a href="crypto-lending.html" key="t-lending">급여명세서조회</a></li>
+                                    <li><a href="crypto-orders.html" key="t-orders">급여명세서작성</a></li>
+                                    <li><a href="crypto-kyc-application.html" key="t-kyc">근태관리</a></li>
+                                    <li><a href="crypto-ico-landing.html" key="t-ico">공지사항</a></li>
+                                    <li><a href="crypto-ico-landing.html" key="t-ico">자료실</a></li>
+                                    <li><a href="crypto-ico-landing.html" key="t-ico">업무매뉴얼</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="bx bx-envelope"></i>
+                                    <span key="t-email">고객</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="email-inbox.html" key="t-inbox">고객등록</a></li>
+                                    <li><a href="email-read.html" key="t-read-email">고객조회</a></li>
+                                    <li><a href="email-read.html" key="t-read-email">고객홍보</a></li>
+                                    <li><a href="email-read.html" key="t-read-email">고객관리</a></li>
+                                    <li>
+                                      
+                                        <ul class="sub-menu" aria-expanded="true">
+                                            <li><a href="email-template-basic.html" key="t-basic-action">Basic Action</a></li>
+                                            <li><a href="email-template-alert.html" key="t-alert-email">Alert Email</a></li>
+                                            <li><a href="email-template-billing.html" key="t-bill-email">Billing Email</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="bx bx-receipt"></i>
+                                    <span key="t-invoices">매입</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="invoices-list.html" key="t-invoice-list">매입견적서</a></li>
+                                    <li><a href="invoices-detail.html" key="t-invoice-detail">매입발주서</a></li>
+                                    <li><a href="invoices-detail.html" key="t-invoice-detail">매입명세서</a></li>
+                                    <li><a href="invoices-detail.html" key="t-invoice-detail">매입현황</a></li>
+                                    <li><a href="invoices-detail.html" key="t-invoice-detail">거래처별매입현황</a></li>
+                                    <li><a href="invoices-detail.html" key="t-invoice-detail">품목별매입현황</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="bx bx-briefcase-alt-2"></i>
+                                    <span key="t-projects">매출</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="/sls/pagelist" key="t-p-grid">매출명세서</a></li>
+                                    <li><a href="/sls/list" key="t-p-list">매출현황</a></li>
+                                    <li><a href="/sls/prodlist" key="t-p-overview">품목별매출현황</a></li>
+                                    <li><a href="projects-create.html" key="t-create-new">Create New</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="bx bx-task"></i>
+                                    <span key="t-tasks">재고</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="tasks-list.html" key="t-task-list">상세재고현황</a></li>
+                                    <li><a href="tasks-kanban.html" key="t-kanban-board">기간별재고현황</a></li>
+                                    <li><a href="tasks-create.html" key="t-create-task">기간별/창고별재고현황</a></li>
+                                    <li><a href="tasks-create.html" key="t-create-task">부족재고현황</a></li>
+                                    <li><a href="tasks-create.html" key="t-create-task">품목별원장</a></li>
+                                    <li><a href="tasks-create.html" key="t-create-task">재고실사</a></li>
+                                    <li><a href="tasks-create.html" key="t-create-task">기타입출고</a></li>
+                                    <li><a href="tasks-create.html" key="t-create-task">기타입출고현황</a></li>
+                                    <li><a href="tasks-create.html" key="t-create-task">창고관리</a></li>
+                                    <li><a href="tasks-create.html" key="t-create-task">창고이동</a></li>
+                                    <li><a href="tasks-create.html" key="t-create-task">매장도면상품목록</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="bx bxs-user-detail"></i>
+                                    <span key="t-contacts">정산</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="/calculate/dailyPrc" key="t-user-grid">일일 매입/매출 정산</a></li>
+                                    <li><a href="contacts-list.html" key="t-user-list">매입처원장</a></li>
+                                    <li><a href="contacts-profile.html" key="t-profile">매출정산</a></li>
+                                    <li><a href="contacts-profile.html" key="t-profile">매출정산현황</a></li>
+                                    <li><a href="/calculate/insertExcel" key="t-profile">정산자료엑셀업로드</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="bx bx-detail"></i>
+                                    <span key="t-blog">통계</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="/sls/slsprofit" key="t-blog-list">매출이익</a></li>
+                                    <li><a href="blog-grid.html" key="t-blog-grid">연간입출현황</a></li>
+                                    <li><a href="blog-details.html" key="t-blog-details">입출내역집계현황</a></li>
+                                    <li><a href="blog-details.html" key="t-blog-details">일별매출이익</a></li>
+                                    <li><a href="blog-details.html" key="t-blog-details">월별매출이익</a></li>
+                                </ul>
+                            </li>
+
+                            <li class="menu-title" key="t-pages">Pages</li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="bx bx-user-circle"></i>
+                                    <span key="t-authentication">전자결재</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="/eatrz/eatrzmain" key="t-login">결재목록</a></li>
+                                    <li><a href="auth-login-2.html" key="t-login-2">결재작성</a></li>
+                                    <li><a href="auth-register.html" key="t-register">Register</a></li>
+                                    <li><a href="auth-register-2.html" key="t-register-2">Register 2</a></li>
+                                    <li><a href="auth-recoverpw.html" key="t-recover-password">Recover Password</a></li>
+                                    <li><a href="auth-recoverpw-2.html" key="t-recover-password-2">Recover Password 2</a></li>
+                                    <li><a href="auth-lock-screen.html" key="t-lock-screen">Lock Screen</a></li>
+                                    <li><a href="auth-lock-screen-2.html" key="t-lock-screen-2">Lock Screen 2</a></li>
+                                    <li><a href="auth-confirm-mail.html" key="t-confirm-mail">Confirm Email</a></li>
+                                    <li><a href="auth-confirm-mail-2.html" key="t-confirm-mail-2">Confirm Email 2</a></li>
+                                    <li><a href="auth-email-verification.html" key="t-email-verification">Email verification</a></li>
+                                    <li><a href="auth-email-verification-2.html" key="t-email-verification-2">Email Verification 2</a></li>
+                                    <li><a href="auth-two-step-verification.html" key="t-two-step-verification">Two Step Verification</a></li>
+                                    <li><a href="auth-two-step-verification-2.html" key="t-two-step-verification-2">Two Step Verification 2</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="bx bx-file"></i>
+                                    <span key="t-utility">채팅</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="pages-starter.html" key="t-starter-page">채팅하기</a></li>
+                                    <li><a href="pages-maintenance.html" key="t-maintenance">채팅목록</a></li>
+                                    <li><a href="pages-comingsoon.html" key="t-coming-soon">주소록</a></li>
+                                    <li><a href="pages-timeline.html" key="t-timeline">화상채팅</a></li>
+                                    <li><a href="pages-faqs.html" key="t-faqs">FAQs</a></li>
+                                    <li><a href="pages-pricing.html" key="t-pricing">Pricing</a></li>
+                                    <li><a href="pages-404.html" key="t-error-404">Error 404</a></li>
+                                    <li><a href="pages-500.html" key="t-error-500">Error 500</a></li>
+                                </ul>
+                            </li>
+                            
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="bx bx-file"></i>
+                                    <span key="t-utility">내정보</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="pages-starter.html" key="t-starter-page">ㅡㅡ</a></li>
+                                    
+                                </ul>
+                            </li>
+
+                            <li class="menu-title" key="t-components">흐으으음</li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="bx bx-tone"></i>
+                                    <span key="t-ui-elements">UI Elements</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="ui-alerts.html" key="t-alerts">Alerts</a></li>
+                                    <li><a href="ui-buttons.html" key="t-buttons">Buttons</a></li>
+                                    <li><a href="ui-cards.html" key="t-cards">Cards</a></li>
+                                    <li><a href="ui-carousel.html" key="t-carousel">Carousel</a></li>
+                                    <li><a href="ui-dropdowns.html" key="t-dropdowns">Dropdowns</a></li>
+                                    <li><a href="ui-grid.html" key="t-grid">Grid</a></li>
+                                    <li><a href="ui-images.html" key="t-images">Images</a></li>
+                                    <li><a href="ui-lightbox.html" key="t-lightbox">Lightbox</a></li>
+                                    <li><a href="ui-modals.html" key="t-modals">Modals</a></li>
+                                    <li><a href="ui-offcanvas.html" key="t-offcanvas">Offcanvas</a></li>
+                                    <li><a href="ui-rangeslider.html" key="t-range-slider">Range Slider</a></li>
+                                    <li><a href="ui-session-timeout.html" key="t-session-timeout">Session Timeout</a></li>
+                                    <li><a href="ui-progressbars.html" key="t-progress-bars">Progress Bars</a></li>
+                                    <li><a href="ui-placeholders.html" key="t-placeholders">Placeholders</a></li>
+                                    <li><a href="ui-sweet-alert.html" key="t-sweet-alert">Sweet-Alert</a></li>
+                                    <li><a href="ui-tabs-accordions.html" key="t-tabs-accordions">Tabs & Accordions</a></li>
+                                    <li><a href="ui-typography.html" key="t-typography">Typography</a></li>
+                                    <li><a href="ui-toasts.html" key="t-toasts">Toasts</a></li>
+                                    <li><a href="ui-video.html" key="t-video">Video</a></li>
+                                    <li><a href="ui-general.html" key="t-general">General</a></li>
+                                    <li><a href="ui-colors.html" key="t-colors">Colors</a></li>
+                                    <li><a href="ui-rating.html" key="t-rating">Rating</a></li>
+                                    <li><a href="ui-notifications.html" key="t-notifications">Notifications</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="bx bxs-eraser"></i>
+                                    <span key="t-forms has-arrow">Forms</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="form-elements.html" key="t-form-elements">Form Elements</a></li>
+                                    <li><a href="form-layouts.html" key="t-form-layouts">Form Layouts</a></li>
+                                    <li><a href="form-validation.html" key="t-form-validation">Form Validation</a></li>
+                                    <li><a href="form-advanced.html" key="t-form-advanced">Form Advanced</a></li>
+                                    <li><a href="form-editors.html" key="t-form-editors">Form Editors</a></li>
+                                    <li><a href="form-uploads.html" key="t-form-upload">Form File Upload</a></li>
+                                    <li><a href="form-xeditable.html" key="t-form-xeditable">Form Xeditable</a></li>
+                                    <li><a href="form-repeater.html" key="t-form-repeater">Form Repeater</a></li>
+                                    <li><a href="form-wizard.html" key="t-form-wizard">Form Wizard</a></li>
+                                    <li><a href="form-mask.html" key="t-form-mask">Form Mask</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="bx bx-list-ul"></i>
+                                    <span key="t-tables">Tables</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="tables-basic.html" key="t-basic-tables">Basic Tables</a></li>
+                                    <li><a href="tables-datatable.html" key="t-data-tables">Data Tables</a></li>
+                                    <li><a href="tables-responsive.html" key="t-responsive-table">Responsive Table</a></li>
+                                    <li><a href="tables-editable.html" key="t-editable-table">Editable Table</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="bx bxs-bar-chart-alt-2"></i>
+                                    <span key="t-charts">Charts</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="charts-apex.html" key="t-apex-charts">Apex Charts</a></li>
+                                    <li><a href="charts-echart.html" key="t-e-charts">E Charts</a></li>
+                                    <li><a href="charts-chartjs.html" key="t-chartjs-charts">Chartjs Charts</a></li>
+                                    <li><a href="charts-flot.html" key="t-flot-charts">Flot Charts</a></li>
+                                    <li><a href="charts-tui.html" key="t-ui-charts">Toast UI Charts</a></li>
+                                    <li><a href="charts-knob.html" key="t-knob-charts">Jquery Knob Charts</a></li>
+                                    <li><a href="charts-sparkline.html" key="t-sparkline-charts">Sparkline Charts</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="bx bx-aperture"></i>
+                                    <span key="t-icons">Icons</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="icons-boxicons.html" key="t-boxicons">Boxicons</a></li>
+                                    <li><a href="icons-materialdesign.html" key="t-material-design">Material Design</a></li>
+                                    <li><a href="icons-dripicons.html" key="t-dripicons">Dripicons</a></li>
+                                    <li><a href="icons-fontawesome.html" key="t-font-awesome">Font Awesome</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="bx bx-map"></i>
+                                    <span key="t-maps">Maps</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="maps-google.html" key="t-g-maps">Google Maps</a></li>
+                                    <li><a href="maps-vector.html" key="t-v-maps">Vector Maps</a></li>
+                                    <li><a href="maps-leaflet.html" key="t-l-maps">Leaflet Maps</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="bx bx-share-alt"></i>
+                                    <span key="t-multi-level">Multi Level</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="true">
+                                    <li><a href="javascript: void(0);" key="t-level-1-1">Level 1.1</a></li>
+                                    <li>
+                                        <a href="javascript: void(0);" class="has-arrow" key="t-level-1-2">Level 1.2</a>
+                                        <ul class="sub-menu" aria-expanded="true">
+                                            <li><a href="javascript: void(0);" key="t-level-2-1">Level 2.1</a></li>
+                                            <li><a href="javascript: void(0);" key="t-level-2-2">Level 2.2</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+
+                        </ul>
+                    </div>
+                    <!-- Sidebar -->
+                </div>
+            </div>

@@ -1,0 +1,122 @@
+package kr.or.tco.prod.controller;
+
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.collections.map.HashedMap;
+import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.sun.scenario.effect.Blend.Mode;
+
+import kr.or.tco.cmncd.vo.CmncdVO;
+import kr.or.tco.prod.service.ProdService;
+import kr.or.tco.prod.vo.ProdVO;
+
+@RequestMapping("/prod")
+@Controller
+public class ProdController {
+	private static final Logger logger = LoggerFactory.getLogger(ProdController.class);
+	
+	@Autowired
+	ProdService prodService;
+	
+	//상품 목록
+	@GetMapping("/list")
+	public String prodList(Model model, @RequestParam(required=false) String keyWord) {
+		logger.info("keyWord : " + keyWord);
+		
+		//mapper에 상품목록 뽑는 파라미터인 hashMap 생성
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("keyWord", keyWord);
+		
+		List<ProdVO> prodList = this.prodService.prodList(map);
+		
+		model.addAttribute("prodList", prodList);
+		
+		//forwarding
+		return "prod/list";
+	}
+	
+	//상품 상세
+	@GetMapping("/detail")
+	public String detail(Model model, @RequestParam("prodInfoId") String prodInfoId) {
+		
+		ProdVO prodVO = prodService.prodDetail(prodInfoId);
+		logger.info("prodVO : " + prodVO);
+		
+		List<CmncdVO> cmncd2List = prodService.cdnm2List(prodInfoId);
+		logger.info("cmncd2List : " + cmncd2List);
+		
+		model.addAttribute("prodVO", prodVO);
+		model.addAttribute("cmncd2List", cmncd2List);
+		
+		//forwarding
+		return "prod/detail";
+	}
+	
+	//상품 정보 수정
+	@PostMapping("/detail")
+	public String detailPost(@Validated ProdVO prodVO, BindingResult result) {
+		logger.info("post 수정 시작");
+		logger.info("Controller prodVO : " + prodVO);
+		//BindingResult에 검증 오류 발생
+		if(result.hasErrors()) {
+			List<ObjectError> allErrors = result.getAllErrors();
+			List<ObjectError> globalErrors = result.getGlobalErrors();
+			List<FieldError> fieldErrors = result.getFieldErrors();
+			//validation 중에 어떤 오류가 나왔는지 확인..
+			for(int i=0;i<allErrors.size();i++) {
+				ObjectError objectError = allErrors.get(i);
+				logger.info("objectError : " + objectError);
+			}
+			
+			for(ObjectError objectError : globalErrors) {
+				logger.info("objectError : " + objectError);
+			}
+			
+			for(FieldError fieldError : fieldErrors) {
+				logger.info("fieldError : " + fieldError.getDefaultMessage());
+			}
+			//redirect(X) => 데이터를 보낼 수 없음
+			//forwarding
+			return "prod/detail";
+		}
+		
+		//공통코드 찾아서 넣기(안바뀌었어도 null은 안되기때문에 필수)
+		String cmncd = prodService.cmncdFind(prodVO.getCmncdNm2());
+		logger.info("공통코드 : " + cmncd);
+		prodVO.setCmncdCd(cmncd);
+		logger.info("공통코드 set한 후 prodVO : " + prodVO);
+		
+		int updateResult = prodService.prodUpdate(prodVO);
+		
+		if(updateResult > 0) { //수정 성공
+			return "redirect:/prod/detail?prodInfoId="+prodVO.getProdInfoId();
+		}else { //수정 실패
+			//forwarding
+			return "prod/detail";
+		}
+	}
+	
+}

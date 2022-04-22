@@ -1,0 +1,169 @@
+package kr.or.tco.cust.controller;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import kr.or.tco.ArticlePage;
+import kr.or.tco.cust.service.CustService;
+import kr.or.tco.cust.vo.CustVO;
+
+@RequestMapping("/cust")
+@Controller
+public class CustController {
+	
+	@Autowired
+	CustService custService;
+	
+	private static final Logger logger = 
+			LoggerFactory.getLogger(CustController.class);
+	
+	
+	@GetMapping("/custinsert")
+	public String getCustInsert(Model model) {
+		CustVO custVO = new CustVO();
+		model.addAttribute("custVO", custVO);
+//		logger.info("custVO11111111 : " + custVO.toString());
+		
+		return "cust/custinsert";
+	}
+	
+	
+	@PostMapping("/custinsert")
+	public String postCustInsert(@Validated CustVO custVO,
+			BindingResult result) {
+		//validation 문제가 발생된다면
+		
+		if(result.hasErrors()) {
+			List<ObjectError> allErrors = result.getAllErrors();
+			List<ObjectError> globalErrors = result.getGlobalErrors();
+//			List<FieldError> fieldErrors = result.getFieldErrors();
+			//validation 중에 어떤 오류가 나왔는지 확인..
+			for(int i=0;i<allErrors.size();i++) {
+				ObjectError objectError = allErrors.get(i);
+				logger.info("objectError : " + objectError);
+			}
+			
+			for(ObjectError objectError : globalErrors) {
+				logger.info("objectError : " + objectError);
+			}
+			
+//			for(FieldError fieldError : fieldErrors) {
+//				logger.info("fieldError : " + fieldError.getDefaultMessage());
+//			}
+			// redirect(x) => 데이터를 보낼 수 없음
+			// forwarding(o)
+			//문제가 발생되면 수정프로세스는 중단되고 forward
+			return "cust/custinsert";
+		}//end if
+		
+		
+		logger.info("custVO2222222 : " + custVO.toString());
+		if(custVO.getCustMktRcptnAgreYn() == null) {
+			custVO.setCustMktRcptnAgreYn("N");
+		}
+		
+		//수정 비즈니스 로직 처리 후 -> 몇 건이 update되었나..
+		int insertCustRslt = custService.custInsert(custVO);
+		
+		if(!(insertCustRslt > 0)) {//수정 실패
+			return "cust/custinsert";
+		}
+		
+		//상세페이지로 되돌아감
+		return "redirect:/cust/custlist";
+	}
+	
+	
+	@GetMapping("/custlist")
+	public String getCustList(Model model
+			, @RequestParam(defaultValue = "1", required = false) int currentPage
+			, @RequestParam(defaultValue = "7", required = false) int size
+			, @RequestParam(required = false) String keyWord) {
+		
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("keyWord", keyWord);
+		map.put("size", size);
+		map.put("currentPage", currentPage);
+		
+		// 고객 전체 인원수
+		int total = this.custService.getCustTotal(map);
+		
+		// 일반 고객 목록
+		List<CustVO> list = this.custService.custSelect(map);
+		List<CustVO> list1 = this.custService.custSelectH(map);
+		List<CustVO> list2 = this.custService.custSelectT(map);
+		model.addAttribute("list", new ArticlePage(total, currentPage, size, 5, list));
+		model.addAttribute("list1", new ArticlePage(total, currentPage, size, 5, list1));
+		model.addAttribute("list2", new ArticlePage(total, currentPage, size, 5, list2));
+		model.addAttribute("total", total);
+		
+		return "cust/custlist";
+	}
+	
+	@GetMapping("/custdetail/{custId}")
+	public String getCustDetail(Model model, @PathVariable("custId") String custId) {
+		logger.info("custId : " + custId);
+		
+		CustVO custVO = this.custService.custDetailSelect(custId);
+		String brdt = custVO.getCustBrdt().substring(0, 10);
+		custVO.setCustBrdt(brdt);
+		if(custVO != null) {
+			logger.info("custVO!!!!!!!!!!!!!!!!! : " + custVO.toString());
+			logger.info("custVO : " + custVO.getCustBrdt());
+		}
+		
+		model.addAttribute("custVO", custVO);
+		
+		
+		return "cust/custdetail";
+	}
+	
+	@PostMapping("/custupdate")
+	public String postCustUpdate(@RequestParam String custId,
+			@ModelAttribute CustVO custVO, BindingResult result) {
+		
+		logger.info("custVO???????????? : " + custVO.toString());
+		logger.info("result.hasErrors() : " + result.hasErrors());
+		custVO.setCustId(custId);
+		
+		int updateResult = this.custService.custDetailUpdate(custVO);
+		
+		if(updateResult < 1) {
+			return "cust/custdetail";
+		}
+		
+		return "redirect:/cust/custdetail?custId=" + custVO.getCustId();
+	}
+	
+	@GetMapping("/custdelete")
+	public String getCustDelete(Model model
+			, @RequestParam String custId) {
+		logger.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		model.addAttribute("custId", custId);
+		
+		int deleteResult = this.custService.custDeleteUpdate(custId);
+		
+		if(deleteResult < 1) {
+			return "cust/custlist";
+		}
+		
+		return "redirect:/cust/custlist";
+	}
+	
+}

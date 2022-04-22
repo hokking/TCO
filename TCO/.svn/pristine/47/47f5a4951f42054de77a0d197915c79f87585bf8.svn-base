@@ -1,0 +1,53 @@
+package kr.or.tco.sttst.controller;
+
+import java.util.List;
+import java.util.Locale;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.tco.sls.vo.SlsVO;
+import kr.or.tco.sttst.service.SttstService;
+
+
+/**
+ * 통계 컨트롤러
+ * @author PC-25 김영훈
+ * 통계를 관리하는 최초의 컨트롤러 창
+ */
+@RequestMapping("/sttst")
+@Controller
+public class SttstController {
+	
+	@Autowired SttstService sttstService;
+	
+	
+	/**
+	 * 연간 입출 현황 출력창
+	 * @return sttst/annualStatus을 출력한다.
+	 */
+	@RequestMapping(value = "/annual", method = RequestMethod.GET)
+	public String annualStatus() {
+		return "sttst/annualStatus";
+	}
+	
+	
+	/**
+	 * 일일 매출 현황
+	 * 일일 매출 현황을 차트로 출력
+	 * @return  sttst/dailyProfit에서 출력한다.
+	 */
+	@RequestMapping(value="/dailyProfit", method = RequestMethod.GET)
+	@ResponseBody
+	public String dailyProfit(Model model, Locale locale) {
+		
+		List<SlsVO>list = sttstService.getDailyIncome();
+		model.addAttribute("data",list);
+		
+		return "sttst/dailyProfit";
+	}
+}

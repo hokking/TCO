@@ -1,0 +1,87 @@
+package kr.or.tco.prchs.controller;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.tco.cnpt.service.CnptService;
+import kr.or.tco.cnpt.vo.CnptVO;
+import kr.or.tco.prchs.service.PrchsService;
+import kr.or.tco.prchs.vo.PrchsVO;
+
+//매입 컨트롤러
+@RequestMapping("/prchs")
+@Controller
+public class PrchsController {
+	
+	@Autowired
+	PrchsService prchsService;
+	
+	final static Logger logger = 
+			LoggerFactory.getLogger(PrchsController.class);
+	
+	//매입 발주서 화면
+	@GetMapping("/prchsOrder")
+	public String prchsOrder(Model model
+			,@RequestParam(required = false)String startDay
+			,@RequestParam(required = false)String endDay) {
+		
+		logger.info("시작일 : " + startDay);
+		logger.info("시작일 : " + endDay);
+		
+		//맵 만들기
+		Map<String, String> dateMap = new HashMap<String, String>();
+		
+		//맵에 저장
+		dateMap.put("startDay", startDay);
+		dateMap.put("endDay", endDay);
+		
+		//매입발주서에 저장된 목록 가져오기
+		List<PrchsVO> prchsList = prchsService.getSvdPrchsOrdrList(dateMap);
+		//Model에 저장
+		model.addAttribute("prchsList", prchsList);
+		return "prchs/prchsOrder";
+	}
+	
+	//검색어 자동완성
+	@ResponseBody
+	@GetMapping("/searchCnpt")
+	public List<CnptVO> searchCnpt(@RequestParam String keyWord) {
+		List<CnptVO> cnptList = prchsService.cnptSearchList(keyWord);
+		return cnptList;
+	}
+	
+	//매입 명세서 화면
+	@GetMapping("/prchsSpece")
+	public String prchsSpece(Model model
+			,@RequestParam(required = false)String startDay
+			,@RequestParam(required = false)String endDay) {
+		
+		logger.info("시작일 : " + startDay);
+		logger.info("시작일 : " + endDay);
+		
+		//맵 만들기
+		Map<String, String> dateMap = new HashMap<String, String>();
+		
+		//맵에 저장
+		dateMap.put("startDay", startDay);
+		dateMap.put("endDay", endDay);
+		
+		//매입명세서 목록 가져오기
+		List<PrchsVO> speceList = prchsService.getPrchsSpeceList(dateMap);
+		//model에 저장
+		model.addAttribute("speceList", speceList);
+		return "prchs/prchsSpece";
+	}
+}

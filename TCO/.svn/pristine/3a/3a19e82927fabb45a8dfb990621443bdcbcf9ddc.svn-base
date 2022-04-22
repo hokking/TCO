@@ -1,0 +1,19 @@
+package kr.or.tco.ordr.controller;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import kr.or.tco.ordr.service.OrdrService;
+
+@RequestMapping("/ordr")
+@Controller
+public class OrdrController {
+	private static final Logger logger = LoggerFactory.getLogger(OrdrController.class);
+	
+	@Autowired
+	OrdrService ordrService;
+
+}

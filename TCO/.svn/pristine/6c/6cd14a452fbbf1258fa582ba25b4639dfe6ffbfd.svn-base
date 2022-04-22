@@ -1,0 +1,157 @@
+package kr.or.tco.sttst.service.impl;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.tco.cal.vo.CustNtsVO;
+import kr.or.tco.emp.vo.EmpVO;
+import kr.or.tco.prchs.vo.PrchsVO;
+import kr.or.tco.sls.vo.SlsVO;
+import kr.or.tco.sttst.mapper.SttstMapper;
+import kr.or.tco.sttst.service.SttstService;
+import kr.or.tco.sttst.vo.SttstVO;
+
+@Service
+public class SttstServiceimpl implements SttstService {
+	private static final Logger logger =
+			LoggerFactory.getLogger(SttstServiceimpl.class);
+	
+	@Autowired SttstMapper sttstMapper;
+
+	
+	/**
+	 * 일일매출현황
+	 */
+	@Override
+	public List<SlsVO> getDailyIncome(String brncofcId) {
+		
+		//테스트용 
+		List<SlsVO> getIncome = sttstMapper.getDailyIncome(brncofcId);
+		logger.info("getincome"+getIncome);
+		return getIncome;
+//		return sttstMapper.getDailyIncome();
+	}
+
+	
+	/**
+	 * 일일매입현황
+	 */
+	@Override
+	public List<PrchsVO> getDailyPurchase() {
+		List<PrchsVO>getPurchase = sttstMapper.getDailyPurchase();
+		logger.info("getPuchase"+getPurchase);
+		return getPurchase;
+	}
+	
+	
+	
+	/**
+	 * 월간매출현황
+	 */
+	@Override
+	public List<SlsVO> getMonthIncome(String brncofcId) {
+		List<SlsVO> getMonth = sttstMapper.getMonthIncome(brncofcId);
+		logger.info("월별매출현황: "+getMonth);
+		return getMonth; 
+	}
+
+
+	/**
+	 * 년간매출현황
+	 */
+	@Override
+	public List<SlsVO> getYearlyIncome(String brncofcId) {
+		List<SlsVO> getYear = sttstMapper.getYearlyIncome(brncofcId);
+		logger.info("년간매출 : "+ getYear);
+		return getYear;
+	}
+
+
+	
+	
+	/**
+	 * 조직도 jstree
+	 */
+	@Override
+	public List<SttstVO>grouplist() {
+		List<SttstVO>list = this.sttstMapper.grouplist();
+//		logger.info("직원조직도"+list);
+		return list;
+	}
+	
+	
+	/**
+	 * 조직도 jsGrid
+	 */
+	@Override
+	public List<EmpVO> groupemp(String childId) {
+		List<EmpVO>list = this.sttstMapper.groupemp(childId);
+		logger.info("직원Grid"+list);
+		return list;
+	}
+	
+	
+	
+	
+	
+
+	
+	/**
+	 * 연령/성별 별 선호 카테고리 test
+	 */
+	@Override
+	public List<SttstVO> PrfredCtg() {
+		List<SttstVO>PrfredCtg = sttstMapper.PrfredCtg();
+		logger.info("선호카테고리 리스트"+PrfredCtg);
+		return PrfredCtg;
+	}
+
+	
+	
+	/**
+	 * 매장별 일일 판매 차트
+	 * session값을 받아와서 지점별로 띄운다. 
+	 */
+	@Override
+	public List<SlsVO> getBrnChart(String brncofcId) {
+		List<SlsVO>list = sttstMapper.getBrnChart(brncofcId);
+		logger.info("매장코드 : "+brncofcId);
+		return list;
+	}
+
+
+	@Override
+	public List<SlsVO> brndaily(String brncofcId) {
+		return this.sttstMapper.brndaily(brncofcId);
+	}
+
+	
+	
+	//------------------------본사용----------------------
+	@Override
+	public List<SlsVO> mainDailyIncome() {
+		return this.sttstMapper.mainDailyIncome();
+	}
+
+
+	@Override
+	public List<SlsVO> mainMonthIncome() {
+		return this.sttstMapper.mainMonthIncome();
+	}
+
+
+	@Override
+	public List<SlsVO> mainYearlyIncome() {
+		return this.sttstMapper.mainYearlyIncome();
+	}
+
+
+
+
+	
+	
+}

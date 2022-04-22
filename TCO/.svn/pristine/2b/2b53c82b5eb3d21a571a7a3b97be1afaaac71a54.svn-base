@@ -1,0 +1,305 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>조직도test</title>
+<link href="/resources/js/jstree/style.min.css" rel="stylesheet" type="text/css" />
+<link href="/resources/css/ui.jqgrid.css" rel="stylesheet" type="text/css" />
+<link href="/resources/css/jquery-ui.min.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="/resources/js/jstree/jstree.min.js"></script>
+<script type="text/javascript" src="/resources/js/jqgrid/grid.locale-kr.js"></script>
+<script type="text/javascript" src="/resources/js/jqgrid/jquery.jqGrid.min.js"></script>
+<link href="/resources/css/truck.css" rel="stylesheet" type="text/css">
+<script>
+
+
+function showPage() {
+	  document.getElementById("loading").style.display = "none";
+	  document.getElementById("myDiv").style.display = "block";
+	}
+
+
+
+let arr = new Array();
+
+function fn_send(){
+	if(!confirm("선택을 마치시겠습니까?")) return false;
+	var value =$('#valueFrm').text();
+	
+	console.log('text', value);
+}
+
+
+//트리만들기
+function fn_click(){
+	$('#eventmodal').modal('show')
+}
+
+function gettree(){
+	$.ajax({
+		type:'post',
+		url:'/sttst/testformat',
+		dataType:'json',
+		success:function(data){
+			console.log('data:',data);
+			$.each(data,function(idx,item){
+				arr[idx]={id:item.childId, parent:item.parentId ? item.parentId:'#', text:item.groupNm}
+			});
+			console.log('ajax로 가져온데이터:',arr);
+			$('#jstree').jstree({
+				"core":{
+					'data': arr
+				},
+				"types":{
+					'default':{
+						'icon':'mdi mdi-account'
+					}
+				},
+				"themes":{
+					"theme":"classic","dots":true,"icons":true
+				},
+				'plugins':[
+					'dnd','wholerow','types','themes'
+				]
+			})
+			.bind('loaded.jstree',function(event,data){
+				//트리로딩완료 이벤트
+			})
+			.bind('select_node.jstree', function(event,data){
+				//노드선택 이벤트
+				console.log('select_node:',data);
+				var childId = data.instance.get_node(data.selected).id;
+				console.log('id값:',childId);
+				reloadGrid(childId,'');
+			})
+		},
+		error:function(error){
+			alert("에러");
+		}
+	});
+};
+
+//그리드 만들기
+
+function getgrid(childId){
+	$('#gridlist').jqGrid({
+		url:"/sttst/emplist/"+childId,
+        loadtext: '로딩중입니다',
+        datatype:"json",
+        loadonce: true,
+        mtype : "POST",
+        autowidth: true,
+        height: 230,
+        colNames:[ "이름", "부서", "직급", "연락처"],
+        colModel:[
+                  {name:"personNm", index:"personNm", align:"center"},
+                  {name:"deptNm", index:"deptNm", align:"center"},
+                  {name:"rank", index:"rank", align:"left"},
+                  {name:"personTel", index:"personTel", align:"left"}
+                ],
+        caption: "회사조직도",
+        rownumbers : true,
+        viewrecords:true,
+        rowNum:10,
+        rowList: [10, 20],
+        onSelectRow:function(rowId,row,e){
+        	//리스트에서 클릭시 이벤트 처리
+//         	if(!confirm("결재 상신자를 선택하시겠습니까?")) return false;
+//         	$('#eventmodal').modal('show');
+        },
+        pager: '#pager'	
+	});
+};
+
+
+var data;
+function reloadGrid(id, name) {
+	$("#gridlist").jqGrid('setGridParam',{
+        url: "/sttst/emplist/"+id,
+        datatype: "json",
+        postData : {childId: id, personNm: name},
+        onSelectRow:function(idx,row,e){
+        	if(!confirm("결재 상신자를 선택하시겠습니까?")) return false;
+			getGrid(idx);
+        },
+        loadComplete: function(data){
+        	var rowids = $('#gridlist').jqGrid('getDataIDs');
+        	
+        }
+//         ,onCellSelect:function(id,icol,cellcontent,e){
+//         	var rowData = $('gridlist').getRowData(id);
+//         	console.log("cellcontent",cellcontent);
+//         }
+    }).trigger('reloadGrid');
+}
+
+
+var addVendor = function() {
+	var rowid, pobusi;
+	rowid  = $('#gridlist').jqGrid('getGridParam', 'selrow' );			
+	pobusi = $('#gridlist').jqGrid('getRowData', rowid);
+	
+	console.log(rowid);
+	console.log(pobusi);
+}
+
+
+function f_weather(){
+	var arr = new Array();
+	$.ajax({
+		url:'/craw/craw_weather',
+		type:'post',
+		dataType:'json',
+		success:function(data){
+		$.each(data,function(idx,item){
+			arr[idx]={item}
+		})
+		console.log(arr);
+		}
+	})
+}
+
+//그리드의 값가져오기
+function getGrid(){
+	var obj = $("#gridlist");
+	var idx = obj .jqGrid('getGridParam', 'selrow');
+	for(var i = 0; i < idx.length;i++)
+	{
+// 	var value = obj.jqGrid('getCell', idx[i], '가져올 컬럼값의 이름');
+	var value = obj.jqGrid('getCell', idx[i], 'personNm');
+	}
+	
+	if($('#valueFrm').is(':empty')){
+		$('#valueFrm').append(value)		
+	}else{
+	  	$('#valueFrm').append(','+value)
+	}
+}
+
+//그리드의 복수값가져오기
+function getEquipArray(id, array){
+    var ids = $('#gridlist').jqGrid('getDataIDs');
+    for(var i=0; i<ids.length; i++){
+        if($("input:checkbox[id='jqg_"+id+"_"+ids[i]+"']").is(":checked")){
+            var rowObject = $("#"+id).getRowData(ids[i]);
+            console.log(rowObject);
+            var value = rowObject.equipId;
+            array.push(value);
+        }
+    }
+}
+
+
+$('document').ready(function(){
+	setTimeout(showPage, 5000);	
+	gettree();
+	getgrid();
+// 	f_weather();
+});
+
+
+</script>
+<style type="text/css">
+	#dept{
+		border:solid 1px #CCCCCC;
+		height: 302.984px;
+	}
+</style>
+</head>
+<body>
+	<div id="loading" style="width: 100%; height: 100%;">
+		<div class="loop-wrapper" >
+		  <div class="mountain"></div>
+		  <div class="hill"></div>
+		  <div class="tree"></div>
+		  <div class="tree"></div>
+		  <div class="tree"></div>
+		  <div class="rock"></div>
+		  <div class="truck"></div>
+		  <div class="wheels"></div>
+		</div>
+	</div>
+/sttst/testformat
+	<div class="card" id="myDiv" style="display: none;">
+		<div class="card-body">
+				<button type="button" onclick="fn_click()">결재상한</button>
+				<button type="button" onclick="f_weather()">날씨크롤링</button>
+				<div id="">
+					<input type="text" id='listFrm'>
+				</div>
+				
+				
+				<div>
+				</div>
+				<div id="test1">${test1}</div>
+				<div id="test2">${test2}</div>
+<!-- 			<div class="row"> -->
+<!-- 				<div class="col-4"> -->
+<!-- 					<div id="dept"> -->
+<!-- 						<div id="jstree"></div> -->
+<!-- 					</div> -->
+<!-- 				</div> -->
+<!-- 				<div class="col-8"> -->
+<!-- 					<div id="grid"> -->
+<!-- 						<table id="gridlist"></table> -->
+<!-- 						<div id="pager"></div> -->
+<!-- 					</div> -->
+<!-- 				</div> -->
+<!-- 			</div> -->
+		</div>
+	</div>
+	
+	
+	<!-- modal -->
+	<div class="modal fade" id="eventmodal" tabindex="-1">
+         <div class="modal-dialog modal-dialog-centered modal-xl">
+             <div class="modal-content">
+                 <div class="modal-header py-3 px-4 border-bottom-0">
+                     <h5 class="modal-title" id="modal-title">사원정보</h5>
+
+                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+
+                 </div>
+                 <div class="modal-body p-4">
+                     <form class="needs-validation" name="" id="" action="" method="">
+                         <div class="row">
+							<div class="col-4">
+								<div id="dept">
+									<div id="jstree"></div>
+								</div>
+							</div>
+							<div class="col-8">
+								<div id="grid">
+									<table id="gridlist"></table>
+									<div id="pager"></div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-12 w-100">
+								<button type="button" class="btn btn-success" onclick="fn_send()">완료</button>
+								<table>
+								<tr>
+									<td>
+										<p>결재승인자 목록</p>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div id="valueFrm" style="background-color: lightgray; width: 1000px; height: 100px;"></div>
+									</td>
+								</tr>
+								</table>
+							</div> 
+						</div>
+                     </form>
+                 </div>
+             </div> <!-- end modal-content-->
+         </div> <!-- end modal dialog-->
+     </div>
+	
+	<!-- modal끝 -->
+	
+</body>
+</html>

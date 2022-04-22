@@ -1,0 +1,88 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<style>
+	.inBtn{
+		float: right;
+	}
+	.seicon{
+ 		float: right;
+	}
+</style>
+    <div class="container-fluid">
+
+        <!-- start page title -->
+        <div class="row">
+            <div class="col-12">
+                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                    <h1 class="mb-sm-0 font-size-20">📦상품 정보</h1>
+
+                </div>
+            </div>
+        </div>
+        <!-- end page title -->
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                    <form name="searchFrm" id="searchFrm" action="/prod/list">
+                    <div class="row mb-2">
+                     <div class="col-sm-3">
+                         <div class="search-box me-2 mb-2 d-inline-block">
+                             <div class="position-relative">
+	                                 <input type="text" name="keyWord" id="keyWord" class="form-control" placeholder="Search...">
+                                 <i class="bx bx-search-alt search-icon"></i>
+                             </div>
+                         </div>
+                         <div class="col-sm-1 seicon">
+                     	     <button type="submit" class="btn btn-info btn-rounded waves-effect waves-light seicon" ><i class="bx bx-search-alt-2"></i></button>
+                         </div>
+                     </div>
+                     <div class="col-sm-9">
+                         <div class="text-sm-end">
+							<a href="/prod/insert" class="btn btn-success btn-rounded waves-effect waves-light mb-2 me-2" ><i class="mdi mdi-plus me-1"></i> 상품 등록</a>
+                         </div>
+                     </div><!-- end col-->
+                    </div>
+                    </form>
+                    
+                       <div class="table-rep-plugin">
+                            <div class="table-wrapper">
+                              <div class="table-responsive mb-0 fixed-solution" data-pattern="priority-columns">
+                                <div class="sticky-table-header" style="height: 46px; visibility: hidden; top: -1px; width: auto;"></div>
+                                <table id="tech-companies-1" class="table table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th data-priority="1" id="tech-companies-1-col-1">분류</th>
+                                        <th data-priority="3" id="tech-companies-1-col-2">상품명</th>
+                                        <th data-priority="1" id="tech-companies-1-col-3" style="text-align:right;">매입가격</th>
+                                        <th data-priority="3" id="tech-companies-1-col-4" style="text-align:right;">판매가격</th>
+                                        <th data-priority="3" id="tech-companies-1-col-5">거래처</th>
+                                        <th data-priority="6" id="tech-companies-1-col-6">리드타임</th>
+                                        <th data-priority="6" id="tech-companies-1-col-7">원산지</th>
+                                        <th data-priority="6" id="tech-companies-1-col-8">상품QR코드</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+	                                    <c:forEach var="prodVO" items="${prodList}">
+		                                    <tr>
+		                                        <td data-org-colspan="1" data-priority="1" data-columns="tech-companies-1-col-1">${prodVO.cmncdNm1}/${prodVO.cmncdNm2}</td>
+		                                        <td data-org-colspan="1" data-priority="1" data-columns="tech-companies-1-col-2"><a href="/prod/detail?prodInfoId=${prodVO.prodInfoId}"> ${prodVO.prodInfoNmDisplay}</a></td>
+		                                        <td data-org-colspan="1" data-priority="1" data-columns="tech-companies-1-col-3" style="text-align:right;">${prodVO.prodInfoPrchsAmtDisplay}</td>
+		                                        <td data-org-colspan="1" data-priority="1" data-columns="tech-companies-1-col-4" style="text-align:right;">${prodVO.prodInfoNtslAmtDisplay}</td>
+		                                        <td data-org-colspan="1" data-priority="1" data-columns="tech-companies-1-col-5">${prodVO.cnptNm}</td>
+		                                        <td data-org-colspan="1" data-priority="1" data-columns="tech-companies-1-col-6">${prodVO.prodInfoLdt}</td>
+		                                        <td data-org-colspan="1" data-priority="1" data-columns="tech-companies-1-col-7">${prodVO.prodInfoPlor}</td>
+												<td data-org-colspan="1" data-priority="1" data-columns="tech-companies-1-col-8"><a href="#" onclick="window.open('https://chart.apis.google.com/chart?cht=qr&chl=${prodVO.prodInfoId},${prodVO.prodInfoNm},${prodVO.prodInfoNtslAmt}&chld=L|2&chs=200','name','resizable=no width=400 height=400');return false">상품QR생성</a></td>
+		                                    </tr>
+	                                    </c:forEach>
+                                    </tbody>
+                                </table>
+                            </div></div>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- end col -->
+        </div> <!-- end row -->
+
+    </div> <!-- container-fluid -->

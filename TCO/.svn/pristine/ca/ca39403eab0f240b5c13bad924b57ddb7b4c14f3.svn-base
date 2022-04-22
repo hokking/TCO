@@ -1,0 +1,27 @@
+package kr.or.tco.alam.service.impl;
+
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.tco.alam.mapper.AlamMapper;
+import kr.or.tco.alam.service.AlamService;
+@Service
+public class AlamServiceImpl implements AlamService{
+
+	@Autowired AlamMapper alamMapper;
+	
+	@Override
+	public int alamInsert(Map<String, Object> map) {
+		return this.alamMapper.alamInsert(map);
+	}
+
+	@Override
+	public int alamUpdate(Map<String, Object> map) {
+		return this.alamMapper.alamUpdate(map);
+	}
+
+	
+
+}

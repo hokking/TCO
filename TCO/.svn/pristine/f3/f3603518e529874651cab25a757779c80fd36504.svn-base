@@ -1,0 +1,539 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<script src="/resources/js/jquery-3.6.0.min.js"></script>
+<script src='/resources/js/fullcalendar/main.min.js'></script>
+<script src='/resources/js/maincalendar.js'></script>
+<script src='/resources/js/commoncalendar.js'></script>
+<link href='/resources/js/fullcalendar/main.min.css' rel='stylesheet' />
+<script type="text/javascript">
+var newArray 	= [];
+<c:forEach var="vo" items="${strg}">
+	var jsonObj = new Object();
+	jsonObj.cmncdNm1 = "${vo.cmncdNm1}";
+	jsonObj.cmncdNm2 = "${vo.cmncdNm2}";
+	jsonObj.prodInfoNm = "${vo.prodInfoNmDisplay}";
+	jsonObj.strgStckOrdrYn = "${vo.strgStckOrdrYn}";
+	jsonObj.lackQty = "${vo.strgStckQty - vo.strgStckSftyQty}";
+	
+	jsonObj = JSON.stringify(jsonObj);
+	console.log("JSON jsonObj : " + jsonObj);
+	//String 형태로 파싱한 객체를 다시 json으로 변환
+	newArray.push(JSON.parse(jsonObj));
+</c:forEach>
+var jsonArray = newArray;
+//테이블에 추가할 내용 만드는 함수
+var str = "";
+function chgFilter(){
+	jsonArray = jsonArray.reduce((pre, cur) => {
+		if( cur.strgStckOrdrYn == 'N' ) pre.push(cur);
+		return pre;
+	}, []);
+	str = "";
+	console.log("chgFilter 안 jsonArray.length : " + jsonArray.length);
+	for(var i=0; i < jsonArray.length; i++){
+		if(i <= 3){
+			str += '<tr class="arryTd"><td data-org-colspan="1" data-priority="1" data-columns="tech-companies-1-col-1">';
+			str += jsonArray[i].cmncdNm1 + "/" + jsonArray[i].cmncdNm2 + "</td>";
+			str += '<td data-org-colspan="1" data-priority="3" data-columns="tech-companies-1-col-2">';
+			str += jsonArray[i].prodInfoNm + "</td>";
+			str += '<td data-org-colspan="1" data-priority="1" data-columns="tech-companies-1-col-3" style="text-align:right;">';
+			str += jsonArray[i].lackQty + "</td></tr>";
+		}
+	}
+	$("#tbContent").append(str);
+}
+	$(function(){
+		chgFilter();
+		$.ajax({
+			url:"/sttst/BrnChart",
+			async:true,
+			type: "POST",
+			dataType:"json",
+			contentType: "application/json; charset=utf-8",
+			success:function(data){
+				var salelist=[];
+				var datelist=[];
+				
+				$.each(data,function(){
+					salelist.push(this["sale"])
+					datelist.push(this["date"])
+				})
+				
+				console.log(salelist);
+				console.log(datelist);
+				const ctx = document.getElementById('myChart').getContext('2d');
+				// 그래픽 엔진으로 유명한 것 (DirectX, OpenGL)
+				const myChart = new Chart(ctx, {
+				    type: 'bar', //bar,line,pie,doughnut,radar
+				    //labels : x축의 값
+				    //datasets : y축의 값 data의 값, 속성들 지정
+				    data: {
+				        labels: datelist,
+				        datasets: [{
+				            label: '매장일일매출',
+				            data: salelist,
+				            backgroundColor: [
+				                '#556EE6'
+				            ],
+				            borderColor: [
+				            	'white'
+				            ],
+				            borderWidth: 3
+				        }]
+				    },
+				    options: {
+				        scales: {
+				            y: {
+				                beginAtZero: true
+				            }
+				        }
+				    }
+				});
+			}
+		});			
+	})
+</script>
+<style>
+/* 공통달력 스타일 */
+.중요 {
+	background-color: #F5A9BC;
+	border-color: #F5A9BC;
+}
+.보통 {
+	background-color: #F7D358;
+	border-color: #F7D358;
+}
+.낮음 {
+	background-color: #2E9AFE;
+	border-color: #2E9AFE;
+}
+
+
+/* 달력내부의 이벤트  */
+
+.fc-event-time {
+	display: none;
+}
+.fc-event{
+	cursor:pointer;
+}
+
+/* 전사달력 스타일 */
+
+.빨강 {
+	background-color: #FE2E2E;
+	color: white;
+}
+</style>
+
+
+<div class="row">
+	<div class="col-12">
+		<div
+			class="page-title-box d-sm-flex align-items-center justify-content-between">
+
+			<h1 class="mb-sm-0 font-size-20" id="timesm">TCO💫</h1>
+
+		</div>
+	</div>
+</div>
+<!-- end page title -->
+
+<div class="row">
+	<div class="col-lg-12">
+		<div class="card">
+			<div class="card-body">
+				<div class="row">
+					<div class="col-lg-4">
+						<div class="d-flex">
+							<div class="flex-shrink-0 me-3">이미지</div>
+							<div class="flex-grow-1 align-self-center">
+								<div class="text-muted">
+									<p class="mb-2" id="times"></p>
+									<h5 class="mb-1">이름&nbsp;본사</h5>
+									<p class="mb-0">부서 / 직급</p>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-lg-4 align-self-center">
+						<div class="text-lg-center mt-4 mt-lg-0">
+							<div class="row">
+								<div class="col-4">
+									<div>
+										<p class="text-muted text-truncate mb-2">ㅌ</p>
+										<h5 class="mb-0">출근버튼</h5>
+									</div>
+								</div>
+								<div class="col-4">
+									<div>
+										<p class="text-muted text-truncate mb-2">ㅌ</p>
+										<h5 class="mb-0">퇴근버튼</h5>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-lg-4 d-none d-lg-block">
+						<div class="clearfix mt-4 mt-lg-0"></div>
+					</div>
+				</div>
+				<!-- end row -->
+			</div>
+		</div>
+	</div>
+</div>
+<!-- end row -->
+
+
+<div class="col-xl-18">
+	<div class="row">
+		<div class="col-sm-4">
+			<div class="card">
+				<div class="card-body">
+					<div class="col">
+						<div class="row-6">
+							<div class="d-flex align-items-center mb-3">
+								<div class="flex-grow-1 d-flex align-items-center mb-3">
+									<div class="avatar-xs me-3">
+										<span
+											class="avatar-title rounded-circle bg-primary bg-soft text-primary font-size-18">
+											<i class="bx bx-dollar"></i>
+										</span>
+									</div>
+									<h5 class="font-size-16 mb-0"><b>${sessionScope.brncofcNm}</b> 매출</h5>
+								</div>
+								<div class="flex-shrink-0 align-self-center mb-3">
+									<a class="btn btn-primary btn-sm waves-effect waves-light float-right"
+										href="/sls/brnlist">
+										<i class="bx bx-plus-medical"></i></a>
+								</div>
+							</div>
+						</div>
+
+						<div class="row-6">
+							<div class="linechart" style="height: 100%; width: 100%;">
+								<canvas id="myChart"></canvas>
+							</div>
+						</div>
+					</div>
+					
+					<br>
+
+				</div>
+			</div>
+		</div>
+
+		<div class="col-sm-4">
+			<div class="card">
+				<div class="card-body">
+					<div class="d-flex align-items-center mb-3">
+						<div class="flex-grow-1 d-flex align-items-center mb-3">
+							<div class="avatar-xs me-3">
+								<span
+									class="avatar-title rounded-circle bg-primary bg-soft text-primary font-size-18">
+									<i class="bx bx-briefcase-alt"></i>
+								</span>
+							</div>
+							<h5 class="font-size-16 mb-0">부족재고</h5>
+						</div>
+						<c:if test="${sessionScope.brncofcId == 'BRN00000' }">
+							<div class="flex-shrink-0 align-self-center mb-3">
+								<a  class="btn btn-primary btn-sm waves-effect waves-light float-right"
+									href="/strgstck/headLack">
+									<i class="bx bx-plus-medical"></i></a>
+							</div>
+						</c:if>
+						<c:if test="${sessionScope.brncofcId != 'BRN00000' }">
+							<div class="flex-shrink-0 align-self-center mb-3">
+								<a	class="btn btn-primary btn-sm waves-effect waves-light float-right"
+									href="/store/lackStock?brncofcId=${sessionScope.brncofcId}">
+									<i class="bx bx-plus-medical"></i></a>
+							</div>
+						</c:if>
+
+					</div>
+					<table class="table align-middle table-nowrap table-check">
+						<thead class="table-light">
+							<tr>
+								<th class="align-middle">분류</th>
+								<th class="align-middle">상품명</th>
+								<th class="align-middle">부족재고 수</th>
+							</tr>
+						</thead>
+						<tbody id="tbContent">
+						</tbody>
+					</table>
+					<br>
+
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-4">
+			<div class="card">
+				<div class="card-body" style="height: 346px;">
+					<div class="d-flex align-items-center mb-3">
+						<div class="flex-grow-1 d-flex align-items-center mb-3">
+							<div class="avatar-xs me-3">
+								<span
+									class="avatar-title rounded-circle bg-primary bg-soft text-primary font-size-18">
+									<i class="bx bx-briefcase-alt"></i>
+								</span>
+							</div>
+							<h5 class="font-size-16 mb-0">수주</h5>
+						</div>
+						<div class="flex-shrink-0 align-self-center mb-3">
+							<a class="btn btn-primary btn-sm waves-effect waves-light float-right"
+								href="/strgstck/rcvordr">
+								<i class="bx bx-plus-medical"></i></a>
+						</div>
+					</div>
+
+					<table class="table align-middle table-nowrap table-check">
+						<thead class="table-light">
+							<tr>
+								<th class="align-middle">발주번호</th>
+								<th class="align-middle">발주지점</th>
+								<th class="align-middle">발주일</th>
+								<th class="align-middle">상세보기</th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:set var="i" value="0" />
+							<c:forEach var="y" items="${ordr}">
+								<c:set var="cnt" value="${i=i+1}" />
+								<c:if test="${cnt <= 4 }">
+									<tr>
+										<td>${y.ordrId}</td>
+										<td>${y.brncofcNm}</td>
+										<td><fmt:formatDate pattern="yyyy-MM-dd"
+												value="${y.ordrDt}" /></td>
+										<td>
+											<!-- Button trigger modal --> <a
+											href="/strgstck/ordrDetail?ordrId=${y.ordrId}"
+											class="btn btn-primary btn-sm btn-rounded">상세보기</a>
+										</td>
+									</tr>
+								</c:if>
+							</c:forEach>
+						</tbody>
+					</table>
+					<br>
+				</div>
+			</div>
+		</div>
+
+
+	</div>
+	<!-- end row -->
+</div>
+
+
+<div class="row">
+	<!-- 캘린더 -->
+	<div class="col-lg-6">
+		<div class="card">
+			<div class="card-body">
+				<div>
+					<ul class="nav nav-tabs nav-tabs-custom justify-content-center pt-2">
+					    <li class="nav-item"><a class="nav-link active" href="#main" data-bs-toggle="tab" role="tab">전사캘린더</a></li>
+					    <li class="nav-item"><a class="nav-link" href="#common" data-bs-toggle="tab" role="tab">MY캘린더</a></li>
+					</ul> 
+				</div>
+				<div class="tab-content p-4">
+				
+				<!-- tab -->
+				<div class="tab-pane active" id="main" role="tabpanel">
+					<div class="col">
+						<div class="row-6">
+							<div class="d-flex">
+			                   <div class="flex-grow-1">
+			                           <b>MY캘린더</b>
+			                       </div>
+			                       <c:if test="${sessionScope.brncofcId == 'BRN00000'}">
+				                       <div class="flex-shrink-0 align-self-center mb-3">
+				                               <span class="avatar-title">
+				                               	<a class="btn btn-primary btn-sm waves-effect waves-light"
+												href="/calendar/main"><i class="bx bx-plus-medical"></i></a>
+				                               </span>
+				                       </div>
+			                       </c:if>
+			                 </div>
+						</div>
+						<div class="row-6">
+							<div id="maincalendar"></div>
+						</div>
+					</div>
+				</div>
+				
+				<div class="tab-pane" id="common" role="tabpanel">
+					<div class="col">
+						<div class="row-6">
+							<div class="d-flex">
+			                   <div class="flex-grow-1">
+			                           <b>MY캘린더</b>
+			                       </div>
+				                       <div class="flex-shrink-0 align-self-center mb-3">
+				                               <span class="avatar-title">
+				                               	<a class="btn btn-primary btn-sm waves-effect waves-light"
+												href="/calendar/main"><i class="bx bx-plus-medical"></i></a>
+				                               </span>
+				                       </div>
+			                   </div>
+						</div>
+						<div class="row-6">
+							<div id="calendar"></div>
+						</div>
+					</div>
+				</div>
+				<!-- end tab -->
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 캘린더 끝-->
+	<div class="col-lg-6">
+		<div class="card">
+			<div class="card-body" style="height: 750px;"> 
+				<div class="d-flex align-items-center mb-3">
+						<div class="avatar-xs me-3">
+							<span
+								class="avatar-title rounded-circle bg-primary bg-soft text-primary font-size-18">
+								<i class="mdi mdi-alarm-light-outline"></i>
+							</span>
+						</div>
+						<h5 class="font-size-16 mb-0">알림리스트</h5>
+					</div>
+
+					<table class="table align-middle table-nowrap table-check">
+						<thead class="table-light">
+							<tr>
+								<th class="align-middle">보낸 시간</th>
+								<th class="align-middle">알림 내용</th>
+								<th class="align-middle">보낸 사람</th>
+								<th class="align-middle">알림 상태</th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:set var="num" value="0" />
+							<c:if test="${empty alam}">
+								<tr>
+								<td colspan="4" style="text-align: center;">받은 알림이 없습니다.</td>
+								</tr>
+							</c:if>
+							<c:forEach var="alam" items="${alam}">
+								<c:set var="cnt" value="${num=num+1}" />
+								<c:if test="${cnt <= 9 }">
+									<tr>
+										<c:set var="title" value="${alam.title}"/>
+										<c:set var="status" value="${alam.receptionStatus}"/>
+										<!-- 받는지점 -->
+										<c:set var="brncofcNm" value="${alam.brncofcnm}"/>
+										<td>
+										<fmt:formatDate type="both"
+												value="${alam.alamSendTime}" />
+										</td>
+										<td>
+											<c:if test="${title eq 'settlement'}">
+												<p>${brncofcNm}지점에서 일일 정산을 상신했습니다.</p>
+											</c:if>
+<%-- 											<c:if test="${title eq 'getApproval'}"> --%>
+<%-- 												<p>${brncofcNm}의 일일 정산이 상신되었습니다</p> --%>
+<%-- 											</c:if> --%>
+<%-- 											<c:if test="${title eq 'proposal'}"> --%>
+<%-- 												<p>${brncofcNm}의 일일 정산이 상신되었습니다</p> --%>
+<%-- 											</c:if> --%>
+											<c:if test="${title eq 'stockAlam'}">
+												<p>${brncofcNm}의 재고가 안전재고 이하 입니다.</p>
+											</c:if>
+										</td>
+										<td>${alam.senderName}</td>
+										<td>
+											<c:if test="${status eq 'X'}">
+												<a href="#" class="btn btn-danger">읽지않음</a>
+											</c:if>
+											<c:if test="${status eq 'Y'}">
+												<a href="#" class="btn btn-success">읽음</a>
+											</c:if>
+										</td>
+									</tr>
+								</c:if>
+							</c:forEach>
+						</tbody>
+					</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!-- 캘린더 상세정보 보는 modal -->
+<div class="modal fade" id="updatemodal" tabindex="-1">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header py-3 px-4 border-bottom-0">
+				<h5 class="modal-title" id="modal-title"><b>일정상세정보</b></h5>
+
+				<button type="button" class="btn-close" data-bs-dismiss="modal"
+					aria-hidden="true" onclick="fn_close()"></button>
+			</div>
+			<div class="modal-body p-4">
+					<div class="row">
+						<!-- 캘린더번호(고유키) -->
+						<input type="text" id="calendarNo" name="calendarNo"
+							style="display: none;">
+						<!-- 끝 -->
+						<div class="col-12">
+							<div class="mb-3">
+								<label class="form-label">시작일</label> <input
+									class="form-control update" type="date" name="startday"
+									id="upstartday" />
+							</div>
+							<div class="mb-3">
+								<label class="form-label">종료일</label> <input
+									class="form-control update" type="date" name="endday"
+									id="upendday" />
+							</div>
+						</div>
+						<div class="col-12">
+							<div class="mb-3">
+								<label class="form-label">일정명</label> <input
+									class="form-control update" placeholder="일정명을 남겨주세요"
+									type="text" name="title" id="uptitle" />
+								<div class="invalid-feedback">Please provide a valid event
+									name</div>
+							</div>
+						</div>
+						<div class="col-12">
+							<div class="mb-3">
+								<label class="form-label">상세내용</label> <input
+									class="form-control update" type="text" name="content"
+									id="upcontent" />
+								<div class="invalid-feedback">Please provide a valid event
+									name</div>
+							</div>
+						</div>
+						<div class="col-12">
+							<div class="mb-3">
+								<label class="form-label">중요도</label> <select
+									class="form-control form-select update" name="category"
+									id="upcategory">
+									<option value="중요">중요</option>
+									<option value="보통">보통</option>
+									<option value="낮음">낮음</option>
+								</select>
+								<div class="invalid-feedback">Please select a valid event
+									category</div>
+							</div>
+						</div>
+					</div>
+			</div>
+		</div>
+		<!-- end modal-content-->
+	</div>
+	<!-- end modal dialog-->
+</div>
+<!-- 캘린더 상세정보 보는 modal 끝 -->

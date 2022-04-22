@@ -1,0 +1,160 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>조직도test</title>
+<link href="/resources/js/jstree/style.min.css" rel="stylesheet" type="text/css" />
+<link href="/resources/css/ui.jqgrid.css" rel="stylesheet" type="text/css" />
+<link href="/resources/css/jquery-ui.min.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="/resources/js/jstree/jstree.min.js"></script>
+<script type="text/javascript" src="/resources/js/jqgrid/grid.locale-kr.js"></script>
+<script type="text/javascript" src="/resources/js/jqgrid/jquery.jqGrid.min.js"></script>
+<script type="text/javascript">
+
+//트리만들기
+	function fn_click(){
+		$('#eventmodal').modal('show')
+	}
+	
+	function gettree(){
+		$.ajax({
+			type:'post',
+			url:'/sttst/testformat',
+			dataType:'json',
+			success:function(data){
+				console.log('data:',data);
+				var arr = new Array();
+				$.each(data,function(idx,item){
+					arr[idx]={id:item.childId, parent:item.parentId ? item.parentId:'#', text:item.groupNm}
+				});
+				console.log('ajax로 가져온데이터:',arr);
+				$('#jstree').jstree({
+					"core":{
+						'data': arr
+					},
+					"types":{
+						'default':{
+							'icon':'mdi mdi-account'
+						}
+					},
+					'plugins':[
+						'dnd','wholerow','types'
+					]
+				})
+				.bind('loaded.jstree',function(event,data){
+					
+				})
+				.bind('select_node.jstree', function(event,data){
+					//노드선택시
+					var gid = data.instance.get_node(data.selected).id;
+				})
+			},
+			error:function(error){
+				alert("에러");
+			}
+		});
+	};
+
+// 그리드 만들기
+
+	function getgrid(){
+		$('#gridlist').jqGrid({
+			url:"/sttst/emplist",
+            loadtext: '로딩중입니다',
+            datatype:"json",
+            mtype : "POST",
+            autowidth: true,
+            height: 230,
+            colNames:[ "성명", "부서", "메일", "연락처"],
+            colModel:[
+                      {name:"empNm", index:"empNm", align:"center"},
+                      {name:"cmncdCd", index:"cmncdCd", align:"center"},
+                      {name:"empMail", index:"empMail", align:"left"},
+                      {name:"empTel", index:"empTel", align:"left"}
+                    ],
+            caption: "회사조직도",
+            rownumbers : true,
+            viewrecords:true,
+            rowNum:10,
+            rowList: [10, 20],
+            onSelectRow:function(id){
+            	//리스트에서 클릭시 이벤트 처리
+            	console.log(id);
+            	if(!confirm("결재를 상신하시겠습니까?")) return false;
+//             	$('#eventmodal').modal('show');
+            },
+            pager: '#pager'	
+		});
+	};
+	
+	$('document').ready(function(){
+		gettree();
+		getgrid();
+	});
+	
+</script>
+<style type="text/css">
+	#dept{
+		border:solid 1px #CCCCCC;
+		height: 302.984px;
+	}
+</style>
+</head>
+
+<body>
+	<div class="card">
+		<div class="card-body">
+				<button type="button" onclick="fn_click()">결재상한</button>
+<!-- 			<div class="row"> -->
+<!-- 				<div class="col-4"> -->
+<!-- 					<div id="dept"> -->
+<!-- 						<div id="jstree"></div> -->
+<!-- 					</div> -->
+<!-- 				</div> -->
+<!-- 				<div class="col-8"> -->
+<!-- 					<div id="grid"> -->
+<!-- 						<table id="gridlist"></table> -->
+<!-- 						<div id="pager"></div> -->
+<!-- 					</div> -->
+<!-- 				</div> -->
+<!-- 			</div> -->
+		</div>
+	</div>
+	
+	
+	<!-- modal -->
+	<div class="modal fade" id="eventmodal" tabindex="-1">
+         <div class="modal-dialog modal-dialog-centered">
+             <div class="modal-content">
+                 <div class="modal-header py-3 px-4 border-bottom-0">
+                     <h5 class="modal-title" id="modal-title">사원정보</h5>
+
+                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+
+                 </div>
+                 <div class="modal-body p-4">
+                     <form class="needs-validation" name="" id="" action="" method="">
+                         <div class="row">
+							<div class="col-4">
+								<div id="dept">
+									<div id="jstree"></div>
+								</div>
+							</div>
+							<div class="col-8">
+								<div id="grid">
+									<table id="gridlist"></table>
+									<div id="pager"></div>
+								</div>
+							</div>
+						</div>
+                     </form>
+                 </div>
+             </div> <!-- end modal-content-->
+         </div> <!-- end modal dialog-->
+     </div>
+	
+	<!-- modal끝 -->
+	
+</body>
+</html>

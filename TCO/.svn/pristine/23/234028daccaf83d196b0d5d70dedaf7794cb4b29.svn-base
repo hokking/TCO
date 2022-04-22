@@ -1,0 +1,11 @@
+package kr.or.tco.sttst.mapper;
+
+import java.util.List;
+
+import kr.or.tco.sls.vo.SlsVO;
+
+public interface SttstMapper {
+	
+	List<SlsVO>getDailyIncome();
+	
+}

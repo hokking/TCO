@@ -1,0 +1,27 @@
+package kr.or.tco.cnpt.service;
+
+import java.util.List;
+
+import kr.or.tco.cnpt.vo.CnptVO;
+
+public interface CnptService {
+	
+	//거래처 조회
+	public List<CnptVO> list(String keyWord);
+	
+	//거래처 등록
+	public int insert(CnptVO cnptVO);
+	
+	//거래처 상세조회
+	public CnptVO detail(String cnptId);
+	
+	//거래처 수정 - 기본정보
+	public CnptVO updateBasic(CnptVO cnptVO);
+	//거래처 수정 - 계좌정보
+	public CnptVO updateAct(CnptVO cnptVO);
+	//거래처 수정 - 담당자 정보
+	public CnptVO updateCharger(CnptVO cnptVO);
+	
+	//거래처 삭제
+	public int delete(String cnptId);
+}

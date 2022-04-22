@@ -1,0 +1,45 @@
+package kr.or.tco.cal.service;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.tco.cal.vo.StrgWrhsVO;
+import kr.or.tco.cmncd.vo.CmncdVO;
+import kr.or.tco.prod.vo.ProdVO;
+import kr.or.tco.cal.vo.CustNtsVO;
+import kr.or.tco.cal.vo.PosVO;
+
+public interface CalService {
+	//창고입고금액 일일정산
+	List<StrgWrhsVO> dailyPrc(Map<String,Object> map);
+	//소비자 판매 금액 일일정산
+	List<CustNtsVO> dailyCustNts(Map<String,Object> map);
+	
+	////////////////////////////////////////////////
+	
+	//pos기 장바구니 insert 처리 
+	int CustNtsInsert(Map<String, Object> map);
+	//pos기 입력된만큼, 매장재고 감소 처리 
+	int streStckDsc(Map<String, Object> map2);
+	
+	int getSGWTotal(Map<String, Object> map);
+
+	int getCNLTotal(Map<String, Object> map);
+	// 일일정산 sls table 에 insert 처리 
+	int dailyCalInsert(Map<String, Object> map);
+
+	List<PosVO> prodList(Map<String, String> map);
+	
+	ProdVO prodDetail(String prodInfoNm);
+
+	List<CmncdVO> cdnm2List(String prodInfoId);
+
+	String custValChk(Map<String, String> map);
+	//상품판매 중지여부 검사
+	ProdVO salesSuspensionChk(String prodInfoId);
+
+
+
+
+
+}

@@ -1,0 +1,21 @@
+package kr.or.tco.calculate.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.tco.calculate.mapper.CalMapper;
+import kr.or.tco.calculate.service.CalService;
+import kr.or.tco.calculate.vo.CalVO;
+
+@Service
+public class CalServiceImpl implements CalService {
+	@Autowired CalMapper calMapper;
+	
+	@Override
+	public List<CalVO> list() {
+		return this.calMapper.list();
+	}
+	
+}

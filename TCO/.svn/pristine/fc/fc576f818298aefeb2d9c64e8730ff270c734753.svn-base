@@ -1,0 +1,17 @@
+package kr.or.tco.cal.mapper;
+
+import java.util.List;
+
+import kr.or.tco.cal.vo.CalVO;
+import kr.or.tco.cal.vo.CustNtsVO;
+
+public interface CalMapper {
+
+	public List<CalVO>dailyPrc(String keyWord);
+	
+	public List<CalVO>dailySls(String keyWord);
+	
+	public List<CustNtsVO>dailyCustNts(String keyWord);
+	
+	
+}

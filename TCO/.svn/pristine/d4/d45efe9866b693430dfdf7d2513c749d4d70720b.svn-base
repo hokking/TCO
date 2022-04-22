@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.strgstck.mapper.StrgstckMapper">
+	<!-- * selectKey?
+	일련번호 처리
+	마이바티스는 쿼리 실행 시 파라미터를 치환해줌 
+	 -->
+	
+	<!-- 상품 등록시 본사 insert -->
+	<insert id="strgTcoInsert" parameterType="strgstckVO">
+		<selectKey order="BEFORE" keyProperty="prodInfoId" resultType="String">
+			SELECT 'PROD' || LPAD(NVL(MAX(SUBSTR(PROD_INFO_ID,5)),0),5,'0') FROM PROD_INFO
+		</selectKey>
+		INSERT INTO strg_stck (
+		    brncofc_id,prod_info_id ,strg_stck_qty ,strg_stck_sfty_qty
+		   ,strg_stck_dflt_qty,strg_stck_yn ,strg_stck_ordr_yn
+		) VALUES (
+		    'BRN00000'
+		   ,#{prodInfoId}
+		   ,0
+		   ,#{strgStckSftyQty}
+		   ,#{strgStckDfltQty}
+		   ,'Y'
+		   ,'N'
+		)
+	</insert>
+	
+	<!-- 상품 등록시 지점 insert -->
+	<insert id="strgBrncInsert" parameterType="String">
+		INSERT INTO strg_stck (
+		    brncofc_id,prod_info_id ,strg_stck_qty ,strg_stck_sfty_qty
+		   ,strg_stck_dflt_qty,strg_stck_yn ,strg_stck_ordr_yn
+		) VALUES (
+		    #{brncofcId}
+		    ,(SELECT 'PROD' || LPAD(NVL(MAX(SUBSTR(PROD_INFO_ID,5)),0),5,'0') FROM PROD_INFO)
+		    ,0,0,0,'N','N'
+		)
+	</insert>
+	
+	<!-- 상품 정보 테이블에서 상품 삭제시 창고재고 본사 인스턴스 삭제 -->
+	<delete id="strgTcoDelete" parameterType="String">
+		DELETE FROM STRG_STCK
+		WHERE  BRNCOFC_ID ='BRN00000'
+		AND    PROD_INFO_ID =#{prodInfoId}
+	</delete>
+</mapper>

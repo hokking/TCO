@@ -1,0 +1,117 @@
+package kr.or.tco.cust.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.tco.cust.mapper.CustMapper;
+import kr.or.tco.cust.service.CustService;
+import kr.or.tco.cust.vo.CustVO;
+
+@Service
+public class CustServiceImpl implements CustService {
+	
+	@Autowired CustMapper custMapper;
+	
+	private static final Logger logger = 
+			LoggerFactory.getLogger(CustServiceImpl.class);
+	
+	// 고객 등록
+	@Override
+	public int custInsert(CustVO custVO) {
+		return custMapper.custInsert(custVO);
+	}
+	
+	// 고객 목록 - 일반
+	@Override
+	public List<CustVO> custSelect(Map<String, Object> map) {
+		return custMapper.custSelect(map);
+	}
+	
+	// 고객 목록 - 휴면
+	@Override
+	public List<CustVO> custSelectH(Map<String, Object> map) {
+		return custMapper.custSelectH(map);
+	}
+	
+	// 고객 목록 - 탈퇴
+	@Override
+	public List<CustVO> custSelectT(Map<String, Object> map) {
+		return custMapper.custSelectT(map);
+	}
+	
+	// 고객 전체 인원수 - 일반
+	@Override
+	public int getCustTotal(Map<String, Object> map) {
+		return custMapper.getCustTotal(map);
+	}
+	
+	// 고객 전체 인원수 - 휴면
+	@Override
+	public int getCustTotal1(Map<String, Object> map) {
+		return custMapper.getCustTotal1(map);
+	}
+	
+	// 고객 전체 인원수 - 탈퇴
+	@Override
+	public int getCustTotal2(Map<String, Object> map) {
+		return custMapper.getCustTotal2(map);
+	}
+	
+	// 고객 상세 정보
+	@Override
+	public CustVO custDetailSelect(String custId) {
+		return custMapper.custDetailSelect(custId);
+	}
+	
+	// 고객 정보 수정
+	@Override
+	public int custDetailUpdate(CustVO custVO) {
+		return custMapper.custDetailUpdate(custVO);
+	}
+	
+	// 고객 상태 수정 - 탈퇴
+	@Override
+	public int custDeleteUpdate(String custId) {
+		return custMapper.custDeleteUpdate(custId);
+	}
+	
+	// 마케팅 수신 동의 고객 목록
+	@Override
+	public List<CustVO> custMktSelect(Map<String, Object> map) {
+		return custMapper.custMktSelect(map);
+	}
+	
+	// 마케팅 수신 동의 고객 목록 - 휴면
+	@Override
+	public List<CustVO> custMktSelect1(Map<String, Object> map) {
+		return custMapper.custMktSelect1(map);
+	}
+	
+	// 마케팅 수신 동의 고객 목록 - 탈퇴
+	@Override
+	public List<CustVO> custMktSelect2(Map<String, Object> map) {
+		return custMapper.custMktSelect2(map);
+	}
+
+	@Override
+	public List<CustVO> custQRSelect(Map<String, String> map2) {
+		return custMapper.custQRSelect(map2);
+	}
+	
+	//소비자판매 자동으로 하기 위한 쿼리
+	@Override
+	public int autoNtsl(Map<String, Object> map) {
+		return custMapper.autoNtsl(map);
+	}
+	
+	//상품명으로 가격찾기
+	@Override
+	public int amtFind(String prodInfoId) {
+		return custMapper.amtFind(prodInfoId);
+	}
+}

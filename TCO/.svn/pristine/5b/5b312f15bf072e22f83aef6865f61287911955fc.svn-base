@@ -1,0 +1,10 @@
+package kr.or.tco.sttst.service;
+
+import java.util.List;
+
+import kr.or.tco.sls.vo.SlsVO;
+
+public interface SttstService {
+
+	List<SlsVO>getDailyIncome();
+}

@@ -1,0 +1,61 @@
+package kr.or.tco.cal.vo;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
+public class CustNtsVO {
+	
+	//소비자 판매
+	private int custNtslId ; //판매아이디
+	private String brncofcId;
+	private  String custId;  // 고객아이디
+	private String prodInfoId;
+	@DateTimeFormat(pattern="yyyy-MM-dd")
+	private String custNtslDt; //소비자 판매일 
+	private int custNtslAmt;  //소비자 판매 가격
+	public int getCustNtslId() {
+		return custNtslId;
+	}
+	public void setCustNtslId(int custNtslId) {
+		this.custNtslId = custNtslId;
+	}
+	public String getBrncofcId() {
+		return brncofcId;
+	}
+	public void setBrncofcId(String brncofcId) {
+		this.brncofcId = brncofcId;
+	}
+	public String getCustId() {
+		return custId;
+	}
+	public void setCustId(String custId) {
+		this.custId = custId;
+	}
+	public String getProdInfoId() {
+		return prodInfoId;
+	}
+	public void setProdInfoId(String prodInfoId) {
+		this.prodInfoId = prodInfoId;
+	}
+	public String getCustNtslDt() {
+		return custNtslDt;
+	}
+	public void setCustNtslDt(String custNtslDt) {
+		this.custNtslDt = custNtslDt;
+	}
+	public int getCustNtslAmt() {
+		return custNtslAmt;
+	}
+	public void setCustNtslAmt(int custNtslAmt) {
+		this.custNtslAmt = custNtslAmt;
+	}
+	
+	
+	@Override
+	public String toString() {
+		return "CustNtsVO [custNtslId=" + custNtslId + ", brncofcId=" + brncofcId + ", custId=" + custId
+				+ ", prodInfoId=" + prodInfoId + ", custNtslDt=" + custNtslDt + ", custNtslAmt=" + custNtslAmt + "]";
+	}
+	
+	
+
+}
