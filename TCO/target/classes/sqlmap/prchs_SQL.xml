@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.prchs.mapper.PrchsMapper">
+<!-- 매입 발주서 리스트 가져오기 -->
+<select id="getSvdPrchsOrdrList" resultType="prchsVO" parameterType="hashMap">
+	SELECT T.PRCHS_ID, 
+		T.PRCHS_DT, 
+		T.PRCHS_AMT, 
+		T.CNPT_ID, 
+		T.PRCHS_SE, 
+		T.CNPT_NM, 
+		T.CNPT_TEL,
+		T.CNPT_CHARGER, 
+		T.PRCHS_SU_AMT, 
+		T.PRCHS_VAT
+	FROM 
+    ( 
+    SELECT ROW_NUMBER() OVER (ORDER BY PRCHS_DT DESC) RNUM,
+        P.PRCHS_ID, 
+		TO_CHAR(P.PRCHS_DT,'yyyy-MM-dd') as PRCHS_DT, 
+		P.PRCHS_AMT, 
+		P.CNPT_ID, 
+		P.PRCHS_SE, 
+		C.CNPT_NM, 
+		C.CNPT_TEL,
+		C.CNPT_CHARGER,
+		ROUND(P.PRCHS_AMT-(P.PRCHS_AMT*0.1)) as PRCHS_SU_AMT, 
+		ROUND(P.PRCHS_AMT * 0.1) as PRCHS_VAT
+    FROM PRCHS P LEFT OUTER JOIN CNPT C
+    ON (P.CNPT_ID = C.CNPT_ID)
+    WHERE PRCHS_SE = '저장' 
+	 <if test="startDay!=null and startDay!='' and endDay!=null and endDay!=''">
+	   AND (
+	  	P.PRCHS_DT BETWEEN #{startDay} AND #{endDay}
+	   		)
+	 </if>
+	 <if test="keyWord!=null and keyWord!=''">
+	 	AND CNPT_NM LIKE '%'||#{keyWord}||'%'
+	 </if>
+    ) T 
+    WHERE T.RNUM BETWEEN #{currentPage}*#{size}-#{size}+1 AND #{currentPage}*#{size}
+	ORDER BY PRCHS_DT DESC
+</select>
+
+<!-- 행의 수 가져오기 -->
+<select id="selectCount" parameterType="hashMap" resultType="int">
+	SELECT COUNT(*)
+	FROM   PRCHS P LEFT OUTER JOIN CNPT C
+	ON (P.CNPT_ID = C.CNPT_ID)
+	WHERE  1 = 1
+   <if test="startDay!=null and startDay!='' and endDay!=null and endDay!=''">
+		AND (
+	  		P.PRCHS_DT BETWEEN TO_DATE(#{startDay},'YYYY-MM-DD')
+	   			 	 AND TO_DATE(#{endDay},'YYYY-MM-DD')
+	   		)
+   </if>
+   <if test="keyWord!=null and keyWord!=''">
+   		AND C.CNPT_NM LIKE '%'||#{keyWord}||'%'
+   </if>
+   AND PRCHS_SE = #{prchsSe}
+</select>
+
+<!-- 거래처 이름으로 리스트 뽑아내기 -->
+<select id="cnptSearchList" resultType="cnptVO" parameterType="String">
+	SELECT CNPT_ID, 
+		    CNPT_NM, 
+		    CNPT_TEL, 
+		    CNPT_MAIL, 
+		    CNPT_ZIP, 
+		    CNPT_ADDR, 
+		    CNPT_DADDR, 
+		    CNPT_BANK_NM, 
+		    CNPT_ACTNO, 
+		    CNPT_ACTNM, 
+		    CNPT_CHARGER, 
+		    CNPT_YN, 
+		    CNPT_BRNO, 
+		    CNPT_RPRSV_NM, 
+		    CNPT_SE, 
+		    CMNCD_CD
+	  FROM CNPT
+	 WHERE 1 = 1
+	 AND CNPT_YN = 'Y'
+	 <if test="keyWord!=null and keyWord!=''">
+	   AND CNPT_NM LIKE '%'||#{keyWord}||'%'
+	 </if>
+</select>
+
+<!-- getPrchsVODetail의 ResultMap -->
+<resultMap type="prchsVO" id="prchsMap">
+	<id property="prchsId" column="PRCHS_ID"/>
+	<result property="prchsDt" column="PRCHS_DT"/>
+	<result property="prchsAmt" column="PRCHS_AMT"/>
+	<result property="cnptId" column="CNPT_ID"/>
+	<result property="prchsSe" column="PRCHS_SE"/>
+	<result property="cnptNm" column="CNPT_NM"/>
+	<result property="cnptCharger" column="CNPT_CHARGER"/>
+	<result property="cnptMail" column="CNPT_MAIL"/>
+	<result property="prchsSuAmt" column="PRCHS_SU_AMT"/>
+	<result property="prchsVat" column="PRCHS_VAT"/>
+	<collection property="prchsGdsVO" resultMap="prchsGdsMap"></collection>
+</resultMap>
+
+<resultMap type="prchsGdsVO" id="prchsGdsMap">
+	<result property="prchsId" column="PRCHS_ID"/>
+	<result property="prodInfoId" column="PROD_INFO_ID"/>
+	<result property="prchsGdsQty" column="PRCHS_GDS_QTY"/>
+	<result property="prchsGdsAmt" column="PRCHS_GDS_AMT"/>
+	<result property="prchsGdsYn" column="PRCHS_GDS_YN"/>
+	<result property="prodInfoNm" column="PROD_INFO_NM"/>
+	<result property="prchsGdsSuAmt" column="PRCHS_GDS_SUAMT"/>
+	<result property="prchsGdsVat" column="PRCHS_GDS_VAT"/>
+	<result property="prchsGdsSum" column="PRCHS_GDS_SUM"/>
+</resultMap>
+
+<!-- 매입아이디로 매입정보 가져오기 --><!-- ResultMap으로 1:다 만들기 ㅜ -->
+<select id="getPrchsVODetail" parameterType="String" resultMap="prchsMap">
+	SELECT P.PRCHS_ID, 
+		TO_CHAR(P.PRCHS_DT,'yyyy-MM-dd') as PRCHS_DT, 
+		P.PRCHS_AMT, 
+		P.CNPT_ID, 
+		P.PRCHS_SE, 
+		C.CNPT_NM, 
+		C.CNPT_CHARGER, 
+		C.CNPT_MAIL, 
+		P.PRCHS_SE,
+		ROUND(P.PRCHS_AMT-(P.PRCHS_AMT*0.1)) as PRCHS_SU_AMT, 
+		ROUND(P.PRCHS_AMT * 0.1) as PRCHS_VAT,
+	    G.PROD_INFO_ID, 
+	    G.PRCHS_GDS_QTY, 
+	    G.PRCHS_GDS_AMT, 
+	    G.PRCHS_GDS_YN,
+	    I.PROD_INFO_NM,
+	    G.PRCHS_GDS_QTY * G.PRCHS_GDS_AMT as PRCHS_GDS_SUM,
+	    ROUND((G.PRCHS_GDS_QTY * G.PRCHS_GDS_AMT) * 0.1) as PRCHS_GDS_VAT,
+	    (G.PRCHS_GDS_QTY * G.PRCHS_GDS_AMT) - ROUND((G.PRCHS_GDS_QTY * G.PRCHS_GDS_AMT) * 0.1) as PRCHS_GDS_SUAMT
+	FROM PRCHS P LEFT OUTER JOIN CNPT C
+	ON (P.CNPT_ID = C.CNPT_ID) LEFT OUTER JOIN PRCHS_GDS G
+	ON (P.PRCHS_ID = G.PRCHS_ID) LEFT OUTER JOIN PROD_INFO I
+	ON (G.PROD_INFO_ID = I.PROD_INFO_ID)
+	WHERE P.PRCHS_ID = #{prchsId} 
+</select>
+
+<!-- 매입발주서 전송 -->
+<update id="sendPrchs" parameterType="string">
+	UPDATE PRCHS
+	   SET PRCHS_SE = '매입'
+	 WHERE PRCHS_ID = #{prchsId}
+</update>
+
+<!-- 매입발주서 수정 -->
+<update id="updatePrchs" parameterType="prchsVO">
+	UPDATE PRCHS
+	SET PRCHS_DT = #{prchsDt}, 
+		PRCHS_AMT = #{prchsAmt}, 
+		CNPT_ID = #{cnptId} 
+	WHERE PRCHS_ID = #{prchsId}
+</update>
+
+<!-- 매입발주서 등록 -->
+<insert id="insertPrchs" parameterType="prchsVO" useGeneratedKeys="true" keyColumn="prchsId" keyProperty="prchsId">
+	<selectKey order="BEFORE" keyProperty="prchsId" resultType="string">
+		SELECT 'PRCHS' || LPAD(NVL(MAX(TO_NUMBER(SUBSTR(NVL(PRCHS_ID, 'PRCHS00001'),6))),0)+1,5,'0') FROM PRCHS
+	</selectKey>
+	INSERT INTO PRCHS ( 
+		PRCHS_ID, 
+		PRCHS_DT, 
+		PRCHS_AMT, 
+		CNPT_ID, 
+		PRCHS_SE 
+	)
+	VALUES (
+	    #{prchsId}, 
+	    #{prchsDt},
+	    #{prchsAmt},
+	    #{cnptId},
+	    '저장'
+	)
+	
+</insert>
+
+
+<!-- 매입발주서 삭제 -->
+<delete id="deletePrchs" parameterType="string">
+	DELETE FROM PRCHS
+	WHERE PRCHS_ID = #{prchsId}
+</delete>
+
+<!-- 매입상품 삭제 -->
+<delete id="deletePrchsGds" parameterType="string">
+	DELETE FROM PRCHS_GDS
+	WHERE PRCHS_ID = #{prchsId}
+</delete>
+
+<!-- 매입상품 등록 -->
+<insert id="insertPrchsGds" parameterType="prchsGdsVO">
+	INSERT INTO PRCHS_GDS ( 
+		PRCHS_ID, 
+		PROD_INFO_ID, 
+		PRCHS_GDS_QTY, 
+		PRCHS_GDS_AMT, 
+		PRCHS_GDS_YN 
+	)
+	VALUES (
+	    #{prchsId}, 
+	    #{prodInfoId}, 
+	    #{prchsGdsQty}, 
+	    #{prchsGdsAmt},
+	    'N'
+	)
+</insert>
+
+<!-- 거래처 아이디로 상품정보 가져오기 -->
+<select id="getProdInfoByCnptId" parameterType="string" resultType="prodVO">
+	SELECT PROD_INFO_ID, 
+		   PROD_INFO_NM, 
+		   PROD_INFO_PRCHS_AMT
+	  FROM PROD_INFO
+	 WHERE CNPT_ID = #{cnptId}
+</select>
+
+<!-- 매입 명세서 리스트 가져오기 -->
+<select id="getPrchsSpeceList" resultType="prchsVO" parameterType="hashMap">
+	SELECT P.PRCHS_ID, 
+		TO_CHAR(P.PRCHS_DT,'yyyy-MM-dd') as PRCHS_DT, 
+		P.PRCHS_AMT, 
+		P.CNPT_ID, 
+		P.PRCHS_SE, 
+		C.CNPT_NM, 
+		C.CNPT_CHARGER, 
+		C.CNPT_TEL,
+		PRCHS_SE,
+		ROUND(P.PRCHS_AMT-(P.PRCHS_AMT*0.1)) as PRCHS_SU_AMT, 
+		ROUND(P.PRCHS_AMT * 0.1) as PRCHS_VAT
+	FROM PRCHS P LEFT OUTER JOIN CNPT C
+	ON (P.CNPT_ID = C.CNPT_ID)
+	WHERE PRCHS_SE = '매입' 
+	 <if test="startDay!=null and startDay!='' and endDay!=null and endDay!=''">
+	   AND (
+	  	P.PRCHS_DT BETWEEN TO_DATE(#{startDay},'YYYY-MM-DD')
+	   			 	 AND TO_DATE(#{endDay},'YYYY-MM-DD')
+	   		)
+	 </if>
+	ORDER BY PRCHS_DT DESC
+</select>
+
+<!-- 거래처별 매입현황 리스트 가져오기(거래처명) -->
+<select id="getPrchsByCnptNm" resultType="prchsVO" parameterType="hashMap">
+	SELECT P.PRCHS_ID, 
+		TO_CHAR(P.PRCHS_DT,'yyyy-MM-dd') as PRCHS_DT, 
+		P.PRCHS_AMT, 
+		P.CNPT_ID, 
+		P.PRCHS_SE, 
+		C.CNPT_NM, 
+		C.CNPT_TEL,
+		C.CNPT_CHARGER, 
+		PRCHS_SE,
+		ROUND(P.PRCHS_AMT-(P.PRCHS_AMT*0.1)) as PRCHS_SU_AMT, 
+		ROUND(P.PRCHS_AMT * 0.1) as PRCHS_VAT
+	FROM PRCHS P LEFT OUTER JOIN CNPT C
+		ON (P.CNPT_ID = C.CNPT_ID)
+	WHERE PRCHS_SE = '매입' 
+	 <if test="startDay!=null and startDay!='' and endDay!=null and endDay!=''">
+	   AND (
+	  	P.PRCHS_DT BETWEEN TO_DATE(#{startDay},'YYYY-MM-DD')
+	   			 	 AND TO_DATE(#{endDay},'YYYY-MM-DD')
+	   		)
+	 </if>
+	 <if test="keyWord!=null and keyWord!=''">
+	  AND C.CNPT_NM LIKE '%'||#{keyWord}||'%'
+	 </if>
+	ORDER BY PRCHS_DT DESC
+</select>
+
+<!-- 품목별 매입현황 리스트 가져오기(품목명) -->
+<select id="getPrchsByProdNm" resultType="prchsVO" parameterType="hashMap">
+	SELECT DISTINCT P.PRCHS_ID, 
+		TO_CHAR(P.PRCHS_DT,'yyyy-MM-dd') as PRCHS_DT, 
+		P.PRCHS_AMT, 
+		P.CNPT_ID, 
+		P.PRCHS_SE, 
+		C.CNPT_NM, 
+		C.CNPT_CHARGER, 
+		C.CNPT_TEL, 
+		PRCHS_SE,
+		ROUND(P.PRCHS_AMT-(P.PRCHS_AMT*0.1)) as PRCHS_SU_AMT, 
+		ROUND(P.PRCHS_AMT * 0.1) as PRCHS_VAT
+	FROM PRCHS P LEFT OUTER JOIN CNPT C
+		ON (P.CNPT_ID = C.CNPT_ID) LEFT OUTER JOIN PRCHS_GDS G
+		ON(P.PRCHS_ID = G.PRCHS_ID) LEFT OUTER JOIN PROD_INFO P 
+		ON(G.PROD_INFO_ID = P.PROD_INFO_ID) LEFT OUTER JOIN CMNCD CM
+        ON(CM.CMNCD_CD = P.CMNCD_CD)
+	WHERE PRCHS_SE = '매입' 
+	 <if test="startDay!=null and startDay!='' and endDay!=null and endDay!=''">
+	   AND (
+	  	P.PRCHS_DT BETWEEN TO_DATE(#{startDay},'YYYY-MM-DD')
+	   			 	 AND TO_DATE(#{endDay},'YYYY-MM-DD')
+	   		)
+	 </if>
+	 <if test="cmncdNm1!=null and cmncdNm1!=''">
+	  AND CM.CMNCD_NM1 = #{cmncdNm1} 
+		  <if test="cmncdNm2!='전체'">
+		  	AND CM.CMNCD_NM2 = #{cmncdNm2}
+		  </if>
+	 </if>
+</select>
+
+
+<!-- 매입현황 -->
+<select id="getPrchsCondition" resultType="prchsVO" parameterType="hashMap">
+	SELECT T.PRCHS_ID, 
+		T.PRCHS_DT, 
+		T.PRCHS_AMT, 
+		T.CNPT_ID, 
+		T.PRCHS_SE, 
+		T.CNPT_NM, 
+		T.CNPT_TEL,
+		T.CNPT_CHARGER, 
+		T.PRCHS_SU_AMT, 
+		T.PRCHS_VAT,
+		T.CONDITION
+	FROM 
+    ( 
+    SELECT ROW_NUMBER() OVER (ORDER BY PRCHS_DT DESC) RNUM,
+        P.PRCHS_ID, 
+		TO_CHAR(P.PRCHS_DT,'yyyy-MM-dd') as PRCHS_DT, 
+		P.PRCHS_AMT, 
+		P.CNPT_ID, 
+		P.PRCHS_SE, 
+		C.CNPT_NM, 
+		C.CNPT_CHARGER, 
+		C.CNPT_TEL,
+		ROUND(P.PRCHS_AMT-(P.PRCHS_AMT*0.1)) as PRCHS_SU_AMT, 
+		ROUND(P.PRCHS_AMT * 0.1) as PRCHS_VAT,
+        (CASE WHEN (SELECT COUNT(*) 
+           			  FROM PRCHS_GDS GD
+          			 WHERE GD.PRCHS_ID = P.PRCHS_ID
+            		   AND PRCHS_GDS_YN = 'Y') = (SELECT COUNT(*) 
+                                         			FROM PRCHS_GDS GD
+                                       			   WHERE GD.PRCHS_ID = P.PRCHS_ID) THEN '입고완료' ELSE '미입고' END) AS CONDITION
+	FROM PRCHS P LEFT OUTER JOIN CNPT C
+	ON (P.CNPT_ID = C.CNPT_ID)
+	WHERE PRCHS_SE = '매입' 
+	 <if test="startDay!=null and startDay!='' and endDay!=null and endDay!=''">
+	   AND (
+	  	P.PRCHS_DT BETWEEN #{startDay} AND #{endDay}
+	   		)
+	 </if>
+	 <if test="keyWord!=null and keyWord!=''">
+	 	AND CNPT_NM LIKE '%'||#{keyWord}||'%'
+	 </if>
+    ) T 
+    WHERE T.RNUM BETWEEN #{currentPage}*#{size}-#{size}+1 AND #{currentPage}*#{size}
+	ORDER BY PRCHS_DT DESC
+</select>
+
+<!-- 입고여부='Y' -->
+<update id="updatePrchsYn" parameterType="prchsGdsVO">
+	UPDATE PRCHS_GDS 
+	   SET PRCHS_GDS_YN = 'Y'
+	 WHERE PRCHS_ID = #{prchsId}
+	   AND PROD_INFO_ID = #{prodInfoId}
+</update>
+
+<!-- 창고입고 테이블에 insert -->
+<insert id="strgwrhsInsert" parameterType="prchsGdsVO">
+	INSERT INTO STRG_WRHS(
+		STRG_WRHS_ID, 
+		BRNCOFC_ID, 
+		PROD_INFO_ID, 
+		STRG_WRHS_QTY, 
+		STRG_WRHS_DT
+	)
+	VALUES (
+		STRE_WRHS_SEQ.NEXTVAL,
+		'BRN00000',
+		#{prodInfoId},
+		#{prchsGdsQty},
+		SYSDATE
+	)
+</insert>
+
+<!-- 창고재고 테이블에 + 수량 -->
+<update id="addStrgStck" parameterType="prchsGdsVO">
+	UPDATE STRG_STCK
+		SET STRG_STCK_QTY = STRG_STCK_QTY + #{prchsGdsQty}
+	WHERE BRNCOFC_ID = 'BRN00000'
+	AND PROD_INFO_ID = #{prodInfoId}
+</update>
+
+<!-- 어떻게 할지 생각해보기 -->
+
+<!-- 창고부족재고에서 발주 눌렀을때 -->
+<insert id="orderLack" parameterType="prchsVO" useGeneratedKeys="true" keyColumn="prchsId" keyProperty="prchsId">
+	<selectKey order="BEFORE" keyProperty="prchsId" resultType="string">
+		SELECT 'PRCHS' || LPAD(NVL(MAX(TO_NUMBER(SUBSTR(NVL(PRCHS_ID, 'PRCHS00001'),6))),0)+1,5,'0') FROM PRCHS
+	</selectKey>
+	INSERT INTO PRCHS ( 
+		PRCHS_ID
+		,PRCHS_DT
+		,PRCHS_AMT
+		,CNPT_ID
+		,PRCHS_SE 
+	)
+	VALUES (
+	    #{prchsId}
+	    ,SYSDATE
+	    ,#{prchsAmt}
+	    ,#{cnptId}
+	    ,'매입'
+	)
+</insert>
+</mapper>

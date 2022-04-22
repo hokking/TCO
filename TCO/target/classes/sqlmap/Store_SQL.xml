@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.store.mapper.StoreMapper">
+	<!-- * selectKey?
+	일련번호 처리
+	마이바티스는 쿼리 실행 시 파라미터를 치환해줌 
+	 -->
+	<!-- 지점의 매장 출고목록 뽑기 - 소비자판매 테이블에서 지점으로 걸러서 가져오기 -->
+	<select id="storeShipList" resultType="storeVO" parameterType="String">
+		SELECT C.CUST_NTSL_ID
+		      ,C.BRNCOFC_ID
+		      ,C.CUST_ID
+		      ,C.PROD_INFO_ID
+		      ,C.CUST_NTSL_DT
+		      ,C.CUST_NTSL_AMT
+		      ,C.CUST_NTSL_QTY
+		      ,P.PROD_INFO_PRCHS_AMT
+		      ,P.PROD_INFO_NM
+		      ,P.CMNCD_CD
+		      ,C.CMNCD_NM1
+		      ,C.CMNCD_NM2
+		      ,B.BRNCOFC_NM
+		      ,U.CUST_NM
+		 FROM  CUST_NTSL C, PROD_INFO P, CMNCD C, BRNCOFC B, CUST U
+		WHERE  C.PROD_INFO_ID=P.PROD_INFO_ID
+		  AND  C.BRNCOFC_ID=B.BRNCOFC_ID
+		  AND  P.CMNCD_CD=C.CMNCD_CD
+		  AND  C.CUST_ID=U.CUST_ID
+		  AND  B.BRNCOFC_ID=#{brncofcId}
+		ORDER BY C.CUST_NTSL_ID DESC
+	</select>
+	
+	<!-- 지점의 매장 부족재고 현황을 뽑기 위한 테이블 만들기(지점의 모든 제품 현황임) -->
+	<select id="storeLackList" resultType="storeVO" parameterType="String">
+		SELECT S.BRNCOFC_ID
+		     , S.PROD_INFO_ID
+		     , S.STRE_STCK_QTY
+		     , S.STRE_STCK_SFTY_QTY
+		     , P.PROD_INFO_NM
+		     , B.BRNCOFC_NM
+		     , C.CMNCD_CD
+		     , C.CMNCD_NM1
+		     , C.CMNCD_NM2
+		     , T.STRE_SE
+		     , T.STRE_GDS_CG
+		FROM   STRE_STCK S, PROD_INFO P, CMNCD C, STRE T, BRNCOFC B
+		WHERE  S.PROD_INFO_ID=P.PROD_INFO_ID
+		AND    S.BRNCOFC_ID=B.BRNCOFC_ID
+		AND    C.CMNCD_CD=P.CMNCD_CD
+		AND    C.CMNCD_CD=T.CMNCD_CD
+        AND    S.BRNCOFC_ID=T.BRNCOFC_ID
+		AND    S.BRNCOFC_ID=#{brncofcId}
+		ORDER BY S.STRE_STCK_QTY ASC
+	</select>
+	
+	<!-- 상품별 채울 재고수(안전재고 * 2) - 현재고 -->
+	<select id="refillQtyShop" resultType="Integer" parameterType="hashMap">
+		SELECT STRE_STCK_SFTY_QTY * 2 - STRE_STCK_QTY AS REFILL
+		FROM   STRE_STCK
+		WHERE  PROD_INFO_ID=#{prodInfoId}
+		AND    BRNCOFC_ID=#{brncofcId}
+	</select>
+	
+	<!-- 재고보충 버튼을 눌렀을 때 매장재고 update -->
+	<update id="shopRefill" parameterType="hashMap">
+		UPDATE STRE_STCK
+		SET    STRE_STCK_QTY=STRE_STCK_QTY + #{refill}
+		WHERE  BRNCOFC_ID =#{brncofcId}
+		AND    PROD_INFO_ID =#{prodInfoId}
+	</update>
+	
+</mapper>

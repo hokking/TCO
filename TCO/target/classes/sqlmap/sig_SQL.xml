@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.sig.mapper.SigMapper">
+	
+	<!-- 메인단에서의 공지출력 -->
+	<select id="signotice" resultType="sigVO">
+		SELECT T.RNUM, T.BRD_TTL, T.EMP_ID, T.BRD_DT, T.BRD_VI, T.BRD_ID
+		FROM (
+		    SELECT ROW_NUMBER() OVER (ORDER BY BRD_DT) RNUM, BRD_TTL, EMP_ID, BRD_DT, BRD_VI, BRD_ID
+		    FROM   BRD 
+	        WHERE  1 = 1
+	          AND  BRD_SE = 'sig')T
+	</select>
+
+<!-- 리스트 출력  -->
+	<select id="siglist" resultType="sigVO">
+		SELECT T.RNUM, T.BRD_TTL, T.EMP_ID, T.BRD_DT, T.BRD_VI, T.BRD_ID
+		FROM (
+		    SELECT ROW_NUMBER() OVER (ORDER BY BRD_DT) RNUM, BRD_TTL, EMP_ID, BRD_DT, BRD_VI, BRD_ID
+		    FROM   BRD 
+	               WHERE  1 = 1
+	            AND BRD_SE = 'sig'
+		   <if test="keyWord!=null and keyWord!=''">
+			    AND    (BRD_TTL LIKE '%'||#{keyWord}||'%')
+			    
+		  </if>
+		) T
+		WHERE T.RNUM BETWEEN #{currentPage}*7-6 AND #{currentPage}*7
+	</select>
+
+	<select id="selectCount" parameterType="hashMap" resultType="int">
+		SELECT COUNT(*)
+		FROM   BRD
+		WHERE  1 = 1
+	   <if test="keyWord!=null and keyWord!=''">
+		AND    (BRD_TTL LIKE '%'||#{keyWord}||'%')	    
+	   </if>
+	</select>
+	
+	<!-- 이름 찾기 -->
+	<select id="selectname" parameterType="String" resultType="string">
+	SELECT EMP_NM
+	  FROM EMP
+	  WHERE EMP_ID = #{empId}
+	</select>
+	
+	<!-- 공지사항 상세보기  -->
+	<select id="sigdetail" resultType="sigVO" parameterType="int">
+	 SELECT *
+        FROM BRD
+       WHERE BRD_ID =#{brdId}
+	</select>
+	
+		<!-- 공지사항 상세보기 클릭시 증가  -->
+	<update id="sigevi" parameterType="int">
+		 UPDATE BRD 
+		 SET BRD_VI = BRD_VI+1 
+		 WHERE BRD_ID=#{brdId}
+	</update>
+	
+		<insert id="siginsert" parameterType="sigVO">
+			<selectKey order="BEFORE" keyProperty="brdId" resultType="sigVO">
+				 SELECT NVL(MAX(BRD_ID),0)+1 AS brdId
+					FROM BRD
+			</selectKey>
+			
+			INSERT INTO BRD(BRD_ID, BRD_SE,  BRD_TTL, BRD_CN, EMP_ID,
+	      					 BRD_DT, BRD_IMG, BRD_VI)
+			VALUES(#{brdId},'sig',#{brdTtl},#{brdCn}, #{empId},
+			SYSDATE ,#{brdImg}, 0)
+	</insert>
+	
+	
+		<!-- attach_files 테이블로 첨부파일 insert -->
+	<insert id="insertAttachFiles" parameterType="attachFilesVO">
+		<selectKey order="BEFORE" keyProperty="atchfileId" resultType="Integer">
+			SELECT NVL(MAX(ATCHFILE_ID),0)+1 FROM ATCHFILE
+		</selectKey>			
+		
+		
+		INSERT INTO ATCHFILE (ATCHFILE_ID, ATCHFILE_NM, ATCHFILE_SZ, ATCHFILE_DT ) 
+		VALUES (#{atchfileId}, #{atchfileNm}, #{atchfileSz}, SYSDATE)		
+	</insert>
+	
+</mapper>

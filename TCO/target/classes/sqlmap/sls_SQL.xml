@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.sls.mapper.SlsMapper">
+
+<!-- 매출 재구성 -->
+<!-- <resultMap type="slsVO" id="slsMap"> -->
+<!-- 	<id property=""></id> -->
+<!-- 	<result property=""></result> -->
+<!-- 	<result property=""></result> -->
+<!-- 	<result property=""></result> -->
+<!-- 	<collection property="brncofcVO" resultMap="brncofcMap"/> -->
+<!-- </resultMap> -->
+
+<!-- 지점값 받아오기 -->
+<!-- <resultMap type="brncofcVO" id="brncofcMap"> -->
+<!-- 	<id property="brncofcId" column="BRNCOFC_ID"></id> -->
+<!-- 	<result property="brncofcNm" column="BRNCOFC_NM"></result> -->
+<!-- </resultMap> -->
+
+
+<!-- 본사용 매출현황(모든매장출력) -->
+<select id="list" resultType="slsVO" parameterType="hashMap">
+	SELECT B.SLS_ID,
+		   B.BRNCOFC_ID,
+		   B.SLS_DT,
+		   B.SLS_AMT,
+		   A.BRNCOFC_NM
+	  FROM SLS B
+INNER JOIN BRNCOFC A
+        ON A.BRNCOFC_ID = B.BRNCOFC_ID
+	 WHERE 1 = 1
+	 <if test="startDay!=null and startDay!='' and endDay!=null and endDay!=''">
+	   AND (
+	  	B.SLS_DT BETWEEN TO_DATE(#{startDay},'YYYY-MM-DD')
+	   			 	 AND TO_DATE(#{endDay},'YYYY-MM-DD')
+	   		)
+	 </if>
+  ORDER BY B.SLS_ID DESC
+</select>	
+
+
+
+<!-- 매출상세보기 -->
+<select id="detail" resultType="slsVO" parameterType="String">
+	SELECT B.SLS_ID,
+           B.BRNCOFC_ID,
+           B.SLS_DT,
+           B.SLS_AMT,
+           B.PRC_AMT,
+           A.BRNCOFC_NM,
+           B.NETINCOME
+      FROM SLS B
+INNER JOIN BRNCOFC A
+        ON A.BRNCOFC_ID = B.BRNCOFC_ID
+     WHERE B.SLS_ID = #{slsId}
+</select>
+
+
+<!-- 매출명세서 리스트 custNts에서 정산하면 매출로 나감 지점별 아이디도 받아야함-->
+<select id="slslist" resultType="custNtsVO" parameterType="String">
+	SELECT A.CUST_NTSL_ID,
+		   A.BRNCOFC_ID,
+		   A.CUST_ID,
+		   B.PROD_INFO_ID,
+		   A.CUST_NTSL_DT,
+		   A.CUST_NTSL_AMT,
+		   A.CUST_NTSL_QTY,
+		   B.PROD_INFO_NM
+ 	  FROM CUST_NTSL A
+INNER JOIN PROD_INFO B
+        ON A.PROD_INFO_ID = B.PROD_INFO_ID
+	 WHERE CUST_NTSL_DT = #{custNtslDt}
+</select>
+
+
+
+<!-- 엑셀 매입 자료 업로드 -->
+<insert id="insertprchsExcel" parameterType="prchsVO">	
+	<foreach collection="excelContent" item="item" index="index" separator=" " 
+	open="INSERT ALL" close="SELECT * FROM DUAL">
+		INTO PRCHS(PRCHS_ID,PRCHS_DT,PRCHS_AMT,CNPT_ID,PRCHS_SE) VALUES(#{item.A},#{item.B},#{item.C},#{item.D},#{item.E})
+	</foreach>
+</insert>
+
+
+<!-- 엑셀 매출 자료 업로드 -->
+<insert id="insertslsExcel" parameterType="slsVO">	
+	<foreach collection="excelContent" item="item" index="index" separator=" " 
+	open="INSERT ALL" close="SELECT * FROM DUAL">
+		INTO SLS(SLS_ID,BRNCOFC_ID,SLS_DT,SLS_AMT,PRC_AMT,NETINCOME) 
+		VALUES(#{item.A},#{item.B},#{item.C},#{item.D},#{item.E},#{item.F})
+	</foreach>
+</insert>
+
+
+
+
+
+<!-- 지점별 매출현황(각매장에서만 리스트출력) -->
+<select id="brnlist" resultType="slsVO" parameterType="hashMap">
+	SELECT B.SLS_ID,
+	       B.BRNCOFC_ID,
+	       B.SLS_DT,
+	       B.SLS_AMT,
+	       A.BRNCOFC_NM
+	  FROM SLS B
+INNER JOIN BRNCOFC A
+	    ON A.BRNCOFC_ID = B.BRNCOFC_ID
+	 WHERE A.BRNCOFC_ID = #{brncofcId}
+	<if test="startDay!=null and startDay!='' and endDay!=null and endDay!=''">
+	   AND (
+	  		B.SLS_DT BETWEEN TO_DATE(#{startDay},'YYYY-MM-DD')
+	   			 	 AND TO_DATE(#{endDay},'YYYY-MM-DD')
+	   		)
+	</if>
+  ORDER BY B.SLS_ID DESC
+</select>
+
+
+
+</mapper>

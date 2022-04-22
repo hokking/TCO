@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.tco.cnpt.mapper.CnptMapper">
+
+<!-- 거래처 조회 - 검색 -->
+<select id="cnptList" resultType="cnptVO" parameterType="String">
+	SELECT C.CNPT_ID, 
+		    C.CNPT_NM, 
+		    C.CNPT_TEL, 
+		    C.CNPT_MAIL, 
+		    C.CNPT_ZIP, 
+		    C.CNPT_ADDR, 
+		    C.CNPT_DADDR, 
+		    C.CNPT_BANK_NM, 
+		    C.CNPT_ACTNO, 
+		    C.CNPT_ACTNM, 
+		    C.CNPT_CHARGER, 
+		    C.CNPT_YN, 
+		    C.CNPT_BRNO, 
+		    C.CNPT_RPRSV_NM, 
+		    C.CNPT_SE, 
+		    C.CMNCD_CD,
+		    D.CMNCD_NM1,
+		    D.CMNCD_NM2
+	  FROM CNPT C, CMNCD D
+	 WHERE C.CMNCD_CD=D.CMNCD_CD
+	 AND CNPT_YN = 'Y'
+	 <if test="keyWord!=null and keyWord!=''">
+	   AND (
+		   CNPT_ID LIKE '%'||#{keyWord}||'%'
+		   OR CNPT_NM LIKE '%'||#{keyWord}||'%'
+		   OR CNPT_ACTNM LIKE '%'||#{keyWord}||'%'
+		   OR CNPT_CHARGER LIKE '%'||#{keyWord}||'%'
+	   )
+	 </if>
+</select>	
+
+<select id="cnptList1" resultType="cnptVO" parameterType="hashMap">
+	 SELECT T.CNPT_ID, 
+		    T.CNPT_NM, 
+		    T.CNPT_TEL, 
+		    T.CNPT_MAIL, 
+		    T.CNPT_ZIP, 
+		    T.CNPT_ADDR, 
+		    T.CNPT_DADDR, 
+		    T.CNPT_BANK_NM, 
+		    T.CNPT_ACTNO, 
+		    T.CNPT_ACTNM, 
+		    T.CNPT_CHARGER, 
+		    T.CNPT_YN, 
+		    T.CNPT_BRNO, 
+		    T.CNPT_RPRSV_NM, 
+		    T.CNPT_SE, 
+		    T.CMNCD_CD,
+		    T.CMNCD_NM1	
+	 	FROM
+	 	(
+		 	SELECT ROW_NUMBER() OVER (ORDER BY C.CNPT_ID DESC) RNUM,
+		 		C.CNPT_ID, 
+			    C.CNPT_NM, 
+			    C.CNPT_TEL, 
+			    C.CNPT_MAIL, 
+			    C.CNPT_ZIP, 
+			    C.CNPT_ADDR, 
+			    C.CNPT_DADDR, 
+			    C.CNPT_BANK_NM, 
+			    C.CNPT_ACTNO, 
+			    C.CNPT_ACTNM, 
+			    C.CNPT_CHARGER, 
+			    C.CNPT_YN, 
+			    C.CNPT_BRNO, 
+			    C.CNPT_RPRSV_NM, 
+			    C.CNPT_SE, 
+			    C.CMNCD_CD,
+			    D.CMNCD_NM1
+		  FROM CNPT C LEFT OUTER JOIN CMNCD D
+		 	ON (C.CMNCD_CD=D.CMNCD_CD)
+		 WHERE CNPT_YN = 'Y'
+		 <if test="keyWord!=null and keyWord!=''">
+		   AND (
+			   CNPT_ID LIKE '%'||#{keyWord}||'%'
+			   OR CNPT_NM LIKE '%'||#{keyWord}||'%'
+			   OR CNPT_ACTNM LIKE '%'||#{keyWord}||'%'
+			   OR CNPT_CHARGER LIKE '%'||#{keyWord}||'%'
+		   )
+		 </if>
+	     ) T 
+    WHERE T.RNUM BETWEEN #{currentPage}*#{size}-#{size}+1 AND #{currentPage}*#{size}
+</select>	
+
+<!-- 거래중단된 거래처 조회 -->
+<select id="cnptStpList" resultType="cnptVO" parameterType="hashMap">
+	 SELECT T.CNPT_ID, 
+		    T.CNPT_NM, 
+		    T.CNPT_TEL, 
+		    T.CNPT_MAIL, 
+		    T.CNPT_ZIP, 
+		    T.CNPT_ADDR, 
+		    T.CNPT_DADDR, 
+		    T.CNPT_BANK_NM, 
+		    T.CNPT_ACTNO, 
+		    T.CNPT_ACTNM, 
+		    T.CNPT_CHARGER, 
+		    T.CNPT_YN, 
+		    T.CNPT_BRNO, 
+		    T.CNPT_RPRSV_NM, 
+		    T.CNPT_SE, 
+		    T.CMNCD_CD,
+		    T.CMNCD_NM1	
+	 	FROM
+	 	(
+		 	SELECT ROW_NUMBER() OVER (ORDER BY C.CNPT_ID DESC) RNUM,
+		 		C.CNPT_ID, 
+			    C.CNPT_NM, 
+			    C.CNPT_TEL, 
+			    C.CNPT_MAIL, 
+			    C.CNPT_ZIP, 
+			    C.CNPT_ADDR, 
+			    C.CNPT_DADDR, 
+			    C.CNPT_BANK_NM, 
+			    C.CNPT_ACTNO, 
+			    C.CNPT_ACTNM, 
+			    C.CNPT_CHARGER, 
+			    C.CNPT_YN, 
+			    C.CNPT_BRNO, 
+			    C.CNPT_RPRSV_NM, 
+			    C.CNPT_SE, 
+			    C.CMNCD_CD,
+			    D.CMNCD_NM1
+		  FROM CNPT C LEFT OUTER JOIN CMNCD D
+		 	ON (C.CMNCD_CD=D.CMNCD_CD)
+		 WHERE CNPT_YN = 'N'
+		 <if test="keyWord!=null and keyWord!=''">
+		   AND (
+			   CNPT_NM LIKE '%'||#{keyWord}||'%'
+			   OR CNPT_ACTNM LIKE '%'||#{keyWord}||'%'
+			   OR CNPT_CHARGER LIKE '%'||#{keyWord}||'%'
+		   )
+		 </if>
+	     ) T 
+    WHERE T.RNUM BETWEEN #{currentPage}*#{size}-#{size}+1 AND #{currentPage}*#{size}
+</select>
+
+<!-- 거래처 수  -->
+<!-- 행의 수 가져오기 -->
+<select id="selectYCount" parameterType="hashMap" resultType="int">
+	SELECT COUNT(*)
+	FROM   CNPT C 
+	WHERE CNPT_YN = 'Y'
+   <if test="keyWord!=null and keyWord!=''">
+	   AND (
+		   CNPT_NM LIKE '%'||#{keyWord}||'%'
+		   OR CNPT_ACTNM LIKE '%'||#{keyWord}||'%'
+		   OR CNPT_CHARGER LIKE '%'||#{keyWord}||'%'
+	   )
+   </if>
+</select>
+
+<!-- 거래처 수  -->
+<select id="selectNCount" parameterType="hashMap" resultType="int">
+	SELECT COUNT(*)
+	FROM   CNPT C 
+	WHERE CNPT_YN = 'N'
+   <if test="keyWord!=null and keyWord!=''">
+	   AND (
+		   CNPT_NM LIKE '%'||#{keyWord}||'%'
+		   OR CNPT_ACTNM LIKE '%'||#{keyWord}||'%'
+		   OR CNPT_CHARGER LIKE '%'||#{keyWord}||'%'
+	   )
+   </if>
+</select>
+
+<!-- 거래처 등록 -->
+<insert id="cnptInsert" parameterType="cnptVO">
+	<selectKey order="BEFORE" keyProperty="cnptId" resultType="string">
+		SELECT 'CNPT' || LPAD(NVL(MAX(TO_NUMBER(SUBSTR(NVL(CNPT_ID, 'CNPT00001'),5))),0)+1,4,'0') FROM CNPT
+	</selectKey>
+	INSERT INTO CNPT (
+		    CNPT_ID, 
+		    CNPT_NM, 
+		    CNPT_TEL, 
+		    CNPT_MAIL, 
+		    CNPT_ZIP, 
+		    CNPT_ADDR, 
+		    CNPT_DADDR, 
+		    CNPT_BANK_NM, 
+		    CNPT_ACTNO, 
+		    CNPT_ACTNM, 
+		    CNPT_CHARGER, 
+		    CNPT_YN, 
+		    CNPT_BRNO, 
+		    CNPT_RPRSV_NM, 
+		    CNPT_SE, 
+		    CMNCD_CD
+		    
+			) VALUES (
+			   #{cnptId},
+			   #{cnptNm},
+			   #{cnptTel},
+			   #{cnptMail},
+			   #{cnptZip},
+			   #{cnptAddr},
+			   #{cnptDaddr},
+			   #{cnptBankNm},
+			   #{cnptActno},
+			   #{cnptActnm},
+			   #{cnptCharger},
+			   'Y',
+			   #{cnptBrno},
+			   #{cnptRprsvNm},
+			   #{cnptSe},
+			   #{cmncdCd}
+			)
+</insert>
+
+<!-- 거래처 상세조회 -->
+<select id="cnptDetail" parameterType="String" resultType="cnptVO">
+	SELECT CNPT_ID, 
+		    CNPT_NM, 
+		    CNPT_TEL, 
+		    CNPT_MAIL, 
+		    CNPT_ZIP, 
+		    CNPT_ADDR, 
+		    CNPT_DADDR, 
+		    CNPT_BANK_NM, 
+		    CNPT_ACTNO, 
+		    CNPT_ACTNM, 
+		    CNPT_CHARGER, 
+		    CNPT_YN, 
+		    CNPT_BRNO, 
+		    CNPT_RPRSV_NM, 
+		    CNPT_SE, 
+		    CMNCD_CD
+	  FROM CNPT
+	  WHERE CNPT_ID = #{cnptId}
+</select>
+
+<!-- 거래처 수정 -->
+
+<!-- 기본정보 수정 -->
+<update id="updateBasic" parameterType="cnptVO">
+	UPDATE CNPT 
+		SET CNPT_NM = #{cnptNm},
+			CNPT_TEL = #{cnptTel},
+			CNPT_ZIP = #{cnptZip},
+			CNPT_ADDR = #{cnptAddr},
+			CNPT_DADDR = #{cnptDaddr},
+			CNPT_YN = #{cnptYn},
+			CNPT_BRNO = #{cnptBrno},
+			CNPT_RPRSV_NM = #{cnptRprsvNm}, 
+			CNPT_SE = #{cnptSe}, 
+			CMNCD_CD = #{cmncdCd}
+		WHERE CNPT_ID = #{cnptId}
+</update>
+
+<!-- 계좌정보 수정 -->
+<update id="updateAct" parameterType="cnptVO">
+	UPDATE CNPT 
+		SET CNPT_BANK_NM = #{cnptBankNm}, 
+		    CNPT_ACTNO = #{cnptActno}, 
+		    CNPT_ACTNM = #{cnptActnm}
+	WHERE CNPT_ID = #{cnptId}
+</update>
+
+<!-- 담당자정보 수정 -->
+<update id="updateCharger" parameterType="cnptVO">
+	UPDATE CNPT 
+		SET CNPT_CHARGER = #{cnptCharger},
+			CNPT_MAIL = #{cnptMail}
+	WHERE CNPT_ID = #{cnptId}
+</update>
+
+<!-- 거래처 삭제 - 거래여부 N으로 변경 -->
+<update id="cnptToN" parameterType="String">
+	UPDATE CNPT
+	SET CNPT_YN = 'N'
+	WHERE CNPT_ID = #{cnptId}
+</update>
+
+<!-- 거래처 거래여부 Y로 변경 -->
+<update id="cnptToY" parameterType="String">
+	UPDATE CNPT
+	SET CNPT_YN = 'Y'
+	WHERE CNPT_ID = #{cnptId}
+</update>
+
+
+<!-- 거래처 등록 시 공통코드명 뽑아내기 -->
+<select id="selectCmncdList" resultType="cmncdVO">
+	SELECT CMNCD_CD, CMNCD_NM1
+	FROM CMNCD
+	WHERE CMNCD_GU_NM = '상품분류'
+	AND CMNCD_NM2 IS NULL
+</select>
+
+<!-- 공통코드아이디로 공통코드명 가져오기 -->
+<select id="getCmncdNm" parameterType="string" resultType="string">
+	SELECT CMNCD_NM1
+	FROM CMNCD
+	WHERE CMNCD_CD = #{cmncdCd}
+</select>
+
+
+
+</mapper>
